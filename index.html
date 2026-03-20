@@ -17,7 +17,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--txt);font-family:'Zen Maru Gothic',sans-serif;min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
 
-.scene{width:100%;max-width:1200px;margin:0 auto;height:320px;position:relative;overflow:hidden;border-bottom:3px solid var(--bdr2);box-shadow:0 4px 20px rgba(0,0,0,0.12); background-color: #88aacc;}
+.scene{width:100%;max-width:1200px;margin:0 auto;height:300px;position:relative;overflow:hidden;border-bottom:3px solid var(--bdr2);box-shadow:0 4px 20px rgba(0,0,0,0.12); background-color: #88aacc;}
 .bg-layer{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center bottom;background-repeat:no-repeat;transition:background-image 0.8s ease;z-index:1;}
 
 .s-creature{position:absolute;cursor:pointer;z-index:3;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4));transition:left 2s ease-in-out, bottom 1.5s ease-in-out, filter 0.8s}
@@ -47,7 +47,8 @@ body{background:var(--bg);color:var(--txt);font-family:'Zen Maru Gothic',sans-se
 .header h1{font-size:24px;font-weight:900;color:var(--grn);text-shadow:0 1px 0 rgba(255,255,255,0.6)}
 .header .sub{font-size:10px;color:var(--dim);letter-spacing:5px}
 .main-grid{display:grid;grid-template-columns:1fr 400px;gap:16px;align-items:start}
-@media(max-width:860px){.main-grid{grid-template-columns:1fr} .scene{height:260px}}
+@media(max-width:860px){.main-grid{grid-template-columns:1fr} .scene{height:160px} .scene-time{font-size:20px;right:10px;top:10px} .s-creature.hop{animation:hop 0.6s ease-in-out infinite}}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .res-bar{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
 .res-item{display:flex;align-items:center;gap:4px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--bdr);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
 .status{background:linear-gradient(135deg,var(--card) 0%,#faf5e8 100%);border-radius:14px;padding:12px 16px;margin-bottom:10px;border:1px solid var(--bdr);box-shadow:var(--shadow)}
@@ -282,7 +283,7 @@ function drawPx(canvas, c, size, lv, forceDeco){
     const p=size/14;
     d.px.forEach(([x,y,ck])=>{
         ctx.fillStyle=d.P[ck]||ck||'#000';
-        // 中央に少し寄せるためのオフセット(xはそのまま、yは少し下げる)
+        // 中央に少し寄せるためのオフセット
         ctx.fillRect(x*p, (y+1)*p, Math.ceil(p), Math.ceil(p));
     });
 }
@@ -337,7 +338,7 @@ const CREATURES=[
    map:["     a        ","     a bbb    ","    bbbeb     ","    bbpbbbbb  ","     bbbbbbbb ","    dbbbbbbbb ","     bbbbbbbb ","     d  d  d  ","              ","              "]},
   {id:'phoenix',name:'フェニックス',tier:4,cost:{grimoire:3},fav:'wine',maxLv:8,body:'#f44424',detail:'#f4a424',acc:'#f4f424',desc:'炎を纏い何度でも蘇る不死鳥。',
    map:["       a      ","      adb     ","     bdbdb    ","    adeebda   ","  dddbbbbbddd ","  dddbbbbbddd ","    bbbbbbb   ","     d   d    ","              ","              "]},
-  {id:'babydragon',name:'ベビードラゴン',tier:5,cost:{steak:15},fav:'steak',maxLv:9,body:'#40a8c8',detail:'#d8e8f8',acc:'#206888',desc:'まだ小さいが立派なドラゴン。',
+  {id:'babydragon',name:'ベビードラゴン',tier:5,cost:{steak:15},fav:'steak',maxLv:9,body:'#40a8c8',detail:'#d8e8f8',acc:'#206888',desc:'まだ小さいが立ップなドラゴン。',
    map:["              ","   a  a       ","   abbd       ","   bwebeb     ","    bbbbb     ","   dbbbbbd    ","   dbbbbbd b  ","    bbbbb  b  ","    a   a     ","              "]},
   {id:'dragon',name:'ドラゴン',tier:5,cost:{steak:20},fav:'steak',maxLv:10,body:'#383838',detail:'#a83838',acc:'#585858',desc:'空を支配する最強のモンスター。',
    map:["   a   a      ","   abbba      ","   bwebeb     ","    bbbdbb    ","   dbbbbbbda  ","  ddbbbbbbdd  ","  d bbbbbb d  ","  d bbb b  d  ","   a     a    ","              "]},
@@ -358,7 +359,7 @@ const BG_IMAGES = {
   waterfall: { normal_day: 'bg_waterfall.jpg', normal_night: 'bg_waterfall_night.jpg', decay_day: 'bg_waterfall_decay.jpg', decay_night: 'bg_waterfall_decay_night.jpg' }
 };
 
-const SK='uf-v7';
+const SK='uf-v6';
 let D,selDate=tod(),curTab='tasks',selC=null,curStage=0,addStars=1,tipIdx=0,wanderPos={};
 
 function tod(){return new Date().toISOString().split('T')[0]}
@@ -468,7 +469,6 @@ function calcSav(){let td=0,mo=0,al=0;const m=selDate.substring(0,7);D.history.f
 function showCreaturePopup(id){
   const c=CREATURES.find(x=>x.id===id);if(!c)return;selC=id;
   const m=document.getElementById('mod');m.dataset.cid=id;const owned=!!D.creatures[id];
-  // Popupサイズアップ: 96px
   if(owned){const cd=D.creatures[id];const need=cd.lv*20;const ap=Math.min(cd.aff/need*100,100);const curStg=D.cStages[id]||'meadow';const curDeco=D.cDecos[id]!==undefined?D.cDecos[id]:cd.lv;let h=`<div class="cpop-header"><canvas id="cvPop" width="96" height="96"></canvas><div><div class="cpop-name">${c.name} ${DECOS[Object.keys(DECOS).filter(k=>curDeco>=parseInt(k)&&DECOS[k]).pop()]||''}</div><div class="cpop-desc">${c.desc}</div><div class="cpop-lv">Lv.${cd.lv}/${c.maxLv} — 好物: ${ITEMS[c.fav]?.e||''}${ITEMS[c.fav]?.n||c.fav}</div></div></div><div style="font-size:10px;color:var(--dim);text-align:left">なつき度 ${cd.aff}/${need}</div><div class="aff-bar"><div class="aff-fill" style="width:${ap}%"></div></div><div class="cpop-section"><div class="cpop-section-title">🍽 エサをあげる</div><div class="cpop-feed-grid">`;let hf=false;for(const k in D.res){if(D.res[k]>0&&ITEMS[k]){hf=true;h+=`<button class="cpop-feed-btn" onclick="feedC('${id}','${k}')">${ITEMS[k].e} ${D.res[k]}${k===c.fav?'<span class="fav-mark">★好物</span>':''}</button>`;}}if(!hf)h+=`<div style="font-size:11px;color:var(--dim)">エサがない…タスクを完了して集めよう！</div>`;h+=`</div></div><div class="cpop-section"><div class="cpop-section-title">📍 配置ステージ</div><div class="cpop-stage-sel"><select onchange="assignStage('${id}',this.value);showCreaturePopup('${id}')">${STAGES.map(s=>`<option value="${s.id}" ${curStg===s.id?'selected':''}>${s.name}</option>`).join('')}</select></div></div><div class="cpop-section"><div class="cpop-section-title">✨ 装飾</div><div class="deco-sel">`;for(const dlv in DECO_NAMES){const ln=parseInt(dlv);const ul=cd.lv>=ln;const ca=D.cDecos[id]!==undefined?D.cDecos[id]:(Object.keys(DECOS).map(Number).filter(k=>cd.lv>=k).pop()||1);h+=`<button class="deco-btn ${ul?'':'locked'} ${ca===ln?'on':''}" ${ul?`onclick="setDeco('${id}',${ln})"`:'disabled'}>${DECOS[dlv]||'—'}</button>`;}h+=`</div></div><button class="modal-close" onclick="closeMod()" style="margin-top:16px">閉じる</button>`;m.innerHTML=h;document.getElementById('modOv').classList.add('show');const cv=document.getElementById('cvPop');if(cv)drawPx(cv,c,96,cd.lv,curDeco);
   }else{
       let canBuy=false; let costHtml='';
@@ -506,7 +506,6 @@ function renderScene(){
   
   document.getElementById('bgLayer').style.backgroundImage = `url('${imgUrl}')`;
   
-  // ★ 画像ファイルをやめて絵文字（☀️ / 🌙）に変更
   const scTime = document.getElementById('scTime');
   scTime.innerHTML = isNight ? `🌙` : `☀️`;
   
@@ -528,7 +527,8 @@ function placeCreatures(){
     if(!wanderPos[id])wanderPos[id]={x:40+Math.random()*(scW-100),y:30+Math.random()*60,dir:1,moving:false};
     const c=CREATURES.find(x=>x.id===id);if(!c)return;
     const cd=D.creatures[id];
-    const sz=48+cd.lv*4;
+    // スマホベースサイズ36px
+    const sz=(window.innerWidth < 860 ? 36 : 48)+cd.lv*4;
     const e=document.createElement('div');
     const decay = isDecayMode();
     
@@ -594,14 +594,16 @@ function wanderCreatures(){
     if(!wanderPos[id])wanderPos[id]={x:100,y:40,dir:1,moving:false};
     const wp=wanderPos[id];
     const c=CREATURES.find(x=>x.id===id);
-    const isFlyer=c&&(c.map.some(r=>false)); 
     if(decay) { wp.moving = false; continue; }
     if(Math.random()<0.6){
       wp.moving=true;
       const dx=(Math.random()-0.4)*120;
       const dy=(Math.random()-0.5)*20;
       wp.x=Math.max(20,Math.min(scW-80,wp.x+dx));
-      wp.y=Math.max(10,Math.min(100,wp.y+dy));
+      // スマホy範囲調整
+      const minY = (window.innerWidth < 860 ? 5 : 10);
+      const maxY = (window.innerWidth < 860 ? 45 : 80);
+      wp.y=Math.max(minY,Math.min(maxY,wp.y+dy));
       wp.dir=dx>=0?1:-1;
     }else{
       wp.moving=false;
