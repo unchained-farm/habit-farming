@@ -497,14 +497,18 @@ function renderScene(){
   const h=new Date().getHours();
   const isNight=h>=19||h<5;
   
-  let imgUrl;
-  if(decay){
-    imgUrl = isNight ? BG_IMAGES[stg].decay_night : BG_IMAGES[stg].decay_day;
-  }else{
-    imgUrl = isNight ? BG_IMAGES[stg].normal_night : BG_IMAGES[stg].normal_day;
-  }
+  // ★夜用の画像ファイルを探さないように修正。常に「昼用」または「荒廃用」を使う！
+  let imgUrl = decay ? BG_IMAGES[stg].decay_day : BG_IMAGES[stg].normal_day;
   
-  document.getElementById('bgLayer').style.backgroundImage = `url('${imgUrl}')`;
+  const bgLayer = document.getElementById('bgLayer');
+  bgLayer.style.backgroundImage = `url('${imgUrl}')`;
+  
+  // ★コードの力で夜を表現！夜の時間は画像を暗くする
+  if(isNight) {
+      bgLayer.style.filter = 'brightness(0.45) contrast(1.1)';
+  } else {
+      bgLayer.style.filter = 'none';
+  }
   
   const scTime = document.getElementById('scTime');
   scTime.innerHTML = isNight ? `🌙` : `☀️`;
