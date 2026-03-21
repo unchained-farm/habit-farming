@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>UNCHAINED FARM v11</title>
+<title>UNCHAINED FARM v12</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap');
 :root{
@@ -18,7 +18,7 @@
 body{background:var(--bg);color:var(--txt);font-family:'Zen Maru Gothic',sans-serif;min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
 
 .scene{width:100%;max-width:1200px;margin:0 auto;height:300px;position:relative;overflow:hidden;border-bottom:3px solid var(--bdr2);box-shadow:0 4px 20px rgba(0,0,0,0.12); background-color: #88aacc;}
-.bg-layer{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center bottom;background-repeat:no-repeat;transition:background-image 0.8s ease;z-index:1;}
+.bg-layer{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center bottom;background-repeat:no-repeat;transition:background-image 0.8s ease, filter 0.8s ease;z-index:1;}
 
 .s-creature{position:absolute;cursor:pointer;z-index:3;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4));transition:left 2s ease-in-out, bottom 1.5s ease-in-out, filter 0.8s}
 .s-creature:hover{filter:drop-shadow(0 5px 10px rgba(0,0,0,0.6)) brightness(1.15);z-index:4}
@@ -207,6 +207,9 @@ body{background:var(--bg);color:var(--txt);font-family:'Zen Maru Gothic',sans-se
 <div class="toast" id="toast"></div>
 <div class="modal-ov" id="modOv" onclick="closeMod()"><div class="modal" id="mod" onclick="event.stopPropagation()"></div></div>
 
+<button id="bgmBtn" onclick="toggleBGM()" style="position:fixed; bottom:20px; left:20px; z-index:100; font-size:28px; background:none; border:none; cursor:pointer; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">🔈</button>
+<audio id="bgmAudio"></audio>
+
 <script>
 const ITEMS={bread:{e:'🍞',n:'パン',t:'food'},cheese:{e:'🧀',n:'チーズ',t:'food'},apple:{e:'🍎',n:'りんご',t:'food'},grape:{e:'🍇',n:'ぶどう',t:'food'},steak:{e:'🥩',n:'ステーキ',t:'food'},fish:{e:'🐟',n:'魚',t:'food'},corn:{e:'🌽',n:'とうもろこし',t:'food'},carrot:{e:'🥕',n:'にんじん',t:'food'},honey:{e:'🍯',n:'はちみつ',t:'food'},cake:{e:'🎂',n:'ケーキ',t:'food'},milk:{e:'🥛',n:'ミルク',t:'drink'},ale:{e:'🍺',n:'エール',t:'drink'},wine:{e:'🍷',n:'ワイン',t:'drink'},coffee:{e:'☕',n:'コーヒー',t:'drink'},juice:{e:'🧃',n:'ジュース',t:'drink'},grimoire:{e:'📜',n:'魔導書',t:'rare'},key:{e:'🗝️',n:'宝箱の鍵',t:'rare'},gem:{e:'💎',n:'魔石',t:'rare'}};
 const STAR_REWARDS={1:{items:['bread','carrot','juice'],count:1,gold:0,xp:10},2:{items:['bread','carrot','cheese','apple','milk','juice'],count:2,gold:1,xp:20},3:{items:['cheese','apple','grape','fish','corn','coffee','ale'],count:3,gold:2,xp:40},4:{items:['steak','grape','honey','wine','cake','fish','corn','coffee'],count:4,gold:4,xp:70},5:{items:['steak','honey','cake','wine','ale','grimoire','key','gem'],count:5,gold:8,xp:100}};
@@ -244,7 +247,6 @@ function mkPx(c, decoLv){
     };
     const px = [];
     
-    // 14x14 grid
     if(c.map){
         c.map.forEach((row, y) => {
             for(let x=0; x<row.length; x++){
@@ -254,16 +256,15 @@ function mkPx(c, decoLv){
         });
     }
 
-    // 14x14用の装飾配置 (中心x=7)
-    if(decoLv === 2) { // 👑 王冠
+    if(decoLv === 2) { 
         px.push([5,0,'y'],[7,0,'y'],[9,0,'y'], [5,1,'y'],[6,1,'y'],[7,1,'y'],[8,1,'y'],[9,1,'y']);
-    } else if (decoLv === 4) { // 🎩 帽子
+    } else if (decoLv === 4) { 
         px.push([6,0,'e'],[7,0,'e'],[8,0,'e'], [6,1,'e'],[7,1,'e'],[8,1,'e'], [5,2,'e'],[6,2,'e'],[7,2,'r'],[8,2,'e'],[9,2,'e']);
-    } else if (decoLv === 6) { // 🌸 桜
+    } else if (decoLv === 6) { 
         px.push([10,1,'p'],[11,0,'p'],[12,1,'p'],[11,2,'p'],[11,1,'w']);
-    } else if (decoLv === 8) { // ⭐ 星
+    } else if (decoLv === 8) { 
         px.push([11,0,'y'],[10,1,'y'],[11,1,'w'],[12,1,'y'],[11,2,'y']);
-    } else if (decoLv === 10) { // 💎 宝石
+    } else if (decoLv === 10) { 
         px.push([6,-1,'w'],[7,-1,'w'],[8,-1,'w'], [5,0,'a'],[6,0,'w'],[7,0,'a'],[8,0,'w'],[9,0,'a'], [6,1,'a'],[7,1,'a'],[8,1,'a'], [7,2,'a']);
     }
 
@@ -279,16 +280,13 @@ function drawPx(canvas, c, size, lv, forceDeco){
     ctx.imageSmoothingEnabled=false;
     const decoLv = forceDeco !== undefined ? forceDeco : lv;
     const d=mkPx(c, decoLv);
-    // 14x14グリッドとしてスケール計算
     const p=size/14;
     d.px.forEach(([x,y,ck])=>{
         ctx.fillStyle=d.P[ck]||ck||'#000';
-        // 中央に少し寄せるためのオフセット
         ctx.fillRect(x*p, (y+1)*p, Math.ceil(p), Math.ceil(p));
     });
 }
 
-// 100%全力の14x14 ASCII Art デザイン！
 const CREATURES=[
   {id:'chicken',name:'にわとり',tier:1,cost:{bread:3},fav:'corn',maxLv:5,body:'#ffffff',detail:'#e8c840',acc:'#e04020',acc2:'#f0d030',desc:'朝を告げる元気な鳥。',
    map:["              ","     aaa      ","    abwbae    ","   bbbbbcc    ","   bbbbbbb    ","   bbbbbbb b  ","   bbbbbbbbb  ","    bbbbbbb   ","     c   c    ","     c   c    "]},
@@ -338,7 +336,7 @@ const CREATURES=[
    map:["     a        ","     a bbb    ","    bbbeb     ","    bbpbbbbb  ","     bbbbbbbb ","    dbbbbbbbb ","     bbbbbbbb ","     d  d  d  ","              ","              "]},
   {id:'phoenix',name:'フェニックス',tier:4,cost:{grimoire:3},fav:'wine',maxLv:8,body:'#f44424',detail:'#f4a424',acc:'#f4f424',desc:'炎を纏い何度でも蘇る不死鳥。',
    map:["       a      ","      adb     ","     bdbdb    ","    adeebda   ","  dddbbbbbddd ","  dddbbbbbddd ","    bbbbbbb   ","     d   d    ","              ","              "]},
-  {id:'babydragon',name:'ベビードラゴン',tier:5,cost:{steak:15},fav:'steak',maxLv:9,body:'#40a8c8',detail:'#d8e8f8',acc:'#206888',desc:'まだ小さいが立ップなドラゴン。',
+  {id:'babydragon',name:'ベビードラゴン',tier:5,cost:{steak:15},fav:'steak',maxLv:9,body:'#40a8c8',detail:'#d8e8f8',acc:'#206888',desc:'まだ小さいが立派なドラゴン。',
    map:["              ","   a  a       ","   abbd       ","   bwebeb     ","    bbbbb     ","   dbbbbbd    ","   dbbbbbd b  ","    bbbbb  b  ","    a   a     ","              "]},
   {id:'dragon',name:'ドラゴン',tier:5,cost:{steak:20},fav:'steak',maxLv:10,body:'#383838',detail:'#a83838',acc:'#585858',desc:'空を支配する最強のモンスター。',
    map:["   a   a      ","   abbba      ","   bwebeb     ","    bbbdbb    ","   dbbbbbbda  ","  ddbbbbbbdd  ","  d bbbbbb d  ","  d bbb b  d  ","   a     a    ","              "]},
@@ -497,13 +495,11 @@ function renderScene(){
   const h=new Date().getHours();
   const isNight=h>=19||h<5;
   
-  // ★夜用の画像ファイルを探さないように修正。常に「昼用」または「荒廃用」を使う！
   let imgUrl = decay ? BG_IMAGES[stg].decay_day : BG_IMAGES[stg].normal_day;
   
   const bgLayer = document.getElementById('bgLayer');
   bgLayer.style.backgroundImage = `url('${imgUrl}')`;
   
-  // ★コードの力で夜を表現！夜の時間は画像を暗くする
   if(isNight) {
       bgLayer.style.filter = 'brightness(0.45) contrast(1.1)';
   } else {
@@ -531,7 +527,6 @@ function placeCreatures(){
     if(!wanderPos[id])wanderPos[id]={x:40+Math.random()*(scW-100),y:30+Math.random()*60,dir:1,moving:false};
     const c=CREATURES.find(x=>x.id===id);if(!c)return;
     const cd=D.creatures[id];
-    // スマホベースサイズ36px
     const sz=(window.innerWidth < 860 ? 36 : 48)+cd.lv*4;
     const e=document.createElement('div');
     const decay = isDecayMode();
@@ -604,7 +599,6 @@ function wanderCreatures(){
       const dx=(Math.random()-0.4)*120;
       const dy=(Math.random()-0.5)*20;
       wp.x=Math.max(20,Math.min(scW-80,wp.x+dx));
-      // スマホy範囲調整
       const minY = (window.innerWidth < 860 ? 5 : 10);
       const maxY = (window.innerWidth < 860 ? 45 : 80);
       wp.y=Math.max(minY,Math.min(maxY,wp.y+dy));
@@ -759,6 +753,39 @@ if(D.lastDate){
     if(diff>1 && D.streak>0){ D.streak=0; save(); }
 }
 renderScene(); render(); placeCreatures();
+
+const BGM_LIST = ['bgm1.mp3', 'bgm2.mp3', 'bgm3.mp3', 'bgm4.mp3', 'bgm5.mp3'];
+let curBgmIdx = 0;
+let isBgmPlaying = false;
+
+function toggleBGM() {
+    const bgmAudio = document.getElementById('bgmAudio');
+    const btn = document.getElementById('bgmBtn');
+
+    // ★音量を15%に固定！
+    bgmAudio.volume = 0.15;
+
+    if (!bgmAudio.hasAttribute('data-init')) {
+        bgmAudio.addEventListener('ended', () => {
+            curBgmIdx = (curBgmIdx + 1) % BGM_LIST.length;
+            bgmAudio.src = BGM_LIST[curBgmIdx];
+            bgmAudio.play();
+        });
+        bgmAudio.setAttribute('data-init', 'true');
+    }
+
+    if (isBgmPlaying) {
+        bgmAudio.pause();
+        btn.textContent = '🔈';
+    } else {
+        if(!bgmAudio.src || bgmAudio.src === window.location.href) {
+            bgmAudio.src = BGM_LIST[curBgmIdx];
+        }
+        bgmAudio.play();
+        btn.textContent = '🔊';
+    }
+    isBgmPlaying = !isBgmPlaying;
+}
 </script>
 </body>
 </html>
