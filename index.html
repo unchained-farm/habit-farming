@@ -362,7 +362,7 @@ const BG_IMAGES = {
 const SK='uf-v6';
 let D,selDate=tod(),curTab='tasks',selC=null,curStage=0,addStars=1,tipIdx=0,wanderPos={};
 
-function tod(){return new Date().toISOString().split('T')[0]}
+function tod(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().split('T')[0]}
 function getT(x){let c=TITLES[0];for(const t of TITLES)if(x>=t.req)c=t;return c}
 function getN(x){for(const t of TITLES)if(x<t.req)return t;return null}
 function init(){return{xp:0,streak:0,maxStreak:0,lastDate:null,days:{},tasks:[],res:{},creatures:{},cStages:{},cDecos:{},history:[],identity:'UNCHAINED',monthlyGoal:'未設定',customTips:[]}}
