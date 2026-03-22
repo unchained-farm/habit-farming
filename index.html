@@ -421,7 +421,7 @@ function doGacha(type){
     if((D.res.key||0)<1){toast('🗝️ 宝箱の鍵が足りない！');return;}
     D.res.key--;
     const r=Math.random();
-    if(r<0.15 && !D.creatures['mimic']){
+  　if(r<0.03 && !D.creatures['mimic']){
       getGachaCreature('mimic');
     }else if(r<0.4){
       const pool=CREATURES.filter(c=>!c.hidden&&c.tier<=3&&!D.creatures[c.id]);
@@ -434,7 +434,7 @@ function doGacha(type){
     if((D.res.grimoire||0)<1){toast('📜 魔導書が足りない！');return;}
     D.res.grimoire--;
     const r=Math.random();
-    if(r<0.15 && !D.creatures['bahamut']){
+    　if(r<0.03 && !D.creatures['bahamut']){
       getGachaCreature('bahamut');
     }else if(r<0.4){
       const pool=CREATURES.filter(c=>!c.hidden&&c.tier>=4&&!D.creatures[c.id]);
@@ -596,7 +596,7 @@ function wanderCreatures(){
     if(decay) { wp.moving = false; continue; }
     if(Math.random()<0.6){
       wp.moving=true;
-      const dx=(Math.random()-0.4)*120;
+      const dx=(Math.random()-0.5)*120;
       const dy=(Math.random()-0.5)*20;
       wp.x=Math.max(20,Math.min(scW-80,wp.x+dx));
       const minY = (window.innerWidth < 860 ? 5 : 10);
