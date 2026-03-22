@@ -373,7 +373,19 @@ function isDecayMode(){return D.streak === 0 && D.history.length > 0;}
 function fmtDate(ds){const t=tod();if(ds===t)return'今日';const d=new Date(ds),y=new Date(t);y.setDate(y.getDate()-1);if(ds===y.toISOString().split('T')[0])return'昨日';return`${d.getMonth()+1}/${d.getDate()}（${'日月火水木金土'[d.getDay()]}）`}
 function chgDate(o){const d=new Date(selDate);d.setDate(d.getDate()+o);const t=d.toISOString().split('T')[0];if(t<=tod()){selDate=t;render()}}
 function dayD(){if(!D.days[selDate])D.days[selDate]={};return D.days[selDate]}
-function chgStage(o){curStage=(curStage+o+STAGES.length)%STAGES.length;placeCreatures();renderScene();render();}
+function chgStage(o){
+    curStage=(curStage+o+STAGES.length)%STAGES.length;
+    placeCreatures();
+    renderScene();
+    render();
+    // BGM再生中なら曲を切り替え
+    if(isBgmPlaying){
+        const bgmAudio = document.getElementById('bgmAudio');
+        curBgmIdx = curStage % BGM_LIST.length;
+        bgmAudio.src = BGM_LIST[curBgmIdx];
+        bgmAudio.play();
+    }
+}
 
 function getAllTips(){
     const custom = (D.customTips||[]).filter(t=>t.trim());
