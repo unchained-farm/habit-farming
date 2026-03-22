@@ -771,18 +771,21 @@ let isBgmPlaying = false;
 function toggleBGM() {
     const bgmAudio = document.getElementById('bgmAudio');
     const btn = document.getElementById('bgmBtn');
+    bgmAudio.volume = 0.15; // 音量固定
 
-    // ★音量を15%に固定！
-    bgmAudio.volume = 0.15;
+    // ステージ番号とBGMを連動
+    curBgmIdx = curStage % BGM_LIST.length; 
 
-    if (!bgmAudio.hasAttribute('data-init')) {
-        bgmAudio.addEventListener('ended', () => {
-            curBgmIdx = (curBgmIdx + 1) % BGM_LIST.length;
-            bgmAudio.src = BGM_LIST[curBgmIdx];
-            bgmAudio.play();
-        });
-        bgmAudio.setAttribute('data-init', 'true');
+    if (isBgmPlaying) {
+        bgmAudio.pause();
+        btn.textContent = '🔈';
+    } else {
+        bgmAudio.src = BGM_LIST[curBgmIdx];
+        bgmAudio.play();
+        btn.textContent = '🔊';
     }
+    isBgmPlaying = !isBgmPlaying;
+}
 
     if (isBgmPlaying) {
         bgmAudio.pause();
