@@ -651,6 +651,7 @@ function renderStats(){
     const p = document.getElementById('pStats');
     if(curTab!=='stats'){p.style.display='none';return;}
     p.style.display='block';
+    
     let weeklyTasks = 0;
     const now = new Date(tod());
     for(let i=0; i<7; i++){
@@ -658,18 +659,27 @@ function renderStats(){
         const dayData = D.days[d.toISOString().split('T')[0]] || {};
         weeklyTasks += Object.values(dayData).reduce((a, b) => a + b, 0);
     }
-    p.innerHTML = `
+    
+    let html = `
     <div class="stat-box">
         <div class="stat-title">🏆 総合記録</div>
         <div class="stat-row"><span>累計経験値</span><span class="stat-val" style="color:var(--gold)">${D.xp||0} XP</span></div>
         <div class="stat-row"><span>最高連続記録</span><span class="stat-val" style="color:var(--red)">🔥 ${D.maxStreak||0} 日</span></div>
-        <div class="stat-row"><span>現在の連続記録</span><span class="stat-val" style="color:var(--red)">🔥 ${D.streak||0} 日</span></div>
     </div>
     <div class="stat-box">
-        <div class="stat-title">📈 直近7日間の完了タスク数</div>
-        <div style="text-align:center; font-size:28px; font-weight:900; color:var(--grn); margin-top:12px;">${weeklyTasks} 回</div>
-        <div style="text-align:center; font-size:11px; color:var(--dim);">バッターボックスに立ち続けた回数だ！</div>
-    </div>`;
+        <div class="stat-title">📈 タスク別 実行回数（グラフ）</div>`;
+        
+    // タスクごとの集計グラフ
+    D.tasks.forEach(t => {
+        let cnt = 0;
+        for(let d in D.days) cnt += (D.days[d][t.id]||0);
+        let pct = Math.min(cnt * 5, 100); // 20回でMAXのスケール
+        html += `<div style="font-size:11px;margin-top:6px;color:var(--dim)">${t.name} (${cnt}回)</div>
+                 <div class="xp-bar" style="background:var(--bdr)"><div class="xp-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--grn),var(--grn-l));box-shadow:none"></div></div>`;
+    });
+    
+    html += `</div>`;
+    p.innerHTML = html;
 }
 
 function renderCP(){
