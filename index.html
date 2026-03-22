@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>UNCHAINED FARM v12</title>
+<title>UNCHAINED FARM v13</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap');
 :root{
@@ -48,7 +48,6 @@ body{background:var(--bg);color:var(--txt);font-family:'Zen Maru Gothic',sans-se
 .header .sub{font-size:10px;color:var(--dim);letter-spacing:5px}
 .main-grid{display:grid;grid-template-columns:1fr 400px;gap:16px;align-items:start}
 @media(max-width:860px){.main-grid{grid-template-columns:1fr} .scene{height:160px} .scene-time{font-size:20px;right:10px;top:10px} .s-creature.hop{animation:hop 0.6s ease-in-out infinite}}
-@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .res-bar{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
 .res-item{display:flex;align-items:center;gap:4px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--bdr);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
 .status{background:linear-gradient(135deg,var(--card) 0%,#faf5e8 100%);border-radius:14px;padding:12px 16px;margin-bottom:10px;border:1px solid var(--bdr);box-shadow:var(--shadow)}
@@ -140,11 +139,20 @@ body{background:var(--bg);color:var(--txt);font-family:'Zen Maru Gothic',sans-se
 .footer button{background:none;border:none;color:var(--dimr);font-size:11px;cursor:pointer;font-family:inherit;margin:0 6px}
 .bk-row{display:flex;gap:6px;justify-content:center;margin-top:8px;flex-wrap:wrap}
 .bk-btn{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--bdr);border-radius:6px;padding:5px 12px;color:var(--dim);font-size:10px;cursor:pointer;font-family:inherit}
-
 .stat-box{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--bdr);border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
 .stat-title{font-size:12px;font-weight:700;color:var(--dim);margin-bottom:10px;border-bottom:1px solid var(--bdr);padding-bottom:6px}
 .stat-val{font-size:18px;font-weight:900;color:var(--grn);margin-bottom:6px}
 .stat-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:12px}
+
+/* --- ステージ演出 --- */
+.stage-fx { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
+.cloud-fx { position: absolute; top: 10px; width: 200%; font-size: 32px; opacity: 0.6; animation: moveCloud 40s linear infinite; text-shadow: 0 2px 4px rgba(255,255,255,0.8); }
+@keyframes moveCloud { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.forest-fx { position:absolute; top:0; left:0; width:100%; height:100%; }
+.sunbeam { position:absolute; width:150px; height:200%; background:linear-gradient(90deg, transparent, rgba(255,255,200,0.15), transparent); transform:rotate(25deg); left:20%; top:-20%; animation:beamMove 6s infinite alternate ease-in-out; }
+@keyframes beamMove { 0% { transform:rotate(25deg) translateX(-20px); opacity:0.6; } 100% { transform:rotate(25deg) translateX(20px); opacity:1; } }
+.firefly { position:absolute; width:4px; height:4px; background:#e0ff60; border-radius:50%; box-shadow:0 0 8px #e0ff60; animation:fly 4s infinite alternate ease-in-out; }
+@keyframes fly { 0% { transform:translate(0,0); opacity:0.2;} 100% { transform:translate(20px,-20px); opacity:1; } }
 </style>
 </head>
 <body>
@@ -246,7 +254,6 @@ function mkPx(c, decoLv){
         k: '#000000'
     };
     const px = [];
-    
     if(c.map){
         c.map.forEach((row, y) => {
             for(let x=0; x<row.length; x++){
@@ -256,17 +263,11 @@ function mkPx(c, decoLv){
         });
     }
 
-    if(decoLv === 2) { 
-        px.push([5,0,'y'],[7,0,'y'],[9,0,'y'], [5,1,'y'],[6,1,'y'],[7,1,'y'],[8,1,'y'],[9,1,'y']);
-    } else if (decoLv === 4) { 
-        px.push([6,0,'e'],[7,0,'e'],[8,0,'e'], [6,1,'e'],[7,1,'e'],[8,1,'e'], [5,2,'e'],[6,2,'e'],[7,2,'r'],[8,2,'e'],[9,2,'e']);
-    } else if (decoLv === 6) { 
-        px.push([10,1,'p'],[11,0,'p'],[12,1,'p'],[11,2,'p'],[11,1,'w']);
-    } else if (decoLv === 8) { 
-        px.push([11,0,'y'],[10,1,'y'],[11,1,'w'],[12,1,'y'],[11,2,'y']);
-    } else if (decoLv === 10) { 
-        px.push([6,-1,'w'],[7,-1,'w'],[8,-1,'w'], [5,0,'a'],[6,0,'w'],[7,0,'a'],[8,0,'w'],[9,0,'a'], [6,1,'a'],[7,1,'a'],[8,1,'a'], [7,2,'a']);
-    }
+    if(decoLv === 2) px.push([5,0,'y'],[7,0,'y'],[9,0,'y'], [5,1,'y'],[6,1,'y'],[7,1,'y'],[8,1,'y'],[9,1,'y']);
+    else if (decoLv === 4) px.push([6,0,'e'],[7,0,'e'],[8,0,'e'], [6,1,'e'],[7,1,'e'],[8,1,'e'], [5,2,'e'],[6,2,'e'],[7,2,'r'],[8,2,'e'],[9,2,'e']);
+    else if (decoLv === 6) px.push([10,1,'p'],[11,0,'p'],[12,1,'p'],[11,2,'p'],[11,1,'w']);
+    else if (decoLv === 8) px.push([11,0,'y'],[10,1,'y'],[11,1,'w'],[12,1,'y'],[11,2,'y']);
+    else if (decoLv === 10) px.push([6,-1,'w'],[7,-1,'w'],[8,-1,'w'], [5,0,'a'],[6,0,'w'],[7,0,'a'],[8,0,'w'],[9,0,'a'], [6,1,'a'],[7,1,'a'],[8,1,'a'], [7,2,'a']);
 
     return { px, P };
 }
@@ -378,7 +379,6 @@ function chgStage(o){
     placeCreatures();
     renderScene();
     render();
-    // BGM再生中なら曲を切り替え
     if(isBgmPlaying){
         const bgmAudio = document.getElementById('bgmAudio');
         curBgmIdx = curStage % BGM_LIST.length;
@@ -433,31 +433,32 @@ function doGacha(type){
     if((D.res.key||0)<1){toast('🗝️ 宝箱の鍵が足りない！');return;}
     D.res.key--;
     const r=Math.random();
-  　if(r<0.03 && !D.creatures['mimic']){
+    if(r<0.05 && !D.creatures['mimic']){
       getGachaCreature('mimic');
-    }else if(r<0.4){
-      const pool=CREATURES.filter(c=>!c.hidden&&c.tier<=3&&!D.creatures[c.id]);
-      if(pool.length>0){ getGachaCreature(pool[Math.floor(Math.random()*pool.length)].id); }
-      else{ giveItems(['steak','cake','ale'], 3); toast('🎁 宝箱から豪華な食料が出た！'); }
+    }else if(r<0.25){
+      const pool=CREATURES.filter(c=>!c.hidden&&c.tier<=2&&!D.creatures[c.id]);
+      if(pool.length>0) { getGachaCreature(pool[Math.floor(Math.random()*pool.length)].id); }
+      else { giveItems(['gem','grimoire','cake'], 2); toast('🎁 宝箱からレア素材が出た！'); }
     }else{
-      giveItems(['gold','gem','apple'], 2); toast('🎁 宝箱からお宝が出た！');
+      giveItems(['gold','gem','grimoire','steak','key'], 3); toast('🎁 宝箱からお宝が出た！');
     }
   }else if(type==='summon'){
     if((D.res.grimoire||0)<1){toast('📜 魔導書が足りない！');return;}
     D.res.grimoire--;
     const r=Math.random();
-    　if(r<0.03 && !D.creatures['bahamut']){
+    if(r<0.05 && !D.creatures['bahamut']){
       getGachaCreature('bahamut');
-    }else if(r<0.4){
-      const pool=CREATURES.filter(c=>!c.hidden&&c.tier>=4&&!D.creatures[c.id]);
-      if(pool.length>0){ getGachaCreature(pool[Math.floor(Math.random()*pool.length)].id); }
-      else{ giveItems(['gem','key','gold'], 3); toast('🪄 召喚陣からレアアイテムが出た！'); }
+    }else if(r<0.80){
+      const pool=CREATURES.filter(c=>!c.hidden&&c.tier>=3&&!D.creatures[c.id]);
+      if(pool.length>0) { getGachaCreature(pool[Math.floor(Math.random()*pool.length)].id); }
+      else { giveItems(['gem','key','gold'], 5); toast('🪄 召喚陣からレア素材が出た！'); }
     }else{
-      giveItems(['gold','steak','wine'], 2); toast('🪄 召喚陣からお宝が出た！');
+      giveItems(['wine','steak','cake'], 2); toast('🪄 召喚陣からお供え物が出た！');
     }
   }
   save();render();
 }
+
 function getGachaCreature(id){
   const c=CREATURES.find(x=>x.id===id);
   D.creatures[id]={lv:1,aff:0};D.cStages[id]=STAGES[curStage].id;
@@ -471,7 +472,7 @@ function giveItems(arr, count){
 }
 
 function buyC(id){const c=CREATURES.find(x=>x.id===id);if(!c||D.creatures[id])return;for(const r in c.cost)if((D.res[r]||0)<c.cost[r]){toast('素材が足りない！');return;}for(const r in c.cost)D.res[r]-=c.cost[r];D.creatures[id]={lv:1,aff:0};D.cStages[id]=STAGES[curStage].id;save();showUnlock(c);placeCreatures();render();}
-function feedC(id,food){const c=CREATURES.find(x=>x.id===id);if(!c)return;const cd=D.creatures[id];if(!cd)return;if((D.res[food]||0)<1){toast('足りない！');return;}D.res[food]--;const gain = (c.affPer || 5) * (food === c.fav ? 2 : 1);cd.aff+=gain;const needed=cd.lv*20;if(cd.aff>=needed&&cd.lv<c.maxLv){cd.lv++;cd.aff=0;toast(`${c.name}がLv${cd.lv}に！🎉`);sparkle();}else toast(`${c.name}に${ITEMS[food]?.e||food}をあげた`);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);}
+function feedC(id,food){const c=CREATURES.find(x=>x.id===id);if(!c)return;const cd=D.creatures[id];if(!cd)return;if((D.res[food]||0)<1){toast('足りない！');return;}D.res[food]--;const gain=(c.affPer||5)*(food===c.fav?2:1);cd.aff+=gain;const needed=cd.lv*20;if(cd.aff>=needed&&cd.lv<c.maxLv){cd.lv++;cd.aff=0;toast(`${c.name}がLv${cd.lv}に！🎉`);sparkle();}else toast(`${c.name}に${ITEMS[food]?.e||food}をあげた`);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);}
 function assignStage(id,stg){D.cStages[id]=stg;save();placeCreatures();render();}
 function setDeco(id,decoLv){D.cDecos[id]=parseInt(decoLv);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);}
 function calcSav(){let td=0,mo=0,al=0;const m=selDate.substring(0,7);D.history.forEach(h=>{if(h.sav>0){al+=h.sav;if(h.date.startsWith(m))mo+=h.sav;if(h.date===selDate)td+=h.sav;}});return{td,mo,al}}
@@ -490,7 +491,8 @@ function showCreaturePopup(id){
             const hv=D.res[r]||0;costHtml+=`<div class="cpop-cost-item">${ITEMS[r]?.e||'💰'} ${ITEMS[r]?.n||r} ×${v} <span class="${hv>=v?'has':'lack'}">（所持: ${hv}）</span></div>`;
           }
       }
-      let h=`<div class="cpop-header"><canvas id="cvPop" width="96" height="96" style="opacity:0.5;filter:grayscale(0.4)"></canvas><div><div class="cpop-name">${c.hidden?'???':c.name}</div><div class="cpop-desc">${c.hidden?'正体不明のモンスター。':c.desc}</div><div class="cpop-lv" style="color:var(--dim)">${tierL(c.tier)} ${!c.hidden?`— 好物: ${ITEMS[c.fav]?.e||''}${ITEMS[c.fav]?.n||c.fav}`:''}</div></div></div><div class="cpop-section"><div class="cpop-section-title">🤝 入手方法</div><div class="cpop-cost">${costHtml}</div></div>${!c.hidden ? (canBuy?`<button class="cpop-buy-btn" style="background:linear-gradient(180deg,var(--grn),#2e6a20);color:#fff" onclick="buyC('${c.id}')">🤝 手なづける！</button>`:`<button class="cpop-buy-btn" style="background:var(--bdr);color:var(--dim)" disabled>素材不足</button>`) : ''}<br><button class="modal-close" onclick="closeMod()" style="margin-top:12px">閉じる</button>`;
+      let h=`<div class="cpop-header"><canvas id="cvPop" width="96" height="96" style="opacity:0.5;filter:grayscale(0.4)"></canvas><div><div class="cpop-name">${c.hidden?'???':c.name}</div><div class="cpop-desc">${c.hidden?'正体不明のモンスター。':c.desc}</div><div class="cpop-lv" style="color:var(--dim)">${tierL(c.tier)} ${!c.hidden?`— 好物: ${ITEMS[c.fav]?.e||''}${ITEMS[c.fav]?.n||c.fav}`:''}</div></div></div><div class="cpop-section"><div class="cpop-section-title">🤝 入手方法</div><div class="cpop-cost">${costHtml}</div></div>${!c.hidden ? (canBuy?`<button class="cpop-buy-btn" style="background:linear-gradient(180deg,var(--grn),#2e6a20);color:#fff" onclick="buyC('${c.id}')">🤝 手なづける！</button>`:`<button class="cpop-buy-btn" style="background:var(--bdr);color:var(--dim)" disabled>素材不足</button>`) : ''}
+<button class="modal-close" onclick="closeMod()" style="margin-top:12px">閉じる</button>`;
       m.innerHTML=h;document.getElementById('modOv').classList.add('show');
       const cv=document.getElementById('cvPop');
       if(cv){
@@ -504,24 +506,37 @@ function showCreaturePopup(id){
 function renderScene(){
   const stg = STAGES[curStage].id;
   const decay = isDecayMode();
-  const h=new Date().getHours();
-  const isNight=h>=19||h<5;
+  const h = new Date().getHours();
+  const isNight = h >= 19 || h < 5;
   
   let imgUrl = decay ? BG_IMAGES[stg].decay_day : BG_IMAGES[stg].normal_day;
   
   const bgLayer = document.getElementById('bgLayer');
   bgLayer.style.backgroundImage = `url('${imgUrl}')`;
+  bgLayer.style.filter = isNight ? 'brightness(0.45) contrast(1.1)' : 'none';
   
-  if(isNight) {
-      bgLayer.style.filter = 'brightness(0.45) contrast(1.1)';
-  } else {
-      bgLayer.style.filter = 'none';
-  }
-  
-  const scTime = document.getElementById('scTime');
-  scTime.innerHTML = isNight ? `🌙` : `☀️`;
-  
+  document.getElementById('scTime').innerHTML = isNight ? `🌙` : `☀️`;
   document.getElementById('stgName').textContent = STAGES[curStage].name;
+
+  document.querySelectorAll('.stage-fx').forEach(e=>e.remove());
+  const sc = document.getElementById('scene');
+  
+  if (stg === 'meadow') {
+      const fx = document.createElement('div');
+      fx.className = 'stage-fx cloud-fx';
+      fx.innerHTML = '☁️　　　☁️　　　☁️　　☁️　　　☁️';
+      sc.appendChild(fx);
+  } else if (stg === 'forest') {
+      const fx = document.createElement('div');
+      fx.className = 'stage-fx forest-fx';
+      if (isNight) {
+          fx.innerHTML = '<div class="firefly" style="top:70%;left:30%"></div><div class="firefly" style="top:60%;left:70%;animation-delay:1s"></div><div class="firefly" style="top:80%;left:50%;animation-delay:2s"></div>';
+      } else {
+          fx.innerHTML = '<div class="sunbeam"></div>';
+      }
+      sc.appendChild(fx);
+  }
+
   updateCreatureDOM();
 }
 
@@ -677,15 +692,15 @@ function renderStats(){
         <div class="stat-title">🏆 総合記録</div>
         <div class="stat-row"><span>累計経験値</span><span class="stat-val" style="color:var(--gold)">${D.xp||0} XP</span></div>
         <div class="stat-row"><span>最高連続記録</span><span class="stat-val" style="color:var(--red)">🔥 ${D.maxStreak||0} 日</span></div>
+        <div class="stat-row"><span>現在の連続記録</span><span class="stat-val" style="color:var(--red)">🔥 ${D.streak||0} 日</span></div>
     </div>
     <div class="stat-box">
         <div class="stat-title">📈 タスク別 実行回数（グラフ）</div>`;
         
-    // タスクごとの集計グラフ
     D.tasks.forEach(t => {
         let cnt = 0;
         for(let d in D.days) cnt += (D.days[d][t.id]||0);
-        let pct = Math.min(cnt * 5, 100); // 20回でMAXのスケール
+        let pct = Math.min(cnt * 5, 100); 
         html += `<div style="font-size:11px;margin-top:6px;color:var(--dim)">${t.name} (${cnt}回)</div>
                  <div class="xp-bar" style="background:var(--bdr)"><div class="xp-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--grn),var(--grn-l));box-shadow:none"></div></div>`;
     });
@@ -698,8 +713,8 @@ function renderCP(){
   const p=document.getElementById('cp');
   let h=`<div class="cp-title">🏠 仲間たち（${Object.keys(D.creatures).length}/${CREATURES.length}）</div>`;
   h+=`<div style="display:flex;gap:6px;margin-bottom:12px">
-        <button class="t-btn" onclick="doGacha('chest')" style="flex:1;justify-content:center;background:linear-gradient(180deg,#fffefa,#f4ede4);border-color:#d0b080">🗝️ 宝箱を開ける</button>
-        <button class="t-btn" onclick="doGacha('summon')" style="flex:1;justify-content:center;background:linear-gradient(180deg,#fffefa,#f0eaf4);border-color:#b0a0d0">📜 魔導書で召喚</button>
+        <button class="t-btn" onclick="doGacha('chest')" style="flex:1;justify-content:center;background:linear-gradient(180deg,#fffefa,#f4ede4);border-color:#d0b080">🗝️ 宝箱 (ノーマル/素材)</button>
+        <button class="t-btn" onclick="doGacha('summon')" style="flex:1;justify-content:center;background:linear-gradient(180deg,#fffefa,#f0eaf4);border-color:#b0a0d0">📜 魔導書 (レア/魔物)</button>
       </div>`;
   h+=`<div class="cp-grid">`;
   CREATURES.forEach(c=>{
@@ -783,21 +798,14 @@ let isBgmPlaying = false;
 function toggleBGM() {
     const bgmAudio = document.getElementById('bgmAudio');
     const btn = document.getElementById('bgmBtn');
-    bgmAudio.volume = 0.15; // 音量固定
+    bgmAudio.volume = 0.15;
 
-    // ステージ番号とBGMを連動
     curBgmIdx = curStage % BGM_LIST.length; 
 
-    if (isBgmPlaying) {
-        bgmAudio.pause();
-        btn.textContent = '🔈';
-    } else {
-        bgmAudio.src = BGM_LIST[curBgmIdx];
-        bgmAudio.play();
-        btn.textContent = '🔊';
+    if (!bgmAudio.hasAttribute('data-init')) {
+        bgmAudio.loop = true; 
+        bgmAudio.setAttribute('data-init', 'true');
     }
-    isBgmPlaying = !isBgmPlaying;
-}
 
     if (isBgmPlaying) {
         bgmAudio.pause();
