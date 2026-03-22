@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>UNCHAINED FARM v14</title>
+<title>UNCHAINED FARM v15</title>
 <style>
 :root{
   --bg:#eee8db;--card:#fffefa;--card2:#f8f3ea;--bdr:#ddd4c0;--bdr2:#c8bfa8;
@@ -14,7 +14,6 @@
   --shadow:0 2px 8px rgba(40,30,10,0.08);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-/* 老眼対策：くっきりしたゴシック体に変更、ベースサイズアップ */
 body{background:var(--bg);color:var(--txt);font-family:'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent; font-size:15px;}
 
 .scene{width:100%;max-width:1200px;margin:0 auto;height:300px;position:relative;overflow:hidden;border-bottom:3px solid var(--bdr2);box-shadow:0 4px 20px rgba(0,0,0,0.12); background-color: #88aacc;}
@@ -37,6 +36,12 @@ body{background:var(--bg);color:var(--txt);font-family:'Helvetica Neue', Arial, 
 @keyframes idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 @keyframes peck{0%,100%{transform:rotate(0)}50%{transform:rotate(20deg) translateY(4px)}}
 @keyframes sniff{0%,100%{transform:translateX(0)}30%{transform:translateX(4px)}60%{transform:translateX(-4px)}}
+
+/* おしゃべり吹き出しのスタイル */
+.chatter-bubble { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); border: 1px solid var(--bdr); border-radius: 10px; padding: 6px 12px; font-size: 13px; font-weight: 900; color: var(--txt); white-space: nowrap; box-shadow: var(--shadow); pointer-events: none; z-index: 10; animation: popBubble 0.3s ease; margin-bottom: 4px; }
+.chatter-bubble::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: rgba(255,255,255,0.95); }
+@keyframes popBubble { 0% { transform: translateX(-50%) scale(0.5); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
+
 .sparkle-fx{position:absolute;pointer-events:none;font-size:24px;animation:spkUp 1.3s forwards;z-index:10}
 @keyframes spkUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(0.3)}}
 .stage-nav{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.85);border-radius:20px;padding:6px 18px;font-size:14px;font-weight:700;color:var(--txt);backdrop-filter:blur(8px);z-index:5;box-shadow:var(--shadow)}
@@ -66,13 +71,15 @@ body{background:var(--bg);color:var(--txt);font-family:'Helvetica Neue', Arial, 
 .p4-goal{font-size:13px;color:var(--txt);font-weight:700;margin-bottom:4px}
 .p4-tip{font-size:12px;color:var(--dim);font-weight:700}
 
+/* 日付のフォントを太く・見やすく変更 */
 .date-nav{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,var(--card),var(--card2));border-radius:10px;padding:8px 14px;margin-bottom:10px;border:1px solid var(--bdr);box-shadow:var(--shadow)}
 .date-nav button{background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:4px 10px}
 .date-nav button:disabled{opacity:.2}
-.d-main{font-size:16px;font-weight:700}.d-sub{font-size:12px;color:var(--dim)}
+.d-main{font-size:18px;font-weight:900}.d-sub{font-size:14px;color:var(--dim);font-weight:700}
 .past-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .past-badge{font-size:12px;color:var(--gold);background:var(--gold-bg);border:1px solid rgba(184,133,24,0.2);border-radius:4px;padding:4px 10px;font-weight:700}
 .btn-today{background:var(--gold-bg);border:1px solid var(--gold);border-radius:5px;padding:4px 12px;color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+
 .tabs{display:flex;gap:6px;margin-bottom:12px}
 .tab{flex:1;padding:10px 0;border-radius:8px;border:1px solid var(--bdr);cursor:pointer;font-size:14px;font-weight:700;font-family:inherit;background:linear-gradient(180deg,var(--card),var(--card2));color:var(--dim);transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 .tab.on{background:linear-gradient(180deg,var(--grn),#2e6a20);color:#fff;border-color:var(--grn);box-shadow:0 2px 6px rgba(62,133,48,0.3)}
@@ -153,8 +160,6 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 
 /* --- ステージ演出 --- */
 .stage-fx { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
-.cloud-fx { position: absolute; top: 10px; width: 200%; font-size: 32px; opacity: 0.6; animation: moveCloud 40s linear infinite; text-shadow: 0 2px 4px rgba(255,255,255,0.8); }
-@keyframes moveCloud { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 .forest-fx { position:absolute; top:0; left:0; width:100%; height:100%; }
 .sunbeam { position:absolute; width:150px; height:200%; background:linear-gradient(90deg, transparent, rgba(255,255,200,0.15), transparent); transform:rotate(25deg); left:20%; top:-20%; animation:beamMove 6s infinite alternate ease-in-out; }
 @keyframes beamMove { 0% { transform:rotate(25deg) translateX(-20px); opacity:0.6; } 100% { transform:rotate(25deg) translateX(20px); opacity:1; } }
@@ -295,7 +300,6 @@ function drawPx(canvas, c, size, lv, forceDeco){
     });
 }
 
-// 新キャラ追加（亀、ホビット、ドワーフ、エルフ、巨人、リヴァイアサン）
 const CREATURES=[
   {id:'chicken',name:'にわとり',tier:1,cost:{bread:3},fav:'corn',maxLv:5,body:'#ffffff',detail:'#e8c840',acc:'#e04020',acc2:'#f0d030',desc:'朝を告げる元気な鳥。',
    map:["              ","     aaa      ","    abwbae    ","   bbbbbcc    ","   bbbbbbb    ","   bbbbbbb b  ","   bbbbbbbbb  ","    bbbbbbb   ","     c   c    ","     c   c    "]},
@@ -360,7 +364,7 @@ const CREATURES=[
   {id:'mimic',name:'ミミック',tier:4,cost:{},fav:'steak',maxLv:8,body:'#a85838',detail:'#f4d448',acc:'#483828',hidden:true,desc:'宝箱に擬態する恐ろしい罠。',
    map:["              ","              ","   aaaaaaa    ","   abbbwba    ","   addddda    ","   awwwbwa    ","   addddda    ","   aaaaaaa    ","              ","              "]},
   {id:'bahamut',name:'バハムート',tier:5,cost:{},fav:'wine',maxLv:10,body:'#382858',detail:'#8848a8',acc:'#d8d8f8',hidden:true,desc:'神話に語られる伝説の暗黒竜。',
-   map:["    a   a     ","    b   b     ","   bbaabb     ","   dweewbd    ","   dbbbbbd    ","   ddbbbdd b  ","   d bbb d b  ","    a   a     ","              ","              "]},
+   map:["    a   a     ","    b   b     ","   bbaaabb     ","   dweewbd    ","   dbbbbbd    ","   ddbbbdd b  ","   d bbb d b  ","    a   a     ","              ","              "]},
   {id:'leviathan',name:'リヴァイアサン',tier:5,cost:{},fav:'fish',maxLv:10,body:'#2060a0',detail:'#60a0e0',acc:'#80e0ff',hidden:true,desc:'海を統べる巨大な水竜。',
    map:["     a        ","    aba       ","   dbweb      ","   bbbbb      ","    bbbbbb a  ","     bbbbbbd  ","    bbbbb  a  ","  aabbb       ","              ","              "]},
   {id:'giant',name:'巨人',tier:5,cost:{},fav:'steak',maxLv:10,body:'#d0a080',detail:'#806050',acc:'#403020',hidden:true,desc:'山のように巨大な人型の魔物。',
@@ -442,7 +446,20 @@ function pickInit(id){
     toast('相棒が決まったぜ！');
 }
 
-// ラベル入力追加
+// ★既存タスクのラベル編集機能
+function editTaskLabel(id){
+    const t = D.tasks.find(x => x.id === id);
+    if(!t) return;
+    const newLbl = prompt(`「${t.name}」の新しいラベルを入力してくれ！\n（空欄にすると「未分類」になるぞ）`, t.label || '未分類');
+    if(newLbl !== null) {
+        t.label = newLbl.trim() || '未分類';
+        save();
+        render();
+        toast('ラベルを変更したぜ！');
+    }
+}
+
+// タスク追加
 function addTask(){
     const inp=document.getElementById('addInp');
     const name=inp.value.trim();
@@ -470,10 +487,9 @@ function modTask(id,act){
     dd[id]=cur+1;xpD=rew.xp;
     const wasDecay = isDecayMode();
     
-    // 【修正】荒廃から1タスクで即復活！
     if(selDate===tod()){
       if (wasDecay) {
-          D.streak = 1; // 強制的にストリーク1にして復活
+          D.streak = 1;
           D.lastDate = tod();
       } else if(D.lastDate!==tod()){
         const l=D.lastDate?new Date(D.lastDate):null,n=new Date(tod());
@@ -593,12 +609,8 @@ function renderScene(){
   document.querySelectorAll('.stage-fx').forEach(e=>e.remove());
   const sc = document.getElementById('scene');
   
-  if (stg === 'meadow') {
-      const fx = document.createElement('div');
-      fx.className = 'stage-fx cloud-fx';
-      fx.innerHTML = '☁️　　　☁️　　　☁️　　☁️　　　☁️';
-      sc.appendChild(fx);
-  } else if (stg === 'forest') {
+  // 雲はいったん保留で削除
+  if (stg === 'forest') {
       const fx = document.createElement('div');
       fx.className = 'stage-fx forest-fx';
       if (isNight) {
@@ -627,7 +639,6 @@ function placeCreatures(){
     const c=CREATURES.find(x=>x.id===id);if(!c)return;
     const cd=D.creatures[id];
     
-    // 巨大キャラ判定（1.8倍）
     const isGiant = ['bahamut', 'leviathan', 'giant'].includes(c.id);
     const sz = ((window.innerWidth < 860 ? 36 : 48) + cd.lv * 4) * (isGiant ? 1.8 : 1);
     
@@ -714,6 +725,62 @@ function wanderCreatures(){
 }
 setInterval(wanderCreatures,2500);
 
+// ★定期的におしゃべり（通知）させる機能
+function chatterCreatures() {
+    if(isDecayMode()) return;
+    const sc = document.getElementById('scene');
+    const creatures = Array.from(sc.querySelectorAll('.s-creature'));
+    if(creatures.length === 0) return;
+    if(sc.querySelector('.chatter-bubble')) return; // すでに吹き出しがあったらパス
+    
+    // 画面内にいるやつをランダムに1体選ぶ
+    const target = creatures[Math.floor(Math.random() * creatures.length)];
+    
+    let msg = "";
+    const dd = dayD();
+    const tasks = D.tasks;
+    if(tasks.length === 0) {
+        msg = "タスクを追加しようぜ！";
+    } else {
+        const uncompleted = tasks.filter(t => (dd[t.id] || 0) === 0);
+        
+        // 過去3日やってないタスクを探す
+        let longIgnored = null;
+        for(let t of tasks) {
+            let doneCount = 0;
+            for(let i=0; i<3; i++) {
+                const dStr = new Date(new Date(tod()).getTime() - i*86400000).toISOString().split('T')[0];
+                if((D.days[dStr] && D.days[dStr][t.id]) > 0) doneCount++;
+            }
+            if(doneCount === 0) {
+                longIgnored = t;
+                break;
+            }
+        }
+
+        if(uncompleted.length === 0) {
+            const msgs = ["今日のタスク完璧だな！", "筋肉喜んでるぜ！", "砂糖と小麦は毒だぞ！", "UNCHAINEDな1日だな！", "バキバキの身体作ろうぜ！", "今日も1440分を大事に！"];
+            msg = msgs[Math.floor(Math.random()*msgs.length)];
+        } else if (longIgnored && Math.random() < 0.4) {
+            msg = `最近「${longIgnored.name}」やってないな？`;
+        } else {
+            const t = uncompleted[Math.floor(Math.random() * uncompleted.length)];
+            const msgs = [`「${t.name}」まだやってないぞ！`, `バッターボックスに立とう！`, `60点でいいから「${t.name}」出せ！`, `とりあえず2分だけ「${t.name}」やらないか？`, `1%だけでも「${t.name}」進めようぜ！`];
+            msg = msgs[Math.floor(Math.random()*msgs.length)];
+        }
+    }
+    
+    const bubble = document.createElement('div');
+    bubble.className = 'chatter-bubble';
+    bubble.textContent = msg;
+    target.appendChild(bubble);
+    
+    setTimeout(() => {
+        if(bubble.parentNode) bubble.remove();
+    }, 4000); // 4秒で消える
+}
+setInterval(chatterCreatures, 8000); // 8秒に1回判定
+
 function render(){
   const ti=getT(D.xp||0),ni=getN(D.xp||0),pct=ni?((D.xp-ti.req)/(ni.req-ti.req))*100:100;
   document.getElementById('sLv').textContent='Lv.'+ti.lv;document.getElementById('sTi').textContent=ti.name;document.getElementById('sTi').style.color=ti.lv>=7?'var(--gold)':'';
@@ -740,7 +807,6 @@ function render(){
   renderTasks();renderCP();renderLog();renderStats();
 }
 
-// ラベルのアコーディオン表示を追加
 function renderTasks(){
   const p=document.getElementById('pTasks');if(curTab!=='tasks'){p.style.display='none';return;}p.style.display='block';
   const dd=D.days[selDate]||{};
@@ -751,7 +817,6 @@ function renderTasks(){
   } else {
       h='<div style="font-size:11px;color:var(--dim);margin-bottom:8px;font-weight:700">タップで完了 ／ −で取り消し</div>';
       
-      // ラベルごとにグループ化
       const grouped = {};
       D.tasks.forEach(t => {
           const l = t.label || '未分類';
@@ -759,14 +824,14 @@ function renderTasks(){
           grouped[l].push(t);
       });
 
-      // アコーディオン（details/summary）で描画
       for(const label in grouped) {
           h += `<details class="label-group" open><summary class="label-title">${label} (${grouped[label].length})</summary><div class="label-content">`;
           grouped[label].forEach(t => {
               const cnt=dd[t.id]||0;const done=cnt>0;const chk=cnt>1?'×'+cnt:cnt===1?'✓':'';
               const rew=STAR_REWARDS[t.stars]||STAR_REWARDS[1];
               const rs=rew.items.slice(0,rew.count).map(i=>ITEMS[i]?.e||'').join('')+(rew.gold?'💰':'');
-              h+=`<div class="t-row"><button class="t-btn ${done?'done':''}" onclick="modTask('${t.id}','add')"><div class="t-chk">${chk}</div><div style="flex:1"><div class="t-name">${t.name}${t.sav?` (¥${t.sav})`:''}</div></div><div class="t-stars">${'★'.repeat(t.stars)}</div><div class="t-rew">${done?'+'+rew.xp*cnt:rs}</div></button>${cnt>0?`<button class="minus-btn" onclick="modTask('${t.id}','remove')">−</button>`:''}<button class="minus-btn" onclick="if(confirm('削除？'))rmTask('${t.id}')" style="color:var(--red);font-size:14px">✕</button></div>`;
+              // ★ここに「🏷️」のラベル変更ボタンを追加
+              h+=`<div class="t-row"><button class="t-btn ${done?'done':''}" onclick="modTask('${t.id}','add')"><div class="t-chk">${chk}</div><div style="flex:1"><div class="t-name">${t.name}${t.sav?` (¥${t.sav})`:''}</div></div><div class="t-stars">${'★'.repeat(t.stars)}</div><div class="t-rew">${done?'+'+rew.xp*cnt:rs}</div></button><button class="minus-btn" onclick="editTaskLabel('${t.id}')" style="font-size:14px" title="ラベル変更">🏷️</button>${cnt>0?`<button class="minus-btn" onclick="modTask('${t.id}','remove')">−</button>`:''}<button class="minus-btn" onclick="if(confirm('削除？'))rmTask('${t.id}')" style="color:var(--red);font-size:14px" title="削除">✕</button></div>`;
           });
           h += `</div></details>`;
       }
@@ -898,7 +963,7 @@ if(D.lastDate){
 renderScene(); 
 render(); 
 placeCreatures();
-checkInitSpawn(); // 初期キャラ選択の呼び出しを追加
+checkInitSpawn();
 
 const BGM_LIST = ['bgm1.mp3', 'bgm2.mp3', 'bgm3.mp3', 'bgm4.mp3', 'bgm5.mp3'];
 let curBgmIdx = 0;
