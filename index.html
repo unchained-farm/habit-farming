@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>UNCHAINED FARM v20</title>
+<title>UNCHAINED FARM v21</title>
 <style>
 :root{
   --bg:#eee8db;--card:#fffefa;--card2:#f8f3ea;--bdr:#ddd4c0;--bdr2:#c8bfa8;
@@ -184,14 +184,13 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .alch-item.sel { border-color: var(--gold); background: var(--gold-bg); box-shadow: 0 0 0 2px var(--gold-l); }
 .alch-item:hover { border-color: var(--grn-l); }
 
-/* --- チュートリアル用 --- */
-.tut-overlay { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 16px 20px; border-radius: 12px; z-index: 9999; font-weight: 900; font-size: 14px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: none; animation: popBubble 0.3s ease; width: 90%; max-width: 400px; pointer-events: auto !important; }
-.tut-overlay.show { display: block; }
-.tut-overlay button { margin-top: 12px; padding: 8px 16px; border-radius: 6px; border: none; background: var(--grn); color: #fff; font-weight: 900; cursor: pointer; font-size: 14px; pointer-events: auto !important;}
-.tut-overlay .skip { background: transparent; color: #ccc; border: 1px solid #777; margin-left: 8px; }
-.tut-highlight { position: relative; z-index: 9998 !important; box-shadow: 0 0 0 4px var(--gold-l), 0 0 20px rgba(0,0,0,0.6) !important; pointer-events: auto !important; border-radius: inherit; background: var(--card) !important; animation: pulseHL 1.5s infinite; }
-.tut-block { pointer-events: none; }
-@keyframes pulseHL { 0% { box-shadow: 0 0 0 0 rgba(240,208,96,0.7); } 70% { box-shadow: 0 0 0 10px rgba(240,208,96,0); } 100% { box-shadow: 0 0 0 0 rgba(240,208,96,0); } }
+/* --- チュートリアル用 (操作ブロック廃止、下部バナーのみ) --- */
+.tut-banner { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(30,30,30,0.95); color: #fff; padding: 14px 20px; border-radius: 12px; z-index: 9999; font-weight: 700; font-size: 14px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.4); display: none; animation: popBubble 0.3s ease; width: 90%; max-width: 400px; pointer-events: auto; border: 1px solid var(--gold); }
+.tut-banner.show { display: block; }
+.tut-banner button { margin-top: 10px; padding: 6px 12px; border-radius: 6px; border: none; background: var(--gold); color: #fff; font-weight: 900; cursor: pointer; font-size: 13px; }
+.tut-banner .skip { background: transparent; color: #aaa; border: 1px solid #777; margin-left: 8px; }
+.tut-highlight { position: relative; z-index: 10 !important; box-shadow: 0 0 0 4px var(--gold-l) !important; animation: pulseHL 1.5s infinite; border-radius: inherit;}
+@keyframes pulseHL { 0% { box-shadow: 0 0 0 0 rgba(240,208,96,0.7); } 70% { box-shadow: 0 0 0 8px rgba(240,208,96,0); } 100% { box-shadow: 0 0 0 0 rgba(240,208,96,0); } }
 </style>
 </head>
 <body>
@@ -270,10 +269,12 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 
     </div>
   </div>
-</div> <div class="toast" id="toast"></div>
+</div>
+
+<div class="toast" id="toast"></div>
 <div class="modal-ov no-select" id="modOv" onclick="closeMod()"><div class="modal" id="mod" onclick="event.stopPropagation()"></div></div>
 
-<div id="tutOverlay" class="tut-overlay no-select"></div>
+<div id="tutBanner" class="tut-banner no-select"></div>
 
 <button class="no-select" id="bgmBtn" onclick="toggleBGM()" style="position:fixed; bottom:20px; left:20px; z-index:100; font-size:28px; background:none; border:none; cursor:pointer; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">🔈</button>
 <audio id="bgmAudio"></audio>
@@ -299,29 +300,9 @@ function shadeColor(color, percent) {
 }
 
 function mkPx(c, decoLv){
-    const P = {
-        b: c.body, 
-        d: c.detail || shadeColor(c.body, -30),
-        l: shadeColor(c.body, 30),
-        a: c.acc || '#ffffff',
-        c: c.acc2 || '#555555',
-        e: '#222222', 
-        w: '#ffffff', 
-        p: '#ffa0b0', 
-        r: '#e04040', 
-        y: '#f0d040', 
-        g: '#888888',
-        k: '#000000'
-    };
+    const P = { b: c.body, d: c.detail || shadeColor(c.body, -30), l: shadeColor(c.body, 30), a: c.acc || '#ffffff', c: c.acc2 || '#555555', e: '#222222', w: '#ffffff', p: '#ffa0b0', r: '#e04040', y: '#f0d040', g: '#888888', k: '#000000' };
     const px = [];
-    if(c.map){
-        c.map.forEach((row, y) => {
-            for(let x=0; x<row.length; x++){
-                let char = row[x];
-                if(char !== ' ') px.push([x, y, char]);
-            }
-        });
-    }
+    if(c.map){ c.map.forEach((row, y) => { for(let x=0; x<row.length; x++){ let char = row[x]; if(char !== ' ') px.push([x, y, char]); } }); }
     if(decoLv === 2) px.push([5,0,'y'],[7,0,'y'],[9,0,'y'], [5,1,'y'],[6,1,'y'],[7,1,'y'],[8,1,'y'],[9,1,'y']);
     else if (decoLv === 4) px.push([6,0,'e'],[7,0,'e'],[8,0,'e'], [6,1,'e'],[7,1,'e'],[8,1,'e'], [5,2,'e'],[6,2,'e'],[7,2,'r'],[8,2,'e'],[9,2,'e']);
     else if (decoLv === 6) px.push([10,1,'p'],[11,0,'p'],[12,1,'p'],[11,2,'p'],[11,1,'w']);
@@ -340,81 +321,44 @@ function drawPx(canvas, c, size, lv, forceDeco){
     const decoLv = forceDeco !== undefined ? forceDeco : lv;
     const d=mkPx(c, decoLv);
     const p=size/14;
-    d.px.forEach(([x,y,ck])=>{
-        ctx.fillStyle=d.P[ck]||ck||'#000';
-        ctx.fillRect(x*p, (y+1)*p, Math.ceil(p), Math.ceil(p));
-    });
+    d.px.forEach(([x,y,ck])=>{ ctx.fillStyle=d.P[ck]||ck||'#000'; ctx.fillRect(x*p, (y+1)*p, Math.ceil(p), Math.ceil(p)); });
 }
 
 const CREATURES=[
-  {id:'chicken',name:'にわとり',tier:1,cost:{bread:3},fav:'corn',maxLv:5,body:'#ffffff',detail:'#e8c840',acc:'#e04020',acc2:'#f0d030',desc:'朝を告げる元気な鳥。',
-   map:["              ","     aaa      ","    abwbae    ","   bbbbbcc    ","   bbbbbbb    ","   bbbbbbb b  ","   bbbbbbbbb  ","    bbbbbbb   ","     c   c    ","     c   c    "]},
-  {id:'rabbit',name:'うさぎ',tier:1,cost:{carrot:5},fav:'carrot',maxLv:5,body:'#fdf4e3',detail:'#f0d0c0',desc:'もふもふの可愛い生き物。',
-   map:["    b   b     ","    b   b     ","    b   b     ","   bbbbbbb    ","   bwebewb    ","   bbpbbbb    ","   bbbbbbb    ","   bbbbbbb b  ","   bbbbbbb b  ","    b   b     "]},
-  {id:'cat',name:'ねこ',tier:1,cost:{fish:3},fav:'fish',maxLv:5,body:'#888888',detail:'#555555',desc:'自由気ままなハンター。',
-   map:["              ","   b     b    ","   bbbbbbb    ","   bwebebw    ","    bbpbb  b  ","   bbbbbbb b  ","   bbbbbbb b  ","   bbbbbbb    ","    b   b     ","              "]},
-  {id:'dog',name:'いぬ',tier:1,cost:{steak:2},fav:'steak',maxLv:5,body:'#c89b5c',detail:'#8a5030',desc:'忠実な人間の良き友。',
-   map:["              ","    bbbbb     ","   dbbbbbd    ","   dbebebd    ","   dbbpbbd    ","    bbbbb  b  ","   bbbbbbb b  ","   bbbbbbb    ","    b   b     ","              "]},
-  {id:'sheep',name:'ひつじ',tier:1,cost:{bread:5},fav:'bread',maxLv:5,body:'#f4f4ec',detail:'#333333',desc:'ふわふわの毛に包まれている。',
-   map:["              ","    bbbbb     ","   bbbbbbb    ","   ddededd    ","  bbbbbbbbb   ","  bbbbbbbbb   ","  bbbbbbbbb   ","   bbbbbbb    ","    d   d     ","    d   d     "]},
-  {id:'pig',name:'ぶた',tier:1,cost:{corn:4},fav:'apple',maxLv:5,body:'#fba3a3',detail:'#e08080',desc:'よく食べる食いしん坊。',
-   map:["              ","    b   b     ","    bbbbb     ","    bebeb     ","   bbpdpbb    ","   bbbbbbb b  ","   bbbbbbbbb  ","    bbbbb     ","    d   d     ","              "]},
-  {id:'slime',name:'スライム',tier:1,cost:{juice:3},fav:'juice',maxLv:5,body:'#5ec4e8',detail:'#2a90b4',desc:'ぷるぷる動く不思議なゼリー。',
-   map:["              ","              ","              ","      b       ","    bbbbb     ","   blbeblb    ","   bbbbbbbb   ","  bbbbbbbbbb  "," dbbbbbbbbd   ","   dddddddd   "]},
-  {id:'cow',name:'うし',tier:2,cost:{corn:8},fav:'corn',maxLv:6,body:'#ffffff',detail:'#303030',acc:'#ffb0c0',desc:'のんびり草を食べる。',
-   map:["              ","   d     d    ","   bbbbbbb    ","   bbedebb    ","   bbabbbb    ","  bbdbbbbbbb  ","  bbbbdbbbbb  ","  bbbbbbdbbb  ","   d   d  d   ","              "]},
-  {id:'horse',name:'うま',tier:2,cost:{apple:8},fav:'apple',maxLv:6,body:'#8a5030',detail:'#402010',desc:'風のように野を駆ける。',
-   map:["    d d       ","    dbbbb     ","    dbweb     ","    bbbbbb    ","     bbbbbbbb ","     bbbbbbbb ","     bbbbbbbb ","     d  d  d  ","              ","              "]},
-  {id:'deer',name:'しか',tier:2,cost:{grape:6},fav:'grape',maxLv:6,body:'#c08040',detail:'#f0e0b0',desc:'立派なツノを持つ森の住人。',
-   map:["   d     d    ","   d     d    ","    bbbbb     ","    bebeb     ","   bbbbbbbbb  ","   bbldlbbbb  ","    bbbbb     ","    d   d     ","              ","              "]},
-  {id:'fox',name:'きつね',tier:2,cost:{fish:6},fav:'fish',maxLv:6,body:'#e87820',detail:'#ffffff',desc:'賢くてイタズラ好き。',
-   map:["              ","   b     b    ","   bbbbbbb    ","   bbebebb    ","   ddbbbdd    ","   ddbbbdd b  ","    bbbbb db  ","    bbbbb  d  ","    d   d     ","              "]},
-  {id:'owl',name:'ふくろう',tier:2,cost:{coffee:5},fav:'coffee',maxLv:6,body:'#8a6040',detail:'#d0b080',acc:'#f0d030',desc:'夜の森を静かに見守る。',
-   map:["              ","   b     b    ","   dbbbbbd    ","   dweewbd    ","   dbbabbd    ","   dbbbbbd    ","   bdbbbdb    ","   bbbbbbb    ","    d   d     ","              "]},
-  {id:'mushroom',name:'キノコ族',tier:2,cost:{bread:6},fav:'honey',maxLv:6,body:'#e0c890',detail:'#e03030',acc:'#ffffff',desc:'歩く不思議なキノコ。',
-   map:["              ","    ddddd     ","   daadadd    ","   dddaddd    ","   daaddad    ","    bbbbb     ","    bebeb     ","    bbbbb     ","    bbbbb     ","    b   b     "]},
-  {id:'turtle',name:'亀',tier:2,cost:{fish:8},fav:'fish',maxLv:6,body:'#509050',detail:'#306030',acc:'#80a060',desc:'硬い甲羅を持つ長寿の生き物。',
-   map:["              ","              ","    bbbbb     ","   bdddddb    ","   ddddddd    ","  bbdddddbb   ","  bbaaaaabb   ","    b   b     ","    d   d     ","              "]},
-  {id:'hobbit',name:'ホビット',tier:2,cost:{bread:10},fav:'ale',maxLv:6,body:'#f0d0b0',detail:'#a06040',acc:'#40a040',desc:'陽気で食べるのが大好きな小人。',
-   map:["              ","    ddddd     ","    bbbbb     ","    bwebe     ","    bbpbb     ","     aaa      ","    aaaaa     ","     aaa      ","    d   d     ","              "]},
-  {id:'wolf',name:'おおかみ',tier:3,cost:{steak:10},fav:'steak',maxLv:7,body:'#707880',detail:'#b0b8c0',desc:'群れで狩りをする誇り高き獣。',
-   map:["              ","   b     b    ","   bbbbbbb    ","   bwebebw    ","    bbbbb     ","    bbbbbb b  ","    bbbbbb b  ","    bbbbbb    ","    d   d     ","              "]},
-  {id:'eagle',name:'おおわし',tier:3,cost:{fish:8},fav:'fish',maxLv:7,body:'#5a3a20',detail:'#e0e0e0',acc:'#f0d030',desc:'空の王様。目がとても良い。',
-   map:["              ","              ","    ddddd     ","   ddebadd    ","  bdddddd b   "," bbbbbbbbbb   ","   bbbbbb     ","    bbb       ","    a a       ","              "]},
-  {id:'bear',name:'くま',tier:3,cost:{honey:8},fav:'honey',maxLv:7,body:'#6a4020',detail:'#c09060',desc:'力持ちでハチミツが大好き。',
-   map:["              ","   b     b    ","   bbbbbbb    ","   bbebebb    ","   bbdbdbb    ","   bbbbbbbb   ","   bbbbbbbb   ","   bbbbbbbb   ","    b   b     ","              "]},
-  {id:'goblin',name:'ゴブリン',tier:3,cost:{ale:6},fav:'ale',maxLv:7,body:'#50a050',detail:'#306030',acc:'#604030',desc:'洞窟に住むイタズラ小鬼。',
-   map:["              ","    bbbbb     ","   bbwbebw    ","    bbbbb     ","   dbbabab    ","   ddbbbdd    ","     bbb      ","     b b      ","     b b      ","              "]},
-  {id:'fairy',name:'妖精',tier:3,cost:{cake:5},fav:'cake',maxLv:7,body:'#ffc0c0',detail:'#a0e0ff',acc:'#ffeb5c',desc:'キラキラ光る小さな妖精。',
-   map:["              ","      a       ","     bbb      ","    bbebb     ","     bwb      ","   ddbbbdd    ","   ddbbbdd    ","     bbb      ","     b b      ","              "]},
-  {id:'skeleton',name:'スケルトン',tier:3,cost:{coffee:6},fav:'coffee',maxLv:7,body:'#f4f4f4',detail:'#444444',desc:'カタカタ鳴る骨だけの魔物。',
-   map:["              ","    bbbbb     ","    bdbdb     ","    bbdbb     ","     bbb      ","   bbdbdbb    ","   bbdbdbb    ","     bbb      ","    db bd     ","              "]},
-  {id:'dwarf',name:'ドワーフ',tier:3,cost:{ale:10},fav:'ale',maxLv:7,body:'#f0c0a0',detail:'#805040',acc:'#808080',desc:'頑強で酒好きな地下の職人。',
-   map:["              ","    ddddd     ","    bbbbb     ","    bwebe     ","    ddddd     ","   addddda    ","   addddda    ","    ddddd     ","    b   b     ","              "]},
-  {id:'troll',name:'トロル',tier:4,cost:{steak:12},fav:'steak',maxLv:8,body:'#6a8a5c',detail:'#405a30',acc:'#8a7a60',desc:'巨体で怪力を持つ森の主。',
-   map:["              ","    bbbbbb    ","    bdwdbb    ","   bbbpbbb    ","   bbbpbbbb   ","    bbbbbbb   ","    bbbbbbb   ","    bbbbbbb   ","   a a a a    ","              "]},
-  {id:'orc',name:'オーク',tier:4,cost:{steak:10},fav:'steak',maxLv:8,body:'#5a9a5a',detail:'#3a6a3a',acc:'#f4f4d4',desc:'好戦的な猪頭の戦士。',
-   map:["              ","    bbbbb     ","    brbrb     ","    bapab     ","     bbb      ","  abbbbbbb a  ","  ddbbbbbdd   ","    bbbbb     ","    b   b     ","              "]},
-  {id:'griffin',name:'グリフォン',tier:4,cost:{steak:10},fav:'steak',maxLv:8,body:'#d0a040',detail:'#e4d4b4',acc:'#ffffff',desc:'鷲の頭と獅子の体を持つ幻獣。',
-   map:["   bbb        ","   bwebbb     ","   bbbbbbbb   ","   dbbbbbbd   ","  adbbbbbbda  ","  adbbbbbbda  ","   bbbbbbbb   ","   d  d  d    ","              ","              "]},
-  {id:'unicorn',name:'ユニコーン',tier:4,cost:{cake:8},fav:'cake',maxLv:8,body:'#f8f8ff',detail:'#d4e4ff',acc:'#f4d440',desc:'額に美しい角を持つ聖なる獣。',
-   map:["     a        ","     a bbb    ","    bbbeb     ","    bbpbbbbb  ","     bbbbbbbb ","    dbbbbbbbb ","     bbbbbbbb ","     d  d  d  ","              ","              "]},
-  {id:'phoenix',name:'フェニックス',tier:4,cost:{grimoire:3},fav:'wine',maxLv:8,body:'#f44424',detail:'#f4a424',acc:'#f4f424',desc:'炎を纏い何度でも蘇る不死鳥。',
-   map:["       a      ","      adb     ","     bdbdb    ","    adeebda   ","  dddbbbbbddd ","  dddbbbbbddd ","    bbbbbbb   ","     d   d    ","              ","              "]},
-  {id:'elf',name:'エルフ',tier:4,cost:{},fav:'wine',maxLv:8,body:'#f0d0b0',detail:'#40a040',acc:'#e0c040',hidden:true,desc:'森の奥深くで生きる美しき種族。',
-   map:["              ","    dbbbd     ","   bbbbbbb    ","   dbwebbd    ","    bbpbb     ","     ddd      ","    ddddd     ","     ddd      ","    b   b     ","              "]},
-  {id:'babydragon',name:'ベビードラゴン',tier:5,cost:{steak:15},fav:'steak',maxLv:9,body:'#40a8c8',detail:'#d8e8f8',acc:'#206888',desc:'まだ小さいが立派なドラゴン。',
-   map:["              ","   a  a       ","   abbd       ","   bwebeb     ","    bbbbb     ","   dbbbbbd    ","   dbbbbbd b  ","    bbbbb  b  ","    a   a     ","              "]},
-  {id:'dragon',name:'ドラゴン',tier:5,cost:{steak:20},fav:'steak',maxLv:10,body:'#383838',detail:'#a83838',acc:'#585858',desc:'空を支配する最強のモンスター。',
-   map:["   a   a      ","   abbba      ","   bwebeb     ","    bbbdbb    ","   dbbbbbbda  ","  ddbbbbbbdd  ","  d bbbbbb d  ","  d bbb b  d  ","   a     a    ","              "]},
-  {id:'mimic',name:'ミミック',tier:4,cost:{},fav:'steak',maxLv:8,body:'#a85838',detail:'#f4d448',acc:'#483828',hidden:true,desc:'宝箱に擬態する恐ろしい罠。',
-   map:["              ","              ","   aaaaaaa    ","   abbbwba    ","   addddda    ","   awwwbwa    ","   addddda    ","   aaaaaaa    ","              ","              "]},
-  {id:'bahamut',name:'バハムート',tier:5,cost:{},fav:'wine',maxLv:10,body:'#382858',detail:'#8848a8',acc:'#d8d8f8',hidden:true,desc:'神話に語られる伝説の暗黒竜。',
-   map:["    a   a     ","    b   b     ","   bbaaabb     ","   dweewbd    ","   dbbbbbd    ","   ddbbbdd b  ","   d bbb d b  ","    a   a     ","              ","              "]},
-  {id:'leviathan',name:'リヴァイアサン',tier:5,cost:{},fav:'fish',maxLv:10,body:'#2060a0',detail:'#60a0e0',acc:'#80e0ff',hidden:true,desc:'海を統べる巨大な水竜。',
-   map:["     a        ","    aba       ","   dbweb      ","   bbbbb      ","    bbbbbb a  ","     bbbbbbd  ","    bbbbb  a  ","  aabbb       ","              ","              "]},
-  {id:'giant',name:'巨人',tier:5,cost:{},fav:'steak',maxLv:10,body:'#d0a080',detail:'#806050',acc:'#403020',hidden:true,desc:'山のように巨大な人型の魔物。',
-   map:["    bbbbb     ","   bbbbbbb    ","   bbaaabb    ","   abwewba    ","   bbbbbbb    ","   ccccccc    ","   ccccccc    ","   ccccccc    ","   b b b b    ","              "]}
+  {id:'chicken',name:'にわとり',tier:1,cost:{bread:3},fav:'corn',maxLv:5,body:'#ffffff',detail:'#e8c840',acc:'#e04020',acc2:'#f0d030',desc:'朝を告げる元気な鳥。', map:["              ","     aaa      ","    abwbae    ","   bbbbbcc    ","   bbbbbbb    ","   bbbbbbb b  ","   bbbbbbbbb  ","    bbbbbbb   ","     c   c    ","     c   c    "]},
+  {id:'rabbit',name:'うさぎ',tier:1,cost:{carrot:5},fav:'carrot',maxLv:5,body:'#fdf4e3',detail:'#f0d0c0',desc:'もふもふの可愛い生き物。', map:["    b   b     ","    b   b     ","    b   b     ","   bbbbbbb    ","   bwebewb    ","   bbpbbbb    ","   bbbbbbb    ","   bbbbbbb b  ","   bbbbbbb b  ","    b   b     "]},
+  {id:'cat',name:'ねこ',tier:1,cost:{fish:3},fav:'fish',maxLv:5,body:'#888888',detail:'#555555',desc:'自由気ままなハンター。', map:["              ","   b     b    ","   bbbbbbb    ","   bwebebw    ","    bbpbb  b  ","   bbbbbbb b  ","   bbbbbbb b  ","   bbbbbbb    ","    b   b     ","              "]},
+  {id:'dog',name:'いぬ',tier:1,cost:{steak:2},fav:'steak',maxLv:5,body:'#c89b5c',detail:'#8a5030',desc:'忠実な人間の良き友。', map:["              ","    bbbbb     ","   dbbbbbd    ","   dbebebd    ","   dbbpbbd    ","    bbbbb  b  ","   bbbbbbb b  ","   bbbbbbb    ","    b   b     ","              "]},
+  {id:'sheep',name:'ひつじ',tier:1,cost:{bread:5},fav:'bread',maxLv:5,body:'#f4f4ec',detail:'#333333',desc:'ふわふわの毛に包まれている。', map:["              ","    bbbbb     ","   bbbbbbb    ","   ddededd    ","  bbbbbbbbb   ","  bbbbbbbbb   ","  bbbbbbbbb   ","   bbbbbbb    ","    d   d     ","    d   d     "]},
+  {id:'pig',name:'ぶた',tier:1,cost:{corn:4},fav:'apple',maxLv:5,body:'#fba3a3',detail:'#e08080',desc:'よく食べる食いしん坊。', map:["              ","    b   b     ","    bbbbb     ","    bebeb     ","   bbpdpbb    ","   bbbbbbb b  ","   bbbbbbbbb  ","    bbbbb     ","    d   d     ","              "]},
+  {id:'slime',name:'スライム',tier:1,cost:{juice:3},fav:'juice',maxLv:5,body:'#5ec4e8',detail:'#2a90b4',desc:'ぷるぷる動く不思議なゼリー。', map:["              ","              ","              ","      b       ","    bbbbb     ","   blbeblb    ","   bbbbbbbb   ","  bbbbbbbbbb  "," dbbbbbbbbd   ","   dddddddd   "]},
+  {id:'cow',name:'うし',tier:2,cost:{corn:8},fav:'corn',maxLv:6,body:'#ffffff',detail:'#303030',acc:'#ffb0c0',desc:'のんびり草を食べる。', map:["              ","   d     d    ","   bbbbbbb    ","   bbedebb    ","   bbabbbb    ","  bbdbbbbbbb  ","  bbbbdbbbbb  ","  bbbbbbdbbb  ","   d   d  d   ","              "]},
+  {id:'horse',name:'うま',tier:2,cost:{apple:8},fav:'apple',maxLv:6,body:'#8a5030',detail:'#402010',desc:'風のように野を駆ける。', map:["    d d       ","    dbbbb     ","    dbweb     ","    bbbbbb    ","     bbbbbbbb ","     bbbbbbbb ","     bbbbbbbb ","     d  d  d  ","              ","              "]},
+  {id:'deer',name:'しか',tier:2,cost:{grape:6},fav:'grape',maxLv:6,body:'#c08040',detail:'#f0e0b0',desc:'立派なツノを持つ森の住人。', map:["   d     d    ","   d     d    ","    bbbbb     ","    bebeb     ","   bbbbbbbbb  ","   bbldlbbbb  ","    bbbbb     ","    d   d     ","              ","              "]},
+  {id:'fox',name:'きつね',tier:2,cost:{fish:6},fav:'fish',maxLv:6,body:'#e87820',detail:'#ffffff',desc:'賢くてイタズラ好き。', map:["              ","   b     b    ","   bbbbbbb    ","   bbebebb    ","   ddbbbdd    ","   ddbbbdd b  ","    bbbbb db  ","    bbbbb  d  ","    d   d     ","              "]},
+  {id:'owl',name:'ふくろう',tier:2,cost:{coffee:5},fav:'coffee',maxLv:6,body:'#8a6040',detail:'#d0b080',acc:'#f0d030',desc:'夜の森を静かに見守る。', map:["              ","   b     b    ","   dbbbbbd    ","   dweewbd    ","   dbbabbd    ","   dbbbbbd    ","   bdbbbdb    ","   bbbbbbb    ","    d   d     ","              "]},
+  {id:'mushroom',name:'キノコ族',tier:2,cost:{bread:6},fav:'honey',maxLv:6,body:'#e0c890',detail:'#e03030',acc:'#ffffff',desc:'歩く不思議なキノコ。', map:["              ","    ddddd     ","   daadadd    ","   dddaddd    ","   daaddad    ","    bbbbb     ","    bebeb     ","    bbbbb     ","    bbbbb     ","    b   b     "]},
+  {id:'turtle',name:'亀',tier:2,cost:{fish:8},fav:'fish',maxLv:6,body:'#509050',detail:'#306030',acc:'#80a060',desc:'硬い甲羅を持つ長寿の生き物。', map:["              ","              ","    bbbbb     ","   bdddddb    ","   ddddddd    ","  bbdddddbb   ","  bbaaaaabb   ","    b   b     ","    d   d     ","              "]},
+  {id:'hobbit',name:'ホビット',tier:2,cost:{bread:10},fav:'ale',maxLv:6,body:'#f0d0b0',detail:'#a06040',acc:'#40a040',desc:'陽気で食べるのが大好きな小人。', map:["              ","    ddddd     ","    bbbbb     ","    bwebe     ","    bbpbb     ","     aaa      ","    aaaaa     ","     aaa      ","    d   d     ","              "]},
+  {id:'wolf',name:'おおかみ',tier:3,cost:{steak:10},fav:'steak',maxLv:7,body:'#707880',detail:'#b0b8c0',desc:'群れで狩りをする誇り高き獣。', map:["              ","   b     b    ","   bbbbbbb    ","   bwebebw    ","    bbbbb     ","    bbbbbb b  ","    bbbbbb b  ","    bbbbbb    ","    d   d     ","              "]},
+  {id:'eagle',name:'おおわし',tier:3,cost:{fish:8},fav:'fish',maxLv:7,body:'#5a3a20',detail:'#e0e0e0',acc:'#f0d030',desc:'空の王様。目がとても良い。', map:["              ","              ","    ddddd     ","   ddebadd    ","  bdddddd b   "," bbbbbbbbbb   ","   bbbbbb     ","    bbb       ","    a a       ","              "]},
+  {id:'bear',name:'くま',tier:3,cost:{honey:8},fav:'honey',maxLv:7,body:'#6a4020',detail:'#c09060',desc:'力持ちでハチミツが大好き。', map:["              ","   b     b    ","   bbbbbbb    ","   bbebebb    ","   bbdbdbb    ","   bbbbbbbb   ","   bbbbbbbb   ","   bbbbbbbb   ","    b   b     ","              "]},
+  {id:'goblin',name:'ゴブリン',tier:3,cost:{ale:6},fav:'ale',maxLv:7,body:'#50a050',detail:'#306030',acc:'#604030',desc:'洞窟に住むイタズラ小鬼。', map:["              ","    bbbbb     ","   bbwbebw    ","    bbbbb     ","   dbbabab    ","   ddbbbdd    ","     bbb      ","     b b      ","     b b      ","              "]},
+  {id:'fairy',name:'妖精',tier:3,cost:{cake:5},fav:'cake',maxLv:7,body:'#ffc0c0',detail:'#a0e0ff',acc:'#ffeb5c',desc:'キラキラ光る小さな妖精。', map:["              ","      a       ","     bbb      ","    bbebb     ","     bwb      ","   ddbbbdd    ","   ddbbbdd    ","     bbb      ","     b b      ","              "]},
+  {id:'skeleton',name:'スケルトン',tier:3,cost:{coffee:6},fav:'coffee',maxLv:7,body:'#f4f4f4',detail:'#444444',desc:'カタカタ鳴る骨だけの魔物。', map:["              ","    bbbbb     ","    bdbdb     ","    bbdbb     ","     bbb      ","   bbdbdbb    ","   bbdbdbb    ","     bbb      ","    db bd     ","              "]},
+  {id:'dwarf',name:'ドワーフ',tier:3,cost:{ale:10},fav:'ale',maxLv:7,body:'#f0c0a0',detail:'#805040',acc:'#808080',desc:'頑強で酒好きな地下の職人。', map:["              ","    ddddd     ","    bbbbb     ","    bwebe     ","    ddddd     ","   addddda    ","   addddda    ","    ddddd     ","    b   b     ","              "]},
+  {id:'troll',name:'トロル',tier:4,cost:{steak:12},fav:'steak',maxLv:8,body:'#6a8a5c',detail:'#405a30',acc:'#8a7a60',desc:'巨体で怪力を持つ森の主。', map:["              ","    bbbbbb    ","    bdwdbb    ","   bbbpbbb    ","   bbbpbbbb   ","    bbbbbbb   ","    bbbbbbb   ","    bbbbbbb   ","   a a a a    ","              "]},
+  {id:'orc',name:'オーク',tier:4,cost:{steak:10},fav:'steak',maxLv:8,body:'#5a9a5a',detail:'#3a6a3a',acc:'#f4f4d4',desc:'好戦的な猪頭の戦士。', map:["              ","    bbbbb     ","    brbrb     ","    bapab     ","     bbb      ","  abbbbbbb a  ","  ddbbbbbdd   ","    bbbbb     ","    b   b     ","              "]},
+  {id:'griffin',name:'グリフォン',tier:4,cost:{steak:10},fav:'steak',maxLv:8,body:'#d0a040',detail:'#e4d4b4',acc:'#ffffff',desc:'鷲の頭と獅子の体を持つ幻獣。', map:["   bbb        ","   bwebbb     ","   bbbbbbbb   ","   dbbbbbbd   ","  adbbbbbbda  ","  adbbbbbbda  ","   bbbbbbbb   ","   d  d  d    ","              ","              "]},
+  {id:'unicorn',name:'ユニコーン',tier:4,cost:{cake:8},fav:'cake',maxLv:8,body:'#f8f8ff',detail:'#d4e4ff',acc:'#f4d440',desc:'額に美しい角を持つ聖なる獣。', map:["     a        ","     a bbb    ","    bbbeb     ","    bbpbbbbb  ","     bbbbbbbb ","    dbbbbbbbb ","     bbbbbbbb ","     d  d  d  ","              ","              "]},
+  {id:'phoenix',name:'フェニックス',tier:4,cost:{grimoire:3},fav:'wine',maxLv:8,body:'#f44424',detail:'#f4a424',acc:'#f4f424',desc:'炎を纏い何度でも蘇る不死鳥。', map:["       a      ","      adb     ","     bdbdb    ","    adeebda   ","  dddbbbbbddd ","  dddbbbbbddd ","    bbbbbbb   ","     d   d    ","              ","              "]},
+  {id:'elf',name:'エルフ',tier:4,cost:{},fav:'wine',maxLv:8,body:'#f0d0b0',detail:'#40a040',acc:'#e0c040',hidden:true,desc:'森の奥深くで生きる美しき種族。', map:["              ","    dbbbd     ","   bbbbbbb    ","   dbwebbd    ","    bbpbb     ","     ddd      ","    ddddd     ","     ddd      ","    b   b     ","              "]},
+  {id:'babydragon',name:'ベビードラゴン',tier:5,cost:{steak:15},fav:'steak',maxLv:9,body:'#40a8c8',detail:'#d8e8f8',acc:'#206888',desc:'まだ小さいが立派なドラゴン。', map:["              ","   a  a       ","   abbd       ","   bwebeb     ","    bbbbb     ","   dbbbbbd    ","   dbbbbbd b  ","    bbbbb  b  ","    a   a     ","              "]},
+  {id:'dragon',name:'ドラゴン',tier:5,cost:{steak:20},fav:'steak',maxLv:10,body:'#383838',detail:'#a83838',acc:'#585858',desc:'空を支配する最強のモンスター。', map:["   a   a      ","   abbba      ","   bwebeb     ","    bbbdbb    ","   dbbbbbbda  ","  ddbbbbbbdd  ","  d bbbbbb d  ","  d bbb b  d  ","   a     a    ","              "]},
+  {id:'mimic',name:'ミミック',tier:4,cost:{},fav:'steak',maxLv:8,body:'#a85838',detail:'#f4d448',acc:'#483828',hidden:true,desc:'宝箱に擬態する恐ろしい罠。', map:["              ","              ","   aaaaaaa    ","   abbbwba    ","   addddda    ","   awwwbwa    ","   addddda    ","   aaaaaaa    ","              ","              "]},
+  {id:'bahamut',name:'バハムート',tier:5,cost:{},fav:'wine',maxLv:10,body:'#382858',detail:'#8848a8',acc:'#d8d8f8',hidden:true,desc:'神話に語られる伝説の暗黒竜。', map:["    a   a     ","    b   b     ","   bbaaabb     ","   dweewbd    ","   dbbbbbd    ","   ddbbbdd b  ","   d bbb d b  ","    a   a     ","              ","              "]},
+  {id:'leviathan',name:'リヴァイアサン',tier:5,cost:{},fav:'fish',maxLv:10,body:'#2060a0',detail:'#60a0e0',acc:'#80e0ff',hidden:true,desc:'海を統べる巨大な水竜。', map:["     a        ","    aba       ","   dbweb      ","   bbbbb      ","    bbbbbb a  ","     bbbbbbd  ","    bbbbb  a  ","  aabbb       ","              ","              "]},
+  {id:'giant',name:'巨人',tier:5,cost:{},fav:'steak',maxLv:10,body:'#d0a080',detail:'#806050',acc:'#403020',hidden:true,desc:'山のように巨大な人型の魔物。', map:["    bbbbb     ","   bbbbbbb    ","   bbaaabb    ","   abwewba    ","   bbbbbbb    ","   ccccccc    ","   ccccccc    ","   ccccccc    ","   b b b b    ","              "]}
 ];
 
 const STAGES=[{id:'meadow',name:'草原'},{id:'village',name:'村'},{id:'forest',name:'深い森'},{id:'waterfall',name:'滝'}];
@@ -492,41 +436,32 @@ function pickInit(id){
     setTimeout(runTutorial, 500);
 }
 
-// === チュートリアル機能 ===
+// === マイルドなチュートリアル機能 ===
 function runTutorial() {
     if(D.tutDone) return;
-    const ov = document.getElementById('tutOverlay');
+    const banner = document.getElementById('tutBanner');
+    document.querySelectorAll('.tut-highlight').forEach(e=>e.classList.remove('tut-highlight')); // リセット
     
     if(D.tasks.length === 0 && tutStep === 0) {
-        document.body.classList.add('tut-block');
-        goToPage(1);
+        goToPage(1); // タスク画面へ
         setTimeout(() => {
-            document.querySelector('.add-task').classList.add('tut-highlight');
-            ov.innerHTML = `タスクを1個追加してみよう！<br><span style="font-size:11px;color:#ccc">（例：筋トレ、プロテイン、読書など）</span><br><button class="skip" onclick="skipTut()">スキップ</button>`;
-            ov.classList.add('show');
+            const addArea = document.querySelector('.add-task');
+            if(addArea) addArea.classList.add('tut-highlight');
+            banner.innerHTML = `「タスク名」を入力して追加してみよう！<br><button class="skip" onclick="skipTut()">スキップ</button>`;
+            banner.classList.add('show');
         }, 300);
     } else if (D.tasks.length > 0 && tutStep === 1) {
-        document.querySelector('.add-task').classList.remove('tut-highlight');
         const firstTaskBtn = document.querySelector('.t-btn');
         if(firstTaskBtn) firstTaskBtn.classList.add('tut-highlight');
-        ov.innerHTML = `追加できたな！<br>次は追加したタスクをタップして完了させてみろ！<br><span style="font-size:11px;color:var(--gold-l)">（※XPとアイテムがもらえるぞ）</span><br><button class="skip" onclick="skipTut()">スキップ</button>`;
+        banner.innerHTML = `追加できたな！次はタスクをタップして完了させてみろ！<br><span style="font-size:11px;color:var(--gold-l)">（※XPとアイテムがもらえるぞ）</span><br><button class="skip" onclick="skipTut()">スキップ</button>`;
     } else if (tutStep === 2) {
-        const firstTaskBtn = document.querySelector('.t-btn');
-        if(firstTaskBtn) firstTaskBtn.classList.remove('tut-highlight');
-        ov.innerHTML = `ナイス！これで経験値ゲットだ。<br><br>⚠️ ちなみに、サボると世界が荒廃する…。<br>でも安心してくれ。<b>1回タスクをこなせば即復活する！</b> 取り返せるペナルティだから、止まらず続けようぜ！<br><button onclick="tutStep=3;runTutorial()">次へ</button>`;
-    } else if (tutStep === 3) {
-        ov.innerHTML = `最後に、上の「仲間」タブを開いて、モンスターを手なづけてみよう！<br><button class="skip" onclick="skipTut()">スキップ</button>`;
-        document.getElementById('nav2').classList.add('tut-highlight');
-    } else if (tutStep === 4) {
-        document.getElementById('nav2').classList.remove('tut-highlight');
-        ov.innerHTML = `完璧だ！<br>ゼロの日を作らないのがコツだぜ。<br>さあ、最高の習慣化ライフを始めよう！<br><button onclick="skipTut()">よっしゃ！</button>`;
+        banner.innerHTML = `ナイス！これでアイテムゲットだ。<br>ゼロの日を作らないのがコツだぜ！<br><button onclick="skipTut()">チュートリアル完了！</button>`;
     }
 }
 function skipTut() {
     D.tutDone = true; save();
-    document.body.classList.remove('tut-block');
     document.querySelectorAll('.tut-highlight').forEach(e=>e.classList.remove('tut-highlight'));
-    document.getElementById('tutOverlay').classList.remove('show');
+    document.getElementById('tutBanner').classList.remove('show');
 }
 
 function openLabelManager() {
@@ -563,6 +498,7 @@ function addTask(){
     D.tasks.push({id:'t_'+Date.now(), name, label, stars:addStars, sav});
     inp.value=''; lblInp.value=''; savInp.value=''; addStars=1; save(); render();
     
+    // タスク追加でStep1へ
     if(!D.tutDone && tutStep === 0) { tutStep = 1; setTimeout(runTutorial, 100); }
 }
 function rmTask(id){D.tasks=D.tasks.filter(t=>t.id!==id);for(const d in D.days)if(D.days[d][id])delete D.days[d][id];save();render();}
@@ -593,7 +529,8 @@ function modTask(id,act){
     D.history.unshift({id,name:task.name,xp:xpD,sav:task.sav||0,date:selDate,time:new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),items:rI.map(i=>ITEMS[i]?.e||'').join('')});
     toast(`+${xpD} XP ${rI.map(i=>ITEMS[i]?.e||'').join('')}`);sparkle();
     
-    if(!D.tutDone && tutStep === 1) { tutStep = 2; setTimeout(runTutorial, 800); }
+    // 初完了でStep2へ
+    if(!D.tutDone && tutStep === 1) { tutStep = 2; setTimeout(runTutorial, 500); }
   }
   D.xp=Math.max(0,(D.xp||0)+xpD);D.history=D.history.slice(0,100);save();render();
 }
@@ -639,7 +576,7 @@ let alchSrcItem = null; let alchDstItem = null; let alchCost = 0; let alchValid 
 
 function openAlchemy() {
     const m = document.getElementById('mod');
-    m.style.maxWidth = '500px'; // 錬金釜用により広く
+    m.style.maxWidth = '500px';
     
     let h = `<h2 style="font-size:20px;color:var(--grn);margin-bottom:8px;">🔮 錬金釜</h2>
     <p style="font-size:12px;color:var(--dim);margin-bottom:12px;font-weight:700;">不要なアイテムを変換するぜ！</p>
@@ -829,14 +766,17 @@ function wanderCreatures(){
 }
 setInterval(wanderCreatures,2500);
 
+// === 汎用的なおしゃべり機能に変更 ===
 function chatterCreatures() {
     if(isDecayMode()) return;
     const sc = document.getElementById('scene'); const creatures = Array.from(sc.querySelectorAll('.s-creature'));
     if(creatures.length === 0 || sc.querySelector('.chatter-bubble')) return; 
     const target = creatures[Math.floor(Math.random() * creatures.length)];
     let msg = ""; const dd = dayD(); const tasks = D.tasks;
-    if(tasks.length === 0) { msg = "タスクを追加しようぜ！"; } 
-    else {
+    
+    if(tasks.length === 0) { 
+        msg = "タスクを追加しようぜ！"; 
+    } else {
         const uncompleted = tasks.filter(t => (dd[t.id] || 0) === 0);
         let longIgnored = null;
         for(let t of tasks) {
@@ -847,11 +787,19 @@ function chatterCreatures() {
             }
             if(doneCount === 0) { longIgnored = t; break; }
         }
-        if(uncompleted.length === 0) { const msgs = ["今日のタスク完璧だな！", "筋肉喜んでるぜ！", "砂糖と小麦は毒だぞ！", "UNCHAINEDな1日だな！", "バキバキの身体作ろうぜ！", "今日も1440分を大事に！"]; msg = msgs[Math.floor(Math.random()*msgs.length)]; } 
-        else if (longIgnored && Math.random() < 0.4) { msg = `最近「${longIgnored.name}」やってないな？`; } 
+        
+        if(uncompleted.length === 0) { 
+            // 汎用的な完了メッセージ
+            const msgs = ["今日のタスク完璧だな！", "最高の1日だぜ！", "継続は力なり、だな！", "明日もこの調子でいこうぜ！", "今日も1440分を使い切ったな！", "世界が平和になったぜ！"]; 
+            msg = msgs[Math.floor(Math.random()*msgs.length)]; 
+        } 
+        else if (longIgnored && Math.random() < 0.4) { 
+            msg = `最近「${longIgnored.name}」やってないな？`; 
+        } 
         else {
+            // 汎用的な習慣化メッセージ
             const t = uncompleted[Math.floor(Math.random() * uncompleted.length)];
-            const msgs = [`「${t.name}」、とりあえず2分だけでもやらないか？`, `「${t.name}」、バッターボックスに立つのが大事だ！`, `「${t.name}」、やる気が出ないなら5秒ルールだ！ 5, 4...`, `「${t.name}」、ハードルを極限まで下げてやってみよう！`, `「${t.name}」、見切り発車でもいいから手を付けようぜ！`, `「${t.name}」、1%だけでも進めようぜ！`, `おっ、「${t.name}」が君を待ってるぞ！`];
+            const msgs = [`「${t.name}」、とりあえず2分だけでもやらないか？`, `「${t.name}」、とりあえず手をつけてみようぜ！`, `「${t.name}」、やる気が出ないなら5秒ルールだ！ 5, 4...`, `「${t.name}」、ハードルを極限まで下げてやってみよう！`, `「${t.name}」、見切り発車でもいいから手を付けようぜ！`, `「${t.name}」、1%だけでも進めようぜ！`, `おっ、「${t.name}」が君を待ってるぞ！`];
             msg = msgs[Math.floor(Math.random()*msgs.length)];
         }
     }
@@ -1009,8 +957,6 @@ function initSwipe() {
 function goToPage(idx) {
     const wrap = document.getElementById('swipeWrap');
     wrap.scrollTo({ left: wrap.clientWidth * idx, behavior: 'smooth' });
-    
-    if(!D.tutDone && tutStep === 3 && idx === 2) { tutStep = 4; setTimeout(runTutorial, 300); }
 }
 
 load();
