@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>UNCHAINED FARM v19</title>
+<title>UNCHAINED FARM v20</title>
 <style>
 :root{
   --bg:#eee8db;--card:#fffefa;--card2:#f8f3ea;--bdr:#ddd4c0;--bdr2:#c8bfa8;
@@ -130,8 +130,8 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .c-name{font-size:12px;font-weight:700;margin-top:6px}.c-info{font-size:10px;color:var(--dim);font-weight:700}.c-lvl{position:absolute;top:4px;right:4px;font-size:11px;color:var(--gold);font-weight:900}
 
 .modal-ov{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(4px)}
-.modal-ov.show{opacity:1;pointer-events:all}
-.modal{background:linear-gradient(180deg,#fffefa,#f5f0e4);border-radius:18px;padding:24px;text-align:center;max-width:400px;width:92%;animation:mPop .4s ease;box-shadow:0 12px 40px rgba(0,0,0,.3);max-height:85vh;overflow-y:auto}
+.modal-ov.show{opacity:1;pointer-events:auto}
+.modal{background:linear-gradient(180deg,#fffefa,#f5f0e4);border-radius:18px;padding:24px;text-align:center;max-width:400px;width:92%;animation:mPop .4s ease;box-shadow:0 12px 40px rgba(0,0,0,.3);max-height:85vh;overflow-y:auto; transition: max-width 0.2s;}
 @keyframes mPop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
 .modal h2{font-size:22px;margin:12px 0 8px;color:var(--grn)}.modal p{font-size:14px;color:var(--dim);margin-bottom:18px;font-weight:700}
 .modal-close{padding:12px 32px;border-radius:10px;border:none;background:linear-gradient(180deg,var(--grn),#2e6a20);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(62,133,48,0.25)}
@@ -179,17 +179,17 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 @keyframes fly { 0% { transform:translate(0,0); opacity:0.2;} 100% { transform:translate(20px,-20px); opacity:1; } }
 
 /* --- アイテム錬金釜 --- */
-.alch-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; max-height: 150px; overflow-y: auto; padding-right:4px;}
-.alch-item { border: 1px solid var(--bdr); border-radius: 6px; padding: 6px 4px; text-align: center; cursor: pointer; background: #fff; transition: 0.2s;}
+.alch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 6px; max-height: 130px; overflow-y: auto; padding: 6px; background: var(--card2); border-radius: 8px; border: inset 1px var(--bdr);}
+.alch-item { border: 1px solid var(--bdr); border-radius: 6px; padding: 6px 2px; text-align: center; cursor: pointer; background: #fff; transition: 0.2s; position: relative;}
 .alch-item.sel { border-color: var(--gold); background: var(--gold-bg); box-shadow: 0 0 0 2px var(--gold-l); }
 .alch-item:hover { border-color: var(--grn-l); }
 
 /* --- チュートリアル用 --- */
-.tut-overlay { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 16px 20px; border-radius: 12px; z-index: 999; font-weight: 900; font-size: 14px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); width: 90%; max-width: 400px; display: none; animation: popBubble 0.3s ease;}
+.tut-overlay { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 16px 20px; border-radius: 12px; z-index: 9999; font-weight: 900; font-size: 14px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: none; animation: popBubble 0.3s ease; width: 90%; max-width: 400px; pointer-events: auto !important; }
 .tut-overlay.show { display: block; }
-.tut-overlay button { margin-top: 12px; padding: 8px 16px; border-radius: 6px; border: none; background: var(--grn); color: #fff; font-weight: 900; cursor: pointer; font-size: 14px;}
+.tut-overlay button { margin-top: 12px; padding: 8px 16px; border-radius: 6px; border: none; background: var(--grn); color: #fff; font-weight: 900; cursor: pointer; font-size: 14px; pointer-events: auto !important;}
 .tut-overlay .skip { background: transparent; color: #ccc; border: 1px solid #777; margin-left: 8px; }
-.tut-highlight { position: relative; z-index: 1000 !important; box-shadow: 0 0 0 4px var(--gold-l), 0 0 20px rgba(0,0,0,0.6) !important; pointer-events: auto !important; border-radius: inherit; background: var(--card) !important; animation: pulseHL 1.5s infinite; }
+.tut-highlight { position: relative; z-index: 9998 !important; box-shadow: 0 0 0 4px var(--gold-l), 0 0 20px rgba(0,0,0,0.6) !important; pointer-events: auto !important; border-radius: inherit; background: var(--card) !important; animation: pulseHL 1.5s infinite; }
 .tut-block { pointer-events: none; }
 @keyframes pulseHL { 0% { box-shadow: 0 0 0 0 rgba(240,208,96,0.7); } 70% { box-shadow: 0 0 0 10px rgba(240,208,96,0); } 100% { box-shadow: 0 0 0 0 rgba(240,208,96,0); } }
 </style>
@@ -429,7 +429,7 @@ const BG_IMAGES = {
 
 const SK='uf-v6';
 let D,selDate=tod(),selC=null,curStage=0,addStars=1,tipIdx=0,wanderPos={};
-let tutStep = 0; // チュートリアル状態
+let tutStep = 0;
 
 function tod(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().split('T')[0]}
 function getT(x){let c=TITLES[0];for(const t of TITLES)if(x>=t.req)c=t;return c}
@@ -481,7 +481,7 @@ function checkInitSpawn(){
             });
         }, 50);
     } else {
-        setTimeout(runTutorial, 500); // 既に仲間がいればチュートリアルチェックへ
+        setTimeout(runTutorial, 500);
     }
 }
 function pickInit(id){
@@ -529,7 +529,6 @@ function skipTut() {
     document.getElementById('tutOverlay').classList.remove('show');
 }
 
-// === ラベル一括設定 ===
 function openLabelManager() {
     let h = `<h2 style="font-size:20px;color:var(--grn);margin-bottom:8px;">🏷️ ラベル一括設定</h2>
     <p style="font-size:12px;color:var(--dim);margin-bottom:12px;font-weight:700;">ラベル名を入力して、割り当てるタスクを選んでくれ！</p>
@@ -564,7 +563,6 @@ function addTask(){
     D.tasks.push({id:'t_'+Date.now(), name, label, stars:addStars, sav});
     inp.value=''; lblInp.value=''; savInp.value=''; addStars=1; save(); render();
     
-    // チュートリアル進行
     if(!D.tutDone && tutStep === 0) { tutStep = 1; setTimeout(runTutorial, 100); }
 }
 function rmTask(id){D.tasks=D.tasks.filter(t=>t.id!==id);for(const d in D.days)if(D.days[d][id])delete D.days[d][id];save();render();}
@@ -595,7 +593,6 @@ function modTask(id,act){
     D.history.unshift({id,name:task.name,xp:xpD,sav:task.sav||0,date:selDate,time:new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),items:rI.map(i=>ITEMS[i]?.e||'').join('')});
     toast(`+${xpD} XP ${rI.map(i=>ITEMS[i]?.e||'').join('')}`);sparkle();
     
-    // チュートリアル進行
     if(!D.tutDone && tutStep === 1) { tutStep = 2; setTimeout(runTutorial, 800); }
   }
   D.xp=Math.max(0,(D.xp||0)+xpD);D.history=D.history.slice(0,100);save();render();
@@ -641,35 +638,60 @@ function getRarity(id) { return ITEMS[id].t === 'rare' ? 2 : 1; }
 let alchSrcItem = null; let alchDstItem = null; let alchCost = 0; let alchValid = false;
 
 function openAlchemy() {
+    const m = document.getElementById('mod');
+    m.style.maxWidth = '500px'; // 錬金釜用により広く
+    
     let h = `<h2 style="font-size:20px;color:var(--grn);margin-bottom:8px;">🔮 錬金釜</h2>
-    <p style="font-size:12px;color:var(--dim);margin-bottom:12px;font-weight:700;">余ったアイテムを変換するぜ！</p>
-    <div style="display:flex;gap:10px;text-align:left;">
-        <div style="flex:1"><div style="font-size:11px;font-weight:900;">📤 出すアイテム</div><div id="alchSrc" class="alch-grid"></div></div>
-        <div style="flex:1"><div style="font-size:11px;font-weight:900;">📥 欲しいアイテム</div><div id="alchDst" class="alch-grid"></div></div>
+    <p style="font-size:12px;color:var(--dim);margin-bottom:12px;font-weight:700;">不要なアイテムを変換するぜ！</p>
+    <div style="font-size:11px;font-weight:900;color:var(--dim);margin-bottom:12px;text-align:center;">★1: 食料 ／ ★★2: レア素材</div>
+    
+    <div style="text-align:left; margin-bottom: 12px;">
+        <div style="font-size:13px;font-weight:900;margin-bottom:6px;color:var(--txt);">📤 1. 出すアイテムを選ぶ（所持リスト）</div>
+        <div id="alchSrc" class="alch-grid"></div>
     </div>
-    <div id="alchRate" style="margin:12px 0; font-size:13px; font-weight:900; color:var(--gold); line-height:1.4">アイテムを両方選んでくれ</div>
+    
+    <div style="text-align:left; margin-bottom: 12px;">
+        <div style="font-size:13px;font-weight:900;margin-bottom:6px;color:var(--txt);">📥 2. 欲しいアイテムを選ぶ</div>
+        <div id="alchDst" class="alch-grid"></div>
+    </div>
+    
+    <div id="alchRate" style="margin:16px 0; padding:10px; font-size:14px; font-weight:900; color:var(--gold); line-height:1.5; background:var(--card2); border:1px solid var(--bdr); border-radius:8px;">アイテムを両方選んでくれ</div>
+    
     <div style="display:flex;gap:10px;justify-content:center;">
         <button id="alchBtn" class="modal-close" onclick="doAlchemy()" disabled style="background:var(--bdr);color:var(--dim);">錬金する</button>
         <button class="modal-close" onclick="closeMod()" style="background:var(--card);color:var(--dim);border:1px solid var(--bdr);box-shadow:none">閉じる</button>
     </div>`;
-    const m = document.getElementById('mod'); m.innerHTML = h;
+    
+    m.innerHTML = h;
     document.getElementById('modOv').classList.add('show');
     alchSrcItem = null; alchDstItem = null;
     renderAlchemyGrids();
 }
+
 function renderAlchemyGrids() {
     let sH='', dH='';
     for(const k in ITEMS) {
         const count = D.res[k]||0;
-        if(count > 0) sH += `<div class="alch-item ${alchSrcItem===k?'sel':''}" onclick="alchSrcItem='${k}';updateAlchRate()"><div style="font-size:24px">${ITEMS[k].e}</div><div style="font-size:10px;font-weight:900">${count}個</div></div>`;
-        dH += `<div class="alch-item ${alchDstItem===k?'sel':''}" onclick="alchDstItem='${k}';updateAlchRate()"><div style="font-size:24px">${ITEMS[k].e}</div></div>`;
+        const rarityMark = getRarity(k) === 2 ? '<span style="color:var(--pink)">★★</span>' : '<span style="color:var(--dimr)">★</span>';
+        
+        if(count > 0) {
+            sH += `<div class="alch-item ${alchSrcItem===k?'sel':''}" onclick="alchSrcItem='${k}';updateAlchRate()">
+                <div style="position:absolute;top:2px;left:4px;font-size:10px">${rarityMark}</div>
+                <div style="font-size:24px;margin-top:12px">${ITEMS[k].e}</div>
+                <div style="font-size:11px;font-weight:900;color:var(--txt)">${count}個</div>
+            </div>`;
+        }
+        dH += `<div class="alch-item ${alchDstItem===k?'sel':''}" onclick="alchDstItem='${k}';updateAlchRate()">
+            <div style="position:absolute;top:2px;left:4px;font-size:10px">${rarityMark}</div>
+            <div style="font-size:24px;margin-top:12px">${ITEMS[k].e}</div>
+        </div>`;
     }
-    document.getElementById('alchSrc').innerHTML = sH || '<div style="font-size:12px;color:var(--dim);grid-column:1/-1;">出せるアイテムがないぜ</div>';
+    document.getElementById('alchSrc').innerHTML = sH || '<div style="font-size:12px;color:var(--dim);grid-column:1/-1;padding:10px;">出せるアイテムがないぜ</div>';
     document.getElementById('alchDst').innerHTML = dH;
     updateAlchRate();
 }
+
 function updateAlchRate() {
-    // 選択状態のUI更新
     document.querySelectorAll('#alchSrc .alch-item').forEach((el, i) => { const k = Object.keys(ITEMS).filter(key=>(D.res[key]||0)>0)[i]; el.className = `alch-item ${alchSrcItem===k?'sel':''}`; });
     document.querySelectorAll('#alchDst .alch-item').forEach((el, i) => { const k = Object.keys(ITEMS)[i]; el.className = `alch-item ${alchDstItem===k?'sel':''}`; });
 
@@ -679,19 +701,23 @@ function updateAlchRate() {
         document.getElementById('alchRate').innerHTML = '同じアイテムは錬金できないぜ！';
         btn.disabled = true; btn.style.background = 'var(--bdr)'; btn.style.color = 'var(--dim)'; alchValid = false; return;
     }
+    
     const r1 = getRarity(alchSrcItem); const r2 = getRarity(alchDstItem);
     let cost = 0; let desc = '';
-    if(r1 === r2) { cost = 3; desc = '同レア度: 3個 → 1個'; }
-    else if(r1 < r2) { cost = 5; desc = '上位変換: 5個 → 1個'; }
-    else if(r1 > r2) { cost = 1; desc = '下位変換: 1個 → 3個'; }
+    if(r1 === r2) { cost = 3; desc = '同レア交換：3個出す → 1個もらえる'; }
+    else if(r1 < r2) { cost = 5; desc = '上位へ昇華：5個出す → 1個もらえる'; }
+    else if(r1 > r2) { cost = 1; desc = '下位へ分解：1個出す → 3個もらえる'; }
+    
     alchCost = cost;
     const has = D.res[alchSrcItem]||0; alchValid = has >= cost;
     const getCount = (r1 > r2) ? 3 : 1;
+    
     document.getElementById('alchRate').innerHTML = `${desc} <br><span style="color:${alchValid?'var(--grn)':'var(--red)'}">（必要: ${cost}個 / 所持: ${has}個）</span> <br>→ ${ITEMS[alchDstItem].e} x${getCount} ゲット！`;
     btn.disabled = !alchValid;
     if(alchValid) { btn.style.background = 'linear-gradient(180deg,var(--grn),#2e6a20)'; btn.style.color = '#fff'; } 
     else { btn.style.background = 'var(--bdr)'; btn.style.color = 'var(--dim)'; }
 }
+
 function doAlchemy() {
     if(!alchValid) return;
     D.res[alchSrcItem] -= alchCost;
@@ -938,7 +964,7 @@ function tierL(t){return['','★','★★','★★★','★★★★','伝説'][
 function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.remove('show');void e.offsetWidth;e.classList.add('show')}
 function sparkle(){const sc=document.getElementById('scene');['✨','⭐','💫','🌟'].forEach((em,i)=>{const s=document.createElement('div');s.className='sparkle-fx';s.textContent=em;s.style.left=(20+Math.random()*60)+'%';s.style.bottom=(60+Math.random()*60)+'px';s.style.animationDelay=(i*.15)+'s';sc.appendChild(s);setTimeout(()=>s.remove(),1500)})}
 function showUnlock(c){const m=document.getElementById('mod');m.innerHTML=`<div><canvas id="cvUnlock" width="144" height="144" style="image-rendering:pixelated;display:block;margin:0 auto"></canvas></div><h2>${c.name}が仲間になった！</h2><p>${c.desc}</p><button class="modal-close" onclick="closeMod()">やったぜ！</button>`;document.getElementById('modOv').classList.add('show');const cv=document.getElementById('cvUnlock');if(cv)drawPx(cv,c,144,1);sparkle();sparkle();}
-function closeMod(){document.getElementById('modOv').classList.remove('show');document.getElementById('mod').dataset.cid='';}
+function closeMod(){document.getElementById('modOv').classList.remove('show');const m=document.getElementById('mod');m.dataset.cid='';m.style.maxWidth='';}
 
 function showP4Editor(){
     const m=document.getElementById('mod'); const tips=D.customTips||[];
@@ -984,7 +1010,6 @@ function goToPage(idx) {
     const wrap = document.getElementById('swipeWrap');
     wrap.scrollTo({ left: wrap.clientWidth * idx, behavior: 'smooth' });
     
-    // チュートリアル進行
     if(!D.tutDone && tutStep === 3 && idx === 2) { tutStep = 4; setTimeout(runTutorial, 300); }
 }
 
