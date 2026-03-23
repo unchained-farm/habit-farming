@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>UNCHAINED FARM v18</title>
+<title>UNCHAINED FARM v19</title>
 <style>
 :root{
   --bg:#eee8db;--card:#fffefa;--card2:#f8f3ea;--bdr:#ddd4c0;--bdr2:#c8bfa8;
@@ -15,16 +15,12 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 
-/* --- スマホ操作時の文字選択を防ぐ --- */
 .no-select { user-select: none; -webkit-user-select: none; }
-
-/* 画面全体を固定してスクロールエリア内で動かす */
 html, body { height: 100%; height: 100dvh; overflow: hidden; }
 body{background:var(--bg);color:var(--txt);font-family:'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;-webkit-tap-highlight-color:transparent; font-size:15px;}
 
 .app-wrapper { display: flex; flex-direction: column; height: 100%; max-width: 1200px; margin: 0 auto; position: relative; }
 
-/* 🐲 ステージだけ固定 */
 .scene{flex-shrink:0;width:100%;height:300px;position:relative;overflow:hidden;border-bottom:3px solid var(--bdr2);box-shadow:0 4px 20px rgba(0,0,0,0.12); background-color: #88aacc;}
 @media(max-width:860px){.scene{height:160px} .scene-time{font-size:24px;right:10px;top:10px}}
 .bg-layer{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center bottom;background-repeat:no-repeat;transition:background-image 0.8s ease, filter 0.8s ease;z-index:1;}
@@ -55,22 +51,17 @@ body{background:var(--bg);color:var(--txt);font-family:'Helvetica Neue', Arial, 
 @keyframes spkUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(0.3)}}
 .scene-time{position:absolute;top:12px;right:16px;font-size:32px;z-index:5;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))}
 
-/* --- 下部スクロールエリア --- */
 .main-scroll-area { flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; }
-
 .top-static { padding: 12px 16px 0; }
 .header{text-align:center;padding:0 0 10px}
 .header h1{font-size:24px;font-weight:900;color:var(--grn);text-shadow:0 1px 0 rgba(255,255,255,0.6)}
 
-/* ステージ名をヘッダーに移動 */
 .stage-nav-wrap { display: flex; justify-content: center; align-items: center; gap: 15px; font-size: 14px; font-weight: 900; color: var(--dim); margin-bottom: 6px; }
 .stage-nav-wrap button { background: var(--card2); border: 1px solid var(--bdr); border-radius: 6px; font-size: 16px; cursor: pointer; color: var(--dim); padding: 4px 16px; font-weight: 900; }
 
 .res-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap; justify-content:center;}
 .res-item{display:flex;align-items:center;gap:4px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--bdr);border-radius:8px;padding:6px 12px;font-size:14px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
 
-/* --- 3画面スワイプUI --- */
-/* タブをブロックデザインにし、Stickyで上にくっつける */
 .screen-nav { display: flex; justify-content: space-between; padding: 10px 16px; background: var(--bg); border-bottom: 2px solid var(--bdr); position: sticky; top: 0; z-index: 50; gap: 8px; }
 .screen-nav span { flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 900; color: var(--dim); background: linear-gradient(180deg, var(--card), var(--card2)); border: 1px solid var(--bdr); border-radius: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.03); transition: 0.2s; }
 .screen-nav span.active { color: #fff; background: linear-gradient(180deg, var(--grn), #2e6a20); border-color: var(--grn); box-shadow: 0 2px 8px rgba(62,133,48,0.3); }
@@ -180,13 +171,27 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .stat-val{font-size:20px;font-weight:900;color:var(--grn);margin-bottom:8px}
 .stat-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;font-weight:700}
 
-/* --- ステージ演出 --- */
 .stage-fx { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
 .forest-fx { position:absolute; top:0; left:0; width:100%; height:100%; }
 .sunbeam { position:absolute; width:150px; height:200%; background:linear-gradient(90deg, transparent, rgba(255,255,200,0.15), transparent); transform:rotate(25deg); left:20%; top:-20%; animation:beamMove 6s infinite alternate ease-in-out; }
 @keyframes beamMove { 0% { transform:rotate(25deg) translateX(-20px); opacity:0.6; } 100% { transform:rotate(25deg) translateX(20px); opacity:1; } }
 .firefly { position:absolute; width:4px; height:4px; background:#e0ff60; border-radius:50%; box-shadow:0 0 8px #e0ff60; animation:fly 4s infinite alternate ease-in-out; }
 @keyframes fly { 0% { transform:translate(0,0); opacity:0.2;} 100% { transform:translate(20px,-20px); opacity:1; } }
+
+/* --- アイテム錬金釜 --- */
+.alch-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; max-height: 150px; overflow-y: auto; padding-right:4px;}
+.alch-item { border: 1px solid var(--bdr); border-radius: 6px; padding: 6px 4px; text-align: center; cursor: pointer; background: #fff; transition: 0.2s;}
+.alch-item.sel { border-color: var(--gold); background: var(--gold-bg); box-shadow: 0 0 0 2px var(--gold-l); }
+.alch-item:hover { border-color: var(--grn-l); }
+
+/* --- チュートリアル用 --- */
+.tut-overlay { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 16px 20px; border-radius: 12px; z-index: 999; font-weight: 900; font-size: 14px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); width: 90%; max-width: 400px; display: none; animation: popBubble 0.3s ease;}
+.tut-overlay.show { display: block; }
+.tut-overlay button { margin-top: 12px; padding: 8px 16px; border-radius: 6px; border: none; background: var(--grn); color: #fff; font-weight: 900; cursor: pointer; font-size: 14px;}
+.tut-overlay .skip { background: transparent; color: #ccc; border: 1px solid #777; margin-left: 8px; }
+.tut-highlight { position: relative; z-index: 1000 !important; box-shadow: 0 0 0 4px var(--gold-l), 0 0 20px rgba(0,0,0,0.6) !important; pointer-events: auto !important; border-radius: inherit; background: var(--card) !important; animation: pulseHL 1.5s infinite; }
+.tut-block { pointer-events: none; }
+@keyframes pulseHL { 0% { box-shadow: 0 0 0 0 rgba(240,208,96,0.7); } 70% { box-shadow: 0 0 0 10px rgba(240,208,96,0); } 100% { box-shadow: 0 0 0 0 rgba(240,208,96,0); } }
 </style>
 </head>
 <body>
@@ -268,6 +273,8 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 </div> <div class="toast" id="toast"></div>
 <div class="modal-ov no-select" id="modOv" onclick="closeMod()"><div class="modal" id="mod" onclick="event.stopPropagation()"></div></div>
 
+<div id="tutOverlay" class="tut-overlay no-select"></div>
+
 <button class="no-select" id="bgmBtn" onclick="toggleBGM()" style="position:fixed; bottom:20px; left:20px; z-index:100; font-size:28px; background:none; border:none; cursor:pointer; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">🔈</button>
 <audio id="bgmAudio"></audio>
 
@@ -315,13 +322,11 @@ function mkPx(c, decoLv){
             }
         });
     }
-
     if(decoLv === 2) px.push([5,0,'y'],[7,0,'y'],[9,0,'y'], [5,1,'y'],[6,1,'y'],[7,1,'y'],[8,1,'y'],[9,1,'y']);
     else if (decoLv === 4) px.push([6,0,'e'],[7,0,'e'],[8,0,'e'], [6,1,'e'],[7,1,'e'],[8,1,'e'], [5,2,'e'],[6,2,'e'],[7,2,'r'],[8,2,'e'],[9,2,'e']);
     else if (decoLv === 6) px.push([10,1,'p'],[11,0,'p'],[12,1,'p'],[11,2,'p'],[11,1,'w']);
     else if (decoLv === 8) px.push([11,0,'y'],[10,1,'y'],[11,1,'w'],[12,1,'y'],[11,2,'y']);
     else if (decoLv === 10) px.push([6,-1,'w'],[7,-1,'w'],[8,-1,'w'], [5,0,'a'],[6,0,'w'],[7,0,'a'],[8,0,'w'],[9,0,'a'], [6,1,'a'],[7,1,'a'],[8,1,'a'], [7,2,'a']);
-
     return { px, P };
 }
 
@@ -424,14 +429,15 @@ const BG_IMAGES = {
 
 const SK='uf-v6';
 let D,selDate=tod(),selC=null,curStage=0,addStars=1,tipIdx=0,wanderPos={};
+let tutStep = 0; // チュートリアル状態
 
 function tod(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().split('T')[0]}
 function getT(x){let c=TITLES[0];for(const t of TITLES)if(x>=t.req)c=t;return c}
 function getN(x){for(const t of TITLES)if(x<t.req)return t;return null}
-function init(){return{xp:0,streak:0,maxStreak:0,lastDate:null,days:{},tasks:[],res:{},creatures:{},cStages:{},cDecos:{},history:[],identity:'UNCHAINED',monthlyGoal:'未設定',customTips:[]}}
+function init(){return{xp:0,streak:0,maxStreak:0,lastDate:null,days:{},tasks:[],res:{},creatures:{},cStages:{},cDecos:{},history:[],identity:'UNCHAINED',monthlyGoal:'未設定',customTips:[],tutDone:false}}
 function load(){try{const r=localStorage.getItem(SK);if(r){D=JSON.parse(r);fixD();}else throw'';}catch{D=init();}}
 function save(){localStorage.setItem(SK,JSON.stringify(D))}
-function fixD(){if(!D.tasks)D.tasks=[];if(!D.res)D.res={};if(!D.creatures)D.creatures={};if(!D.cStages)D.cStages={};if(!D.history)D.history=[];if(!D.identity)D.identity='UNCHAINED';if(!D.monthlyGoal)D.monthlyGoal='未設定';if(!D.customTips)D.customTips=[];if(D.streak===undefined)D.streak=0;if(D.maxStreak===undefined)D.maxStreak=D.streak;}
+function fixD(){if(!D.tasks)D.tasks=[];if(!D.res)D.res={};if(!D.creatures)D.creatures={};if(!D.cStages)D.cStages={};if(!D.history)D.history=[];if(!D.identity)D.identity='UNCHAINED';if(!D.monthlyGoal)D.monthlyGoal='未設定';if(!D.customTips)D.customTips=[];if(D.streak===undefined)D.streak=0;if(D.maxStreak===undefined)D.maxStreak=D.streak;if(D.tutDone===undefined)D.tutDone=false;}
 
 function isDecayMode(){return D.streak === 0 && D.history.length > 0;}
 
@@ -474,6 +480,8 @@ function checkInitSpawn(){
                 if(cv) drawPx(cv, c, 48, 1, 1);
             });
         }, 50);
+    } else {
+        setTimeout(runTutorial, 500); // 既に仲間がいればチュートリアルチェックへ
     }
 }
 function pickInit(id){
@@ -481,8 +489,47 @@ function pickInit(id){
     D.cStages[id] = 'meadow';
     save(); closeMod(); placeCreatures(); render();
     toast('相棒が決まったぜ！');
+    setTimeout(runTutorial, 500);
 }
 
+// === チュートリアル機能 ===
+function runTutorial() {
+    if(D.tutDone) return;
+    const ov = document.getElementById('tutOverlay');
+    
+    if(D.tasks.length === 0 && tutStep === 0) {
+        document.body.classList.add('tut-block');
+        goToPage(1);
+        setTimeout(() => {
+            document.querySelector('.add-task').classList.add('tut-highlight');
+            ov.innerHTML = `タスクを1個追加してみよう！<br><span style="font-size:11px;color:#ccc">（例：筋トレ、プロテイン、読書など）</span><br><button class="skip" onclick="skipTut()">スキップ</button>`;
+            ov.classList.add('show');
+        }, 300);
+    } else if (D.tasks.length > 0 && tutStep === 1) {
+        document.querySelector('.add-task').classList.remove('tut-highlight');
+        const firstTaskBtn = document.querySelector('.t-btn');
+        if(firstTaskBtn) firstTaskBtn.classList.add('tut-highlight');
+        ov.innerHTML = `追加できたな！<br>次は追加したタスクをタップして完了させてみろ！<br><span style="font-size:11px;color:var(--gold-l)">（※XPとアイテムがもらえるぞ）</span><br><button class="skip" onclick="skipTut()">スキップ</button>`;
+    } else if (tutStep === 2) {
+        const firstTaskBtn = document.querySelector('.t-btn');
+        if(firstTaskBtn) firstTaskBtn.classList.remove('tut-highlight');
+        ov.innerHTML = `ナイス！これで経験値ゲットだ。<br><br>⚠️ ちなみに、サボると世界が荒廃する…。<br>でも安心してくれ。<b>1回タスクをこなせば即復活する！</b> 取り返せるペナルティだから、止まらず続けようぜ！<br><button onclick="tutStep=3;runTutorial()">次へ</button>`;
+    } else if (tutStep === 3) {
+        ov.innerHTML = `最後に、上の「仲間」タブを開いて、モンスターを手なづけてみよう！<br><button class="skip" onclick="skipTut()">スキップ</button>`;
+        document.getElementById('nav2').classList.add('tut-highlight');
+    } else if (tutStep === 4) {
+        document.getElementById('nav2').classList.remove('tut-highlight');
+        ov.innerHTML = `完璧だ！<br>ゼロの日を作らないのがコツだぜ。<br>さあ、最高の習慣化ライフを始めよう！<br><button onclick="skipTut()">よっしゃ！</button>`;
+    }
+}
+function skipTut() {
+    D.tutDone = true; save();
+    document.body.classList.remove('tut-block');
+    document.querySelectorAll('.tut-highlight').forEach(e=>e.classList.remove('tut-highlight'));
+    document.getElementById('tutOverlay').classList.remove('show');
+}
+
+// === ラベル一括設定 ===
 function openLabelManager() {
     let h = `<h2 style="font-size:20px;color:var(--grn);margin-bottom:8px;">🏷️ ラベル一括設定</h2>
     <p style="font-size:12px;color:var(--dim);margin-bottom:12px;font-weight:700;">ラベル名を入力して、割り当てるタスクを選んでくれ！</p>
@@ -499,14 +546,12 @@ function openLabelManager() {
         <button class="modal-close" onclick="applyBulkLabel()">まとめて適用</button>
         <button class="modal-close" onclick="closeMod()" style="background:var(--bdr);color:var(--dim);box-shadow:none">キャンセル</button>
     </div>`;
-    const m = document.getElementById('mod');
-    m.innerHTML = h;
+    const m = document.getElementById('mod'); m.innerHTML = h;
     document.getElementById('modOv').classList.add('show');
 }
 function applyBulkLabel() {
     const newLbl = document.getElementById('bulkLabelName').value.trim() || '未分類';
-    const chks = document.querySelectorAll('.bulk-task-chk:checked');
-    let count = 0;
+    const chks = document.querySelectorAll('.bulk-task-chk:checked'); let count = 0;
     chks.forEach(chk => { const t = D.tasks.find(x => x.id === chk.value); if(t) { t.label = newLbl; count++; } });
     if(count > 0) { save(); render(); toast(`${count}個のタスクを整理したぜ！`); } else { toast('タスクが選ばれてないぞ！'); }
     closeMod();
@@ -518,6 +563,9 @@ function addTask(){
     const savInp=document.getElementById('addSav'); const sav=parseInt(savInp.value)||0;
     D.tasks.push({id:'t_'+Date.now(), name, label, stars:addStars, sav});
     inp.value=''; lblInp.value=''; savInp.value=''; addStars=1; save(); render();
+    
+    // チュートリアル進行
+    if(!D.tutDone && tutStep === 0) { tutStep = 1; setTimeout(runTutorial, 100); }
 }
 function rmTask(id){D.tasks=D.tasks.filter(t=>t.id!==id);for(const d in D.days)if(D.days[d][id])delete D.days[d][id];save();render();}
 
@@ -546,6 +594,9 @@ function modTask(id,act){
     const rI=pickItems(task.stars,dd[id]);rI.forEach(it=>{D.res[it]=(D.res[it]||0)+1});if(rew.gold)D.res.gold=(D.res.gold||0)+rew.gold;
     D.history.unshift({id,name:task.name,xp:xpD,sav:task.sav||0,date:selDate,time:new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),items:rI.map(i=>ITEMS[i]?.e||'').join('')});
     toast(`+${xpD} XP ${rI.map(i=>ITEMS[i]?.e||'').join('')}`);sparkle();
+    
+    // チュートリアル進行
+    if(!D.tutDone && tutStep === 1) { tutStep = 2; setTimeout(runTutorial, 800); }
   }
   D.xp=Math.max(0,(D.xp||0)+xpD);D.history=D.history.slice(0,100);save();render();
 }
@@ -584,6 +635,73 @@ function feedC(id,food){const c=CREATURES.find(x=>x.id===id);if(!c)return;const 
 function assignStage(id,stg){D.cStages[id]=stg;save();placeCreatures();render();}
 function setDeco(id,decoLv){D.cDecos[id]=parseInt(decoLv);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);}
 function calcSav(){let td=0,mo=0,al=0;const m=selDate.substring(0,7);D.history.forEach(h=>{if(h.sav>0){al+=h.sav;if(h.date.startsWith(m))mo+=h.sav;if(h.date===selDate)td+=h.sav;}});return{td,mo,al}}
+
+// === アイテム錬金釜機能 ===
+function getRarity(id) { return ITEMS[id].t === 'rare' ? 2 : 1; }
+let alchSrcItem = null; let alchDstItem = null; let alchCost = 0; let alchValid = false;
+
+function openAlchemy() {
+    let h = `<h2 style="font-size:20px;color:var(--grn);margin-bottom:8px;">🔮 錬金釜</h2>
+    <p style="font-size:12px;color:var(--dim);margin-bottom:12px;font-weight:700;">余ったアイテムを変換するぜ！</p>
+    <div style="display:flex;gap:10px;text-align:left;">
+        <div style="flex:1"><div style="font-size:11px;font-weight:900;">📤 出すアイテム</div><div id="alchSrc" class="alch-grid"></div></div>
+        <div style="flex:1"><div style="font-size:11px;font-weight:900;">📥 欲しいアイテム</div><div id="alchDst" class="alch-grid"></div></div>
+    </div>
+    <div id="alchRate" style="margin:12px 0; font-size:13px; font-weight:900; color:var(--gold); line-height:1.4">アイテムを両方選んでくれ</div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+        <button id="alchBtn" class="modal-close" onclick="doAlchemy()" disabled style="background:var(--bdr);color:var(--dim);">錬金する</button>
+        <button class="modal-close" onclick="closeMod()" style="background:var(--card);color:var(--dim);border:1px solid var(--bdr);box-shadow:none">閉じる</button>
+    </div>`;
+    const m = document.getElementById('mod'); m.innerHTML = h;
+    document.getElementById('modOv').classList.add('show');
+    alchSrcItem = null; alchDstItem = null;
+    renderAlchemyGrids();
+}
+function renderAlchemyGrids() {
+    let sH='', dH='';
+    for(const k in ITEMS) {
+        const count = D.res[k]||0;
+        if(count > 0) sH += `<div class="alch-item ${alchSrcItem===k?'sel':''}" onclick="alchSrcItem='${k}';updateAlchRate()"><div style="font-size:24px">${ITEMS[k].e}</div><div style="font-size:10px;font-weight:900">${count}個</div></div>`;
+        dH += `<div class="alch-item ${alchDstItem===k?'sel':''}" onclick="alchDstItem='${k}';updateAlchRate()"><div style="font-size:24px">${ITEMS[k].e}</div></div>`;
+    }
+    document.getElementById('alchSrc').innerHTML = sH || '<div style="font-size:12px;color:var(--dim);grid-column:1/-1;">出せるアイテムがないぜ</div>';
+    document.getElementById('alchDst').innerHTML = dH;
+    updateAlchRate();
+}
+function updateAlchRate() {
+    // 選択状態のUI更新
+    document.querySelectorAll('#alchSrc .alch-item').forEach((el, i) => { const k = Object.keys(ITEMS).filter(key=>(D.res[key]||0)>0)[i]; el.className = `alch-item ${alchSrcItem===k?'sel':''}`; });
+    document.querySelectorAll('#alchDst .alch-item').forEach((el, i) => { const k = Object.keys(ITEMS)[i]; el.className = `alch-item ${alchDstItem===k?'sel':''}`; });
+
+    if(!alchSrcItem || !alchDstItem) return;
+    const btn = document.getElementById('alchBtn');
+    if(alchSrcItem === alchDstItem) {
+        document.getElementById('alchRate').innerHTML = '同じアイテムは錬金できないぜ！';
+        btn.disabled = true; btn.style.background = 'var(--bdr)'; btn.style.color = 'var(--dim)'; alchValid = false; return;
+    }
+    const r1 = getRarity(alchSrcItem); const r2 = getRarity(alchDstItem);
+    let cost = 0; let desc = '';
+    if(r1 === r2) { cost = 3; desc = '同レア度: 3個 → 1個'; }
+    else if(r1 < r2) { cost = 5; desc = '上位変換: 5個 → 1個'; }
+    else if(r1 > r2) { cost = 1; desc = '下位変換: 1個 → 3個'; }
+    alchCost = cost;
+    const has = D.res[alchSrcItem]||0; alchValid = has >= cost;
+    const getCount = (r1 > r2) ? 3 : 1;
+    document.getElementById('alchRate').innerHTML = `${desc} <br><span style="color:${alchValid?'var(--grn)':'var(--red)'}">（必要: ${cost}個 / 所持: ${has}個）</span> <br>→ ${ITEMS[alchDstItem].e} x${getCount} ゲット！`;
+    btn.disabled = !alchValid;
+    if(alchValid) { btn.style.background = 'linear-gradient(180deg,var(--grn),#2e6a20)'; btn.style.color = '#fff'; } 
+    else { btn.style.background = 'var(--bdr)'; btn.style.color = 'var(--dim)'; }
+}
+function doAlchemy() {
+    if(!alchValid) return;
+    D.res[alchSrcItem] -= alchCost;
+    const r1 = getRarity(alchSrcItem); const r2 = getRarity(alchDstItem);
+    const getCount = (r1 > r2) ? 3 : 1;
+    D.res[alchDstItem] = (D.res[alchDstItem]||0) + getCount;
+    save(); render(); renderAlchemyGrids();
+    toast(`錬金成功！ ${ITEMS[alchDstItem].e} を手に入れたぜ！`); sparkle();
+}
+
 
 function showCreaturePopup(id){
   const c=CREATURES.find(x=>x.id===id);if(!c)return;selC=id;const m=document.getElementById('mod');m.dataset.cid=id;const owned=!!D.creatures[id];
@@ -760,7 +878,7 @@ function renderTasks(){
   h+=`<div class="add-task"><div style="font-size:15px;font-weight:900;margin-bottom:10px">➕ タスク追加</div>
       <div class="add-row"><input id="addLbl" class="add-input" placeholder="ラベル (例: 運動)" style="max-width:140px"><input id="addInp" class="add-input" placeholder="タスク名" onkeydown="if(event.key==='Enter')addTask()"></div>
       <div class="add-row"><div style="font-size:13px;color:var(--dim);margin-right:6px;font-weight:700">難易度:</div><div class="star-sel no-select">${[1,2,3,4,5].map(s=>`<button class="star-btn ${s<=addStars?'on':''}" onclick="addStars=${s};renderTasks()">${s}</button>`).join('')}</div><div style="font-size:13px;color:var(--gold);margin-left:6px;font-weight:900">${'★'.repeat(addStars)}</div></div>
-      <div class="add-row"><input id="addSav" class="add-input" placeholder="節約額（任意）" type="number" style="max-width:160px"><button class="add-submit no-select" onclick="addTask()">追加する</button></div></div>`;
+      <div class="add-row"><input id="addSav" class="add-input" placeholder="節約額（任意）" type="number" style="max-width:160px"><button id="addSubmitBtn" class="add-submit no-select" onclick="addTask()">追加する</button></div></div>`;
   p.innerHTML=h;
 }
 
@@ -792,8 +910,9 @@ function renderCP(){
   const p=document.getElementById('cp');
   let h=`<div class="cp-title">🏠 仲間たち（${Object.keys(D.creatures).length}/${CREATURES.length}）</div>`;
   h+=`<div style="display:flex;gap:6px;margin-bottom:14px" class="no-select">
-        <button class="t-btn" onclick="doGacha('chest')" style="flex:1;justify-content:center;background:linear-gradient(180deg,#fffefa,#f4ede4);border-color:#d0b080;font-weight:900">🗝️ 宝箱 (ノーマル)</button>
-        <button class="t-btn" onclick="doGacha('summon')" style="flex:1;justify-content:center;background:linear-gradient(180deg,#fffefa,#f0eaf4);border-color:#b0a0d0;font-weight:900">📜 魔導書 (レア)</button>
+        <button class="t-btn" onclick="doGacha('chest')" style="flex:1;justify-content:center;background:linear-gradient(180deg,#fffefa,#f4ede4);border-color:#d0b080;font-weight:900">🗝️ 宝箱</button>
+        <button class="t-btn" onclick="doGacha('summon')" style="flex:1;justify-content:center;background:linear-gradient(180deg,#fffefa,#f0eaf4);border-color:#b0a0d0;font-weight:900">📜 召喚陣</button>
+        <button class="t-btn" onclick="openAlchemy()" style="flex:1;justify-content:center;background:linear-gradient(180deg,#fffefa,#f4f0fa);border-color:#d0b0d0;font-weight:900;color:#603080">🔮 錬金釜</button>
       </div>`;
   h+=`<div class="cp-grid no-select">`;
   CREATURES.forEach(c=>{
@@ -851,7 +970,6 @@ function impD(e){const f=e.target.files[0];if(!f)return;const r=new FileReader()
 function showPasteImport(){const m=document.getElementById('mod');m.innerHTML=`<h2>📋 テキストから復元</h2><p>JSONをペースト</p><textarea id="pasteArea" style="width:100%;height:140px;font-size:12px;font-family:monospace;border:1px solid var(--bdr);border-radius:8px;padding:8px;resize:vertical"></textarea><br><button class="modal-close" onclick="doPasteImport()" style="margin-top:14px">復元する</button>`;document.getElementById('modOv').classList.add('show');}
 function doPasteImport(){const txt=document.getElementById('pasteArea').value.trim();try{D=JSON.parse(txt);fixD();save();closeMod();placeCreatures();renderScene();render();toast('復元完了！');}catch{alert('JSONの形式が正しくない')}}
 
-// スワイプUI制御用
 function initSwipe() {
     const wrap = document.getElementById('swipeWrap');
     wrap.scrollLeft = wrap.clientWidth;
@@ -865,6 +983,9 @@ function initSwipe() {
 function goToPage(idx) {
     const wrap = document.getElementById('swipeWrap');
     wrap.scrollTo({ left: wrap.clientWidth * idx, behavior: 'smooth' });
+    
+    // チュートリアル進行
+    if(!D.tutDone && tutStep === 3 && idx === 2) { tutStep = 4; setTimeout(runTutorial, 300); }
 }
 
 load();
