@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>UNCHAINED FARM v21</title>
+<title>UNCHAINED FARM v22</title>
 <style>
 :root{
   --bg:#eee8db;--card:#fffefa;--card2:#f8f3ea;--bdr:#ddd4c0;--bdr2:#c8bfa8;
@@ -159,9 +159,12 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .cpop-buy-btn{padding:12px 28px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-weight:900;font-family:inherit;margin-top:14px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
 .log-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin-bottom:6px;background:linear-gradient(180deg,var(--card),var(--card2));border-radius:8px;border-left:4px solid var(--gold);font-size:13px;font-weight:700}
 .log-date{font-size:10px;color:var(--dimr);margin-left:8px}.log-xp{color:var(--gold);font-weight:900}
+
+/* --- トースト時間延長 (2s) --- */
 .toast{position:fixed;top:30%;left:50%;transform:translateX(-50%);font-size:24px;font-weight:900;color:var(--gold);z-index:300;pointer-events:none;opacity:0;text-shadow:0 2px 10px rgba(184,133,24,.4)}
-.toast.show{animation:tA 1.3s forwards}
+.toast.show{animation:tA 2.0s forwards}
 @keyframes tA{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-50px)}}
+
 .footer{text-align:center;margin-top:20px;padding:16px 0;border-top:1px solid var(--bdr)}
 .footer button{background:none;border:none;color:var(--dimr);font-size:12px;cursor:pointer;font-family:inherit;margin:0 8px;font-weight:700}
 .bk-row{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
@@ -178,19 +181,24 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .firefly { position:absolute; width:4px; height:4px; background:#e0ff60; border-radius:50%; box-shadow:0 0 8px #e0ff60; animation:fly 4s infinite alternate ease-in-out; }
 @keyframes fly { 0% { transform:translate(0,0); opacity:0.2;} 100% { transform:translate(20px,-20px); opacity:1; } }
 
-/* --- アイテム錬金釜 --- */
 .alch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 6px; max-height: 130px; overflow-y: auto; padding: 6px; background: var(--card2); border-radius: 8px; border: inset 1px var(--bdr);}
 .alch-item { border: 1px solid var(--bdr); border-radius: 6px; padding: 6px 2px; text-align: center; cursor: pointer; background: #fff; transition: 0.2s; position: relative;}
 .alch-item.sel { border-color: var(--gold); background: var(--gold-bg); box-shadow: 0 0 0 2px var(--gold-l); }
 .alch-item:hover { border-color: var(--grn-l); }
 
-/* --- チュートリアル用 (操作ブロック廃止、下部バナーのみ) --- */
+/* --- チュートリアル用 --- */
 .tut-banner { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(30,30,30,0.95); color: #fff; padding: 14px 20px; border-radius: 12px; z-index: 9999; font-weight: 700; font-size: 14px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.4); display: none; animation: popBubble 0.3s ease; width: 90%; max-width: 400px; pointer-events: auto; border: 1px solid var(--gold); }
 .tut-banner.show { display: block; }
 .tut-banner button { margin-top: 10px; padding: 6px 12px; border-radius: 6px; border: none; background: var(--gold); color: #fff; font-weight: 900; cursor: pointer; font-size: 13px; }
 .tut-banner .skip { background: transparent; color: #aaa; border: 1px solid #777; margin-left: 8px; }
 .tut-highlight { position: relative; z-index: 10 !important; box-shadow: 0 0 0 4px var(--gold-l) !important; animation: pulseHL 1.5s infinite; border-radius: inherit;}
 @keyframes pulseHL { 0% { box-shadow: 0 0 0 0 rgba(240,208,96,0.7); } 70% { box-shadow: 0 0 0 8px rgba(240,208,96,0); } 100% { box-shadow: 0 0 0 0 rgba(240,208,96,0); } }
+
+/* --- ログインボーナス用スタイル --- */
+.login-bonus-rewards { display: flex; gap: 8px; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+.login-bonus-item { background: #fff; border: 1px solid var(--bdr); border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 70px; }
+.login-bonus-item .icon { font-size: 24px; margin-bottom: 4px; }
+.login-bonus-item .count { font-size: 14px; font-weight: 900; color: var(--gold); }
 </style>
 </head>
 <body>
@@ -333,7 +341,7 @@ const CREATURES=[
   {id:'pig',name:'ぶた',tier:1,cost:{corn:4},fav:'apple',maxLv:5,body:'#fba3a3',detail:'#e08080',desc:'よく食べる食いしん坊。', map:["              ","    b   b     ","    bbbbb     ","    bebeb     ","   bbpdpbb    ","   bbbbbbb b  ","   bbbbbbbbb  ","    bbbbb     ","    d   d     ","              "]},
   {id:'slime',name:'スライム',tier:1,cost:{juice:3},fav:'juice',maxLv:5,body:'#5ec4e8',detail:'#2a90b4',desc:'ぷるぷる動く不思議なゼリー。', map:["              ","              ","              ","      b       ","    bbbbb     ","   blbeblb    ","   bbbbbbbb   ","  bbbbbbbbbb  "," dbbbbbbbbd   ","   dddddddd   "]},
   {id:'cow',name:'うし',tier:2,cost:{corn:8},fav:'corn',maxLv:6,body:'#ffffff',detail:'#303030',acc:'#ffb0c0',desc:'のんびり草を食べる。', map:["              ","   d     d    ","   bbbbbbb    ","   bbedebb    ","   bbabbbb    ","  bbdbbbbbbb  ","  bbbbdbbbbb  ","  bbbbbbdbbb  ","   d   d  d   ","              "]},
-  {id:'horse',name:'うま',tier:2,cost:{apple:8},fav:'apple',maxLv:6,body:'#8a5030',detail:'#402010',desc:'風のように野を駆ける。', map:["    d d       ","    dbbbb     ","    dbweb     ","    bbbbbb    ","     bbbbbbbb ","     bbbbbbbb ","     bbbbbbbb ","     d  d  d  ","              ","              "]},
+  {id:'horse',name:'うま',tier:2,cost:{apple:8},fav:'apple',maxLv:6,body:'#8a5030',detail:'#402010',desc:'風のように野を駆ける. map:["    d d       ","    dbbbb     ","    dbweb     ","    bbbbbb    ","     bbbbbbbb ","     bbbbbbbb ","     bbbbbbbb ","     d  d  d  ","              ","              "]},
   {id:'deer',name:'しか',tier:2,cost:{grape:6},fav:'grape',maxLv:6,body:'#c08040',detail:'#f0e0b0',desc:'立派なツノを持つ森の住人。', map:["   d     d    ","   d     d    ","    bbbbb     ","    bebeb     ","   bbbbbbbbb  ","   bbldlbbbb  ","    bbbbb     ","    d   d     ","              ","              "]},
   {id:'fox',name:'きつね',tier:2,cost:{fish:6},fav:'fish',maxLv:6,body:'#e87820',detail:'#ffffff',desc:'賢くてイタズラ好き。', map:["              ","   b     b    ","   bbbbbbb    ","   bbebebb    ","   ddbbbdd    ","   ddbbbdd b  ","    bbbbb db  ","    bbbbb  d  ","    d   d     ","              "]},
   {id:'owl',name:'ふくろう',tier:2,cost:{coffee:5},fav:'coffee',maxLv:6,body:'#8a6040',detail:'#d0b080',acc:'#f0d030',desc:'夜の森を静かに見守る。', map:["              ","   b     b    ","   dbbbbbd    ","   dweewbd    ","   dbbabbd    ","   dbbbbbd    ","   bdbbbdb    ","   bbbbbbb    ","    d   d     ","              "]},
@@ -353,7 +361,7 @@ const CREATURES=[
   {id:'unicorn',name:'ユニコーン',tier:4,cost:{cake:8},fav:'cake',maxLv:8,body:'#f8f8ff',detail:'#d4e4ff',acc:'#f4d440',desc:'額に美しい角を持つ聖なる獣。', map:["     a        ","     a bbb    ","    bbbeb     ","    bbpbbbbb  ","     bbbbbbbb ","    dbbbbbbbb ","     bbbbbbbb ","     d  d  d  ","              ","              "]},
   {id:'phoenix',name:'フェニックス',tier:4,cost:{grimoire:3},fav:'wine',maxLv:8,body:'#f44424',detail:'#f4a424',acc:'#f4f424',desc:'炎を纏い何度でも蘇る不死鳥。', map:["       a      ","      adb     ","     bdbdb    ","    adeebda   ","  dddbbbbbddd ","  dddbbbbbddd ","    bbbbbbb   ","     d   d    ","              ","              "]},
   {id:'elf',name:'エルフ',tier:4,cost:{},fav:'wine',maxLv:8,body:'#f0d0b0',detail:'#40a040',acc:'#e0c040',hidden:true,desc:'森の奥深くで生きる美しき種族。', map:["              ","    dbbbd     ","   bbbbbbb    ","   dbwebbd    ","    bbpbb     ","     ddd      ","    ddddd     ","     ddd      ","    b   b     ","              "]},
-  {id:'babydragon',name:'ベビードラゴン',tier:5,cost:{steak:15},fav:'steak',maxLv:9,body:'#40a8c8',detail:'#d8e8f8',acc:'#206888',desc:'まだ小さいが立派なドラゴン。', map:["              ","   a  a       ","   abbd       ","   bwebeb     ","    bbbbb     ","   dbbbbbd    ","   dbbbbbd b  ","    bbbbb  b  ","    a   a     ","              "]},
+  {id:'babydragon',name:'ベビードラゴン',tier:5,cost:{steak:15},fav:'steak',maxLv:9,body:'#40a8c8',detail:'#d8e8f8',acc:'#206888',desc:'まだ小さいが立パーなドラゴン。', map:["              ","   a  a       ","   abbd       ","   bwebeb     ","    bbbbb     ","   dbbbbbd    ","   dbbbbbd b  ","    bbbbb  b  ","    a   a     ","              "]},
   {id:'dragon',name:'ドラゴン',tier:5,cost:{steak:20},fav:'steak',maxLv:10,body:'#383838',detail:'#a83838',acc:'#585858',desc:'空を支配する最強のモンスター。', map:["   a   a      ","   abbba      ","   bwebeb     ","    bbbdbb    ","   dbbbbbbda  ","  ddbbbbbbdd  ","  d bbbbbb d  ","  d bbb b  d  ","   a     a    ","              "]},
   {id:'mimic',name:'ミミック',tier:4,cost:{},fav:'steak',maxLv:8,body:'#a85838',detail:'#f4d448',acc:'#483828',hidden:true,desc:'宝箱に擬態する恐ろしい罠。', map:["              ","              ","   aaaaaaa    ","   abbbwba    ","   addddda    ","   awwwbwa    ","   addddda    ","   aaaaaaa    ","              ","              "]},
   {id:'bahamut',name:'バハムート',tier:5,cost:{},fav:'wine',maxLv:10,body:'#382858',detail:'#8848a8',acc:'#d8d8f8',hidden:true,desc:'神話に語られる伝説の暗黒竜。', map:["    a   a     ","    b   b     ","   bbaaabb     ","   dweewbd    ","   dbbbbbd    ","   ddbbbdd b  ","   d bbb d b  ","    a   a     ","              ","              "]},
@@ -378,10 +386,10 @@ let tutStep = 0;
 function tod(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().split('T')[0]}
 function getT(x){let c=TITLES[0];for(const t of TITLES)if(x>=t.req)c=t;return c}
 function getN(x){for(const t of TITLES)if(x<t.req)return t;return null}
-function init(){return{xp:0,streak:0,maxStreak:0,lastDate:null,days:{},tasks:[],res:{},creatures:{},cStages:{},cDecos:{},history:[],identity:'UNCHAINED',monthlyGoal:'未設定',customTips:[],tutDone:false}}
+function init(){return{xp:0,streak:0,maxStreak:0,lastDate:null,days:{},tasks:[],res:{},creatures:{},cStages:{},cDecos:{},history:[],identity:'UNCHAINED',monthlyGoal:'未設定',customTips:[],tutDone:false,claimedDailyRewards:{}}}
 function load(){try{const r=localStorage.getItem(SK);if(r){D=JSON.parse(r);fixD();}else throw'';}catch{D=init();}}
 function save(){localStorage.setItem(SK,JSON.stringify(D))}
-function fixD(){if(!D.tasks)D.tasks=[];if(!D.res)D.res={};if(!D.creatures)D.creatures={};if(!D.cStages)D.cStages={};if(!D.history)D.history=[];if(!D.identity)D.identity='UNCHAINED';if(!D.monthlyGoal)D.monthlyGoal='未設定';if(!D.customTips)D.customTips=[];if(D.streak===undefined)D.streak=0;if(D.maxStreak===undefined)D.maxStreak=D.streak;if(D.tutDone===undefined)D.tutDone=false;}
+function fixD(){if(!D.tasks)D.tasks=[];if(!D.res)D.res={};if(!D.creatures)D.creatures={};if(!D.cStages)D.cStages={};if(!D.cDecos)D.cDecos={};if(!D.history)D.history=[];if(!D.identity)D.identity='UNCHAINED';if(!D.monthlyGoal)D.monthlyGoal='未設定';if(!D.customTips)D.customTips=[];if(D.streak===undefined)D.streak=0;if(D.maxStreak===undefined)D.maxStreak=D.streak;if(D.tutDone===undefined)D.tutDone=false;if(!D.claimedDailyRewards)D.claimedDailyRewards={};}
 
 function isDecayMode(){return D.streak === 0 && D.history.length > 0;}
 
@@ -436,6 +444,58 @@ function pickInit(id){
     setTimeout(runTutorial, 500);
 }
 
+// === ログインボーナス機能 ===
+function checkLoginBonus() {
+    if(D.tutDone === false) return; // チュートリアル中は出さない
+    const today = tod();
+    if(D.claimedDailyRewards[today]) return; // 今日は受取済み
+
+    let h = `<h2 style="font-size:22px;color:var(--gold);margin-bottom:12px;">🎁 ログインボーナス</h2>
+    <p style="font-size:14px;color:var(--txt);margin-bottom:16px;font-weight:700;">今日もUNCHAINED FARMへようこそ！<br>ゼロの日を作らず、一歩ずつ進もうぜ。</p>
+    <div class="login-bonus-rewards">`;
+
+    // 報酬を決定（ランダム）
+    const xpReward = 20;
+    const goldReward = Math.random() < 0.3 ? 5 : 2; // 30%で5ゴールド、70%で2ゴールド
+    const itemRewardPool = Object.keys(ITEMS).filter(k => ITEMS[k].t === 'food' || ITEMS[k].t === 'drink');
+    const itemReward = itemRewardPool[Math.floor(Math.random() * itemRewardPool.length)];
+    const itemRewardCount = 2;
+
+    h += `<div class="login-bonus-item"><div class="icon">✨</div><div class="count">${xpReward} XP</div></div>`;
+    h += `<div class="login-bonus-item"><div class="icon">💰</div><div class="count">${goldReward}</div></div>`;
+    h += `<div class="login-bonus-item"><div class="icon">${ITEMS[itemReward].e}</div><div class="count">${itemRewardCount}個</div></div>`;
+    
+    // 稀にレア素材
+    let rareReward = null;
+    if(Math.random() < 0.1) { // 10%でレア素材
+        const rareRewardPool = Object.keys(ITEMS).filter(k => ITEMS[k].t === 'rare');
+        rareReward = rareRewardPool[Math.floor(Math.random() * rareRewardPool.length)];
+        h += `<div class="login-bonus-item" style="border-color:var(--pink)"><div class="icon">${ITEMS[rareReward].e}</div><div class="count">1個</div></div>`;
+    }
+
+    h += `</div>
+    <p style="font-size:12px;color:var(--dim);margin-bottom:20px;font-weight:700;">（連続ログイン: ${D.streak}日）</p>
+    <button class="modal-close" onclick="claimLoginBonus(${xpReward}, ${goldReward}, '${itemReward}', ${itemRewardCount}, '${rareReward}')">受け取る！</button>`;
+    
+    document.getElementById('mod').innerHTML = h;
+    document.getElementById('modOv').classList.add('show');
+}
+
+function claimLoginBonus(xp, gold, itemId, itemCount, rareId) {
+    D.xp = (D.xp || 0) + xp;
+    D.res.gold = (D.res.gold || 0) + gold;
+    D.res[itemId] = (D.res[itemId] || 0) + itemCount;
+    if(rareId && rareId !== 'null') D.res[rareId] = (D.res[rareId] || 0) + 1;
+
+    const today = tod();
+    D.claimedDailyRewards[today] = true;
+    
+    D.history.unshift({id:'login',name:'ログインボーナス',xp:xp,date:today,time:new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),items:`💰${gold} ${ITEMS[itemId].e}${itemCount}`+(rareId && rareId !== 'null' ? ` ${ITEMS[rareId].e}1` : '')});
+
+    save(); closeMod(); render();
+    toast(`ログインボーナスゲット！ +${xp}XP`); sparkle();
+}
+
 // === マイルドなチュートリアル機能 ===
 function runTutorial() {
     if(D.tutDone) return;
@@ -462,6 +522,7 @@ function skipTut() {
     D.tutDone = true; save();
     document.querySelectorAll('.tut-highlight').forEach(e=>e.classList.remove('tut-highlight'));
     document.getElementById('tutBanner').classList.remove('show');
+    checkLoginBonus(); // チュートリアル終わったら即ログボチェック
 }
 
 function openLabelManager() {
@@ -536,6 +597,7 @@ function modTask(id,act){
 }
 function pickItems(s,seed){const r=STAR_REWARDS[s]||STAR_REWARDS[1];const res=[];const p=[...r.items];for(let i=0;i<r.count;i++){res.push(p[((seed||1)*7+i*13)%p.length]);}return res;}
 
+// === 鍵無限増殖修正済ガチャ ===
 function doGacha(type){
   if(type==='chest'){
     if((D.res.key||0)<1){toast('🗝️ 宝箱の鍵が足りない！');return;} D.res.key--;
@@ -544,30 +606,30 @@ function doGacha(type){
     else if(r<0.25){
       const pool=CREATURES.filter(c=>!c.hidden&&c.tier<=2&&!D.creatures[c.id]);
       if(pool.length>0) { getGachaCreature(pool[Math.floor(Math.random()*pool.length)].id); }
-      else { giveItems(['gem','grimoire','cake'], 2); toast('🎁 宝箱からレア素材が出た！'); }
-    }else{ giveItems(['gold','gem','grimoire','steak','key'], 3); toast('🎁 宝箱からお宝が出た！'); }
+      else { giveItems(['gem','steak','cake'], 2); toast('🎁 宝箱からレア素材が出た！'); } // 鍵削除、ステーキ等へ
+    }else{ giveItems(['gold','gem','steak','corn','cheese'], 3); toast('🎁 宝箱からお宝が出た！'); } // 鍵削除、チーズ等へ
   }else if(type==='summon'){
     if((D.res.grimoire||0)<1){toast('📜 魔導書が足りない！');return;} D.res.grimoire--;
     const r=Math.random();
     if(r<0.05){
       const ultra = ['bahamut','leviathan','giant'].filter(id=>!D.creatures[id]);
       if(ultra.length>0) getGachaCreature(ultra[Math.floor(Math.random()*ultra.length)]);
-      else { giveItems(['gem','key','gold'], 5); toast('🪄 召喚陣からレア素材が出た！'); }
+      else { giveItems(['gem','cake','gold_large'], 5); toast('🪄 召喚陣からレア素材が出た！'); } // 魔導書削除、ゴールド大等へ
     }else if(r<0.80){
       const pool=CREATURES.filter(c=>!c.hidden&&c.tier>=3&&!D.creatures[c.id]);
       if(pool.length>0) { getGachaCreature(pool[Math.floor(Math.random()*pool.length)].id); }
       else if(!D.creatures['elf']){ getGachaCreature('elf'); }
-      else { giveItems(['gem','key','gold'], 5); toast('🪄 召喚陣からレア素材が出た！'); }
+      else { giveItems(['gem','steak','gold_large'], 5); toast('🪄 召喚陣からレア素材が出た！'); } // 魔導書削除
     }else{ giveItems(['wine','steak','cake'], 2); toast('🪄 召喚陣からお供え物が出た！'); }
   }
   save();render();
 }
 function getGachaCreature(id){const c=CREATURES.find(x=>x.id===id);D.creatures[id]={lv:1,aff:0};D.cStages[id]=STAGES[curStage].id;showUnlock(c);placeCreatures();}
-function giveItems(arr, count){arr.forEach(i=>{if(i==='gold'){D.res.gold=(D.res.gold||0)+5*count;}else{D.res[i]=(D.res[i]||0)+count;}});}
+function giveItems(arr, count){arr.forEach(i=>{if(i==='gold'){D.res.gold=(D.res.gold||0)+5*count;}else if(i==='gold_large'){D.res.gold=(D.res.gold||0)+20*count;}else{D.res[i]=(D.res[i]||0)+count;}});}
 function buyC(id){const c=CREATURES.find(x=>x.id===id);if(!c||D.creatures[id])return;for(const r in c.cost)if((D.res[r]||0)<c.cost[r]){toast('素材が足りない！');return;}for(const r in c.cost)D.res[r]-=c.cost[r];D.creatures[id]={lv:1,aff:0};D.cStages[id]=STAGES[curStage].id;save();showUnlock(c);placeCreatures();render();}
-function feedC(id,food){const c=CREATURES.find(x=>x.id===id);if(!c)return;const cd=D.creatures[id];if(!cd)return;if((D.res[food]||0)<1){toast('足りない！');return;}D.res[food]--;const gain=(c.affPer||5)*(food===c.fav?2:1);cd.aff+=gain;const needed=cd.lv*20;if(cd.aff>=needed&&cd.lv<c.maxLv){cd.lv++;cd.aff=0;toast(`${c.name}がLv${cd.lv}に！🎉`);sparkle();}else toast(`${c.name}に${ITEMS[food]?.e||food}をあげた`);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);}
+function feedC(id,food){const c=CREATURES.find(x=>x.id===id);if(!c)return;const cd=D.creatures[id];if(!cd)return;if((D.res[food]||0)<1){toast('足りない！');return;}D.res[food]--;const gain=(c.affPer||5)*(food===c.fav?2:1);cd.aff+=gain;const needed=cd.lv*20;if(cd.aff>=needed&&cd.lv<c.maxLv){cd.lv++;cd.aff=0;toast(`${c.name}がLv${cd.lv}に！🎉`);sparkle();}else toast(`${c.name}に${ITEMS[food]?.e||food}をあげた`);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);placeCreatures(); /* エサをあげたら再描画 */ }
 function assignStage(id,stg){D.cStages[id]=stg;save();placeCreatures();render();}
-function setDeco(id,decoLv){D.cDecos[id]=parseInt(decoLv);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);}
+function setDeco(id,decoLv){D.cDecos[id]=parseInt(decoLv);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);placeCreatures(); /* 装飾変えたら再描画 */ }
 function calcSav(){let td=0,mo=0,al=0;const m=selDate.substring(0,7);D.history.forEach(h=>{if(h.sav>0){al+=h.sav;if(h.date.startsWith(m))mo+=h.sav;if(h.date===selDate)td+=h.sav;}});return{td,mo,al}}
 
 // === アイテム錬金釜機能 ===
@@ -607,30 +669,34 @@ function openAlchemy() {
 
 function renderAlchemyGrids() {
     let sH='', dH='';
-    for(const k in ITEMS) {
+    const sortRes = Object.keys(ITEMS).filter(k=>(D.res[k]||0)>0).sort((a,b)=>getRarity(b)-getRarity(a));
+    const sortAll = Object.keys(ITEMS).sort((a,b)=>getRarity(b)-getRarity(a));
+    
+    sortRes.forEach(k=>{
         const count = D.res[k]||0;
         const rarityMark = getRarity(k) === 2 ? '<span style="color:var(--pink)">★★</span>' : '<span style="color:var(--dimr)">★</span>';
-        
-        if(count > 0) {
-            sH += `<div class="alch-item ${alchSrcItem===k?'sel':''}" onclick="alchSrcItem='${k}';updateAlchRate()">
-                <div style="position:absolute;top:2px;left:4px;font-size:10px">${rarityMark}</div>
-                <div style="font-size:24px;margin-top:12px">${ITEMS[k].e}</div>
-                <div style="font-size:11px;font-weight:900;color:var(--txt)">${count}個</div>
-            </div>`;
-        }
+        sH += `<div class="alch-item ${alchSrcItem===k?'sel':''}" onclick="alchSrcItem='${k}';updateAlchRate()">
+            <div style="position:absolute;top:2px;left:4px;font-size:10px">${rarityMark}</div>
+            <div style="font-size:24px;margin-top:12px">${ITEMS[k].e}</div>
+            <div style="font-size:11px;font-weight:900;color:var(--txt)">${count}個</div>
+        </div>`;
+    });
+    sortAll.forEach(k=>{
+        const rarityMark = getRarity(k) === 2 ? '<span style="color:var(--pink)">★★</span>' : '<span style="color:var(--dimr)">★</span>';
         dH += `<div class="alch-item ${alchDstItem===k?'sel':''}" onclick="alchDstItem='${k}';updateAlchRate()">
             <div style="position:absolute;top:2px;left:4px;font-size:10px">${rarityMark}</div>
             <div style="font-size:24px;margin-top:12px">${ITEMS[k].e}</div>
         </div>`;
-    }
+    });
+    
     document.getElementById('alchSrc').innerHTML = sH || '<div style="font-size:12px;color:var(--dim);grid-column:1/-1;padding:10px;">出せるアイテムがないぜ</div>';
     document.getElementById('alchDst').innerHTML = dH;
     updateAlchRate();
 }
 
 function updateAlchRate() {
-    document.querySelectorAll('#alchSrc .alch-item').forEach((el, i) => { const k = Object.keys(ITEMS).filter(key=>(D.res[key]||0)>0)[i]; el.className = `alch-item ${alchSrcItem===k?'sel':''}`; });
-    document.querySelectorAll('#alchDst .alch-item').forEach((el, i) => { const k = Object.keys(ITEMS)[i]; el.className = `alch-item ${alchDstItem===k?'sel':''}`; });
+    document.querySelectorAll('#alchSrc .alch-item').forEach(el => { el.classList.remove('sel'); if(el.getAttribute('onclick').includes(`alchSrcItem='${alchSrcItem}'`)) el.classList.add('sel'); });
+    document.querySelectorAll('#alchDst .alch-item').forEach(el => { el.classList.remove('sel'); if(el.getAttribute('onclick').includes(`alchDstItem='${alchDstItem}'`)) el.classList.add('sel'); });
 
     if(!alchSrcItem || !alchDstItem) return;
     const btn = document.getElementById('alchBtn');
@@ -669,12 +735,13 @@ function doAlchemy() {
 function showCreaturePopup(id){
   const c=CREATURES.find(x=>x.id===id);if(!c)return;selC=id;const m=document.getElementById('mod');m.dataset.cid=id;const owned=!!D.creatures[id];
   if(owned){
-    const cd=D.creatures[id];const need=cd.lv*20;const ap=Math.min(cd.aff/need*100,100);const curStg=D.cStages[id]||'meadow';const curDeco=D.cDecos[id]!==undefined?D.cDecos[id]:cd.lv;
+    const cd=D.creatures[id];const need=cd.lv*20;const ap=Math.min(cd.aff/need*100,100);const curStg=D.cStages[id]||'meadow';const curDeco=D.cDecos[id]!==undefined?D.cDecos[id]:(Object.keys(DECOS).map(Number).filter(k=>cd.lv>=k).pop()||1);
     let h=`<div class="cpop-header"><canvas id="cvPop" width="96" height="96"></canvas><div><div class="cpop-name">${c.name} ${DECOS[Object.keys(DECOS).filter(k=>curDeco>=parseInt(k)&&DECOS[k]).pop()]||''}</div><div class="cpop-desc">${c.desc}</div><div class="cpop-lv">Lv.${cd.lv}/${c.maxLv} — 好物: ${ITEMS[c.fav]?.e||''}${ITEMS[c.fav]?.n||c.fav}</div></div></div><div style="font-size:12px;color:var(--dim);text-align:left;font-weight:700">なつき度 ${cd.aff}/${need}</div><div class="aff-bar"><div class="aff-fill" style="width:${ap}%"></div></div><div class="cpop-section"><div class="cpop-section-title">🍽 エサをあげる</div><div class="cpop-feed-grid">`;
-    let hf=false;for(const k in D.res){if(D.res[k]>0&&ITEMS[k]){hf=true;h+=`<button class="cpop-feed-btn" onclick="feedC('${id}','${k}')">${ITEMS[k].e} ${D.res[k]}${k===c.fav?'<span class="fav-mark">★好物</span>':''}</button>`;}}
+    let hf=false;const sortFood=Object.keys(D.res).filter(k=>D.res[k]>0&&ITEMS[k]).sort((a,b)=>(b===c.fav?1:0)-(a===c.fav?1:0));
+    sortFood.forEach(k=>{hf=true;h+=`<button class="cpop-feed-btn" onclick="feedC('${id}','${k}')">${ITEMS[k].e} ${D.res[k]}${k===c.fav?'<span class="fav-mark">★好物</span>':''}</button>`;});
     if(!hf)h+=`<div style="font-size:12px;color:var(--dim);font-weight:700">エサがない…タスクを完了して集めよう！</div>`;
-    h+=`</div></div><div class="cpop-section"><div class="cpop-section-title">📍 配置ステージ</div><div class="cpop-stage-sel"><select onchange="assignStage('${id}',this.value);showCreaturePopup('${id}')">${STAGES.map(s=>`<option value="${s.id}" ${curStg===s.id?'selected':''}>${s.name}</option>`).join('')}</select></div></div><div class="cpop-section"><div class="cpop-section-title">✨ 装飾</div><div class="deco-sel">`;
-    for(const dlv in DECO_NAMES){const ln=parseInt(dlv);const ul=cd.lv>=ln;const ca=D.cDecos[id]!==undefined?D.cDecos[id]:(Object.keys(DECOS).map(Number).filter(k=>cd.lv>=k).pop()||1);h+=`<button class="deco-btn ${ul?'':'locked'} ${ca===ln?'on':''}" ${ul?`onclick="setDeco('${id}',${ln})"`:'disabled'}>${DECOS[dlv]||'—'}</button>`;}
+    h+=`</div></div><div class="cpop-section"><div class="cpop-section-title">📍 配置ステージ</div><div class="cpop-stage-sel"><select onchange="assignStage('${id}',this.value);showCreaturePopup('${id}')">${STAGES.map(s=>`<option value="${s.id}" ${curStg===s.id?'selected':''}>${s.name}</option>`).join('')}</select></div></div><div class="cpop-section"><div class="cpop-section-title">✨ 装飾（被り物）</div><div class="deco-sel">`;
+    for(const dlv in DECO_NAMES){const ln=parseInt(dlv);const ul=cd.lv>=ln;h+=`<button class="deco-btn ${ul?'':'locked'} ${curDeco===ln?'on':''}" ${ul?`onclick="setDeco('${id}',${ln})"`:'disabled'}>${DECOS[dlv]||'—'}</button>`;}
     h+=`</div></div><button class="modal-close" onclick="closeMod()" style="margin-top:16px">閉じる</button>`;
     m.innerHTML=h;document.getElementById('modOv').classList.add('show');const cv=document.getElementById('cvPop');if(cv)drawPx(cv,c,96,cd.lv,curDeco);
   }else{
@@ -704,11 +771,12 @@ function renderScene(){
       else { fx.innerHTML = '<div class="sunbeam"></div>'; }
       sc.appendChild(fx);
   }
-  updateCreatureDOM();
+  placeCreatures(); /* 背景変えたら再配置 */
 }
 
 const CREATURE_ANIMS={chicken:'pecking',rabbit:'hop',cat:'hop',dog:'hop',sheep:'idle',pig:'sniffing',slime:'idle',cow:'walk',horse:'walk',deer:'walk',fox:'sniffing',owl:'idle',mushroom:'idle',turtle:'walk',hobbit:'walk',dwarf:'walk',elf:'walk',giant:'walk',leviathan:'flt',wolf:'walk',eagle:'flt',bear:'walk',goblin:'walk',fairy:'flt',skeleton:'walk',troll:'walk',orc:'walk',griffin:'flt',unicorn:'walk',phoenix:'flt',babydragon:'walk',dragon:'walk',mimic:'idle',bahamut:'flt'};
 
+// === 被り物反映修正済配置 ===
 function placeCreatures(){
   const sc=document.getElementById('scene'); const scW=sc.offsetWidth||600; const stgId=STAGES[curStage].id; const onStage=[];
   for(const id in D.creatures){if((D.cStages[id]||'meadow')===stgId)onStage.push(id);}
@@ -723,7 +791,13 @@ function placeCreatures(){
     e.className='s-creature '+anim; e.dataset.cid=id;
     const cvC=document.createElement('canvas'); cvC.style.imageRendering='pixelated';cvC.style.width=sz+'px';cvC.style.height=sz+'px';
     if(decay) cvC.style.filter = 'grayscale(0.8) sepia(0.3) brightness(0.9)';
-    const curDeco=D.cDecos[id]!==undefined?D.cDecos[id]:cd.lv; drawPx(cvC,c,sz*2,cd.lv,curDeco); e.appendChild(cvC);
+    
+    // ユーザーが選択した装飾を取得 (なければレベルに応じた自動装飾)
+    const defDeco = (Object.keys(DECOS).map(Number).filter(k=>cd.lv>=k).pop()||1);
+    const curDeco=D.cDecos[id]!==undefined?D.cDecos[id]:defDeco; 
+    
+    drawPx(cvC,c,sz*2,cd.lv,curDeco); 
+    e.appendChild(cvC);
     e.style.bottom=wanderPos[id].y+'px'; e.style.left=wanderPos[id].x+'px';
     if(wanderPos[id].dir<0)cvC.style.transform='scaleX(-1)';
     if(decay) { const sigh = document.createElement('div'); sigh.textContent = '💬...';sigh.style.position = 'absolute';sigh.style.top = '-10px';sigh.style.left = '10px';sigh.style.fontSize = '12px';sigh.style.opacity = '0.7'; e.appendChild(sigh); }
@@ -749,24 +823,25 @@ function updateCreatureDOM(){
 }
 
 function wanderCreatures(){
-  const sc=document.getElementById('scene'); const scW=sc.offsetWidth||600; const stgId=STAGES[curStage].id; const decay = isDecayMode();
+  const sc=document.getElementById('scene'); const stgId=STAGES[curStage].id; const decay = isDecayMode();
+  let anyMoving = false;
   for(const id in D.creatures){
     if((D.cStages[id]||'meadow')!==stgId)continue;
     if(!wanderPos[id])wanderPos[id]={x:100,y:40,dir:1,moving:false};
-    const wp=wanderPos[id]; const c=CREATURES.find(x=>x.id===id);
+    const wp=wanderPos[id]; 
     if(decay) { wp.moving = false; continue; }
     if(Math.random()<0.6){
-      wp.moving=true; const dx=(Math.random()-0.5)*120; const dy=(Math.random()-0.5)*20;
-      wp.x=Math.max(20,Math.min(scW-80,wp.x+dx));
+      wp.moving=true; anyMoving = true;
+      const dx=(Math.random()-0.5)*120; const dy=(Math.random()-0.5)*20;
+      wp.x=Math.max(20,Math.min(sc.offsetWidth-80,wp.x+dx));
       const minY = (window.innerWidth < 860 ? 5 : 10); const maxY = (window.innerWidth < 860 ? 45 : 80);
       wp.y=Math.max(minY,Math.min(maxY,wp.y+dy)); wp.dir=dx>=0?1:-1;
     }else{ wp.moving=false; }
   }
-  updateCreatureDOM();
+  if(anyMoving) updateCreatureDOM();
 }
 setInterval(wanderCreatures,2500);
 
-// === 汎用的なおしゃべり機能に変更 ===
 function chatterCreatures() {
     if(isDecayMode()) return;
     const sc = document.getElementById('scene'); const creatures = Array.from(sc.querySelectorAll('.s-creature'));
@@ -774,9 +849,8 @@ function chatterCreatures() {
     const target = creatures[Math.floor(Math.random() * creatures.length)];
     let msg = ""; const dd = dayD(); const tasks = D.tasks;
     
-    if(tasks.length === 0) { 
-        msg = "タスクを追加しようぜ！"; 
-    } else {
+    if(tasks.length === 0) { msg = "タスクを追加しようぜ！"; } 
+    else {
         const uncompleted = tasks.filter(t => (dd[t.id] || 0) === 0);
         let longIgnored = null;
         for(let t of tasks) {
@@ -789,15 +863,10 @@ function chatterCreatures() {
         }
         
         if(uncompleted.length === 0) { 
-            // 汎用的な完了メッセージ
-            const msgs = ["今日のタスク完璧だな！", "最高の1日だぜ！", "継続は力なり、だな！", "明日もこの調子でいこうぜ！", "今日も1440分を使い切ったな！", "世界が平和になったぜ！"]; 
-            msg = msgs[Math.floor(Math.random()*msgs.length)]; 
+            const msgs = ["今日のタスク完璧だな！", "最高の1日だぜ！", "継続は力なり、だな！", "明日もこの調子でいこうぜ！", "今日も1440分を使い切ったな！", "世界が平和になったぜ！"]; msg = msgs[Math.floor(Math.random()*msgs.length)]; 
         } 
-        else if (longIgnored && Math.random() < 0.4) { 
-            msg = `最近「${longIgnored.name}」やってないな？`; 
-        } 
+        else if (longIgnored && Math.random() < 0.4) { msg = `最近「${longIgnored.name}」やってないな？`; } 
         else {
-            // 汎用的な習慣化メッセージ
             const t = uncompleted[Math.floor(Math.random() * uncompleted.length)];
             const msgs = [`「${t.name}」、とりあえず2分だけでもやらないか？`, `「${t.name}」、とりあえず手をつけてみようぜ！`, `「${t.name}」、やる気が出ないなら5秒ルールだ！ 5, 4...`, `「${t.name}」、ハードルを極限まで下げてやってみよう！`, `「${t.name}」、見切り発車でもいいから手を付けようぜ！`, `「${t.name}」、1%だけでも進めようぜ！`, `おっ、「${t.name}」が君を待ってるぞ！`];
             msg = msgs[Math.floor(Math.random()*msgs.length)];
@@ -817,7 +886,8 @@ function render(){
   else { document.getElementById('sStrk').innerHTML=D.streak>0?`<span style="color:var(--red)">🔥</span> ${D.streak}日連続${D.streak>=3?' (XP+20%!)':''}`:''; }
   document.getElementById('sNxt').textContent=ni?`${ni.name}まで ${ni.req-(D.xp||0)}`:'最高ランク！';
   
-  let rh='';for(const k in ITEMS){if((D.res[k]||0)>0)rh+=`<div class="res-item">${ITEMS[k].e}${D.res[k]}</div>`;}
+  let rh=''; const sortRes=Object.keys(D.res).sort((a,b)=>getRarity(b)-getRarity(a));
+  sortRes.forEach(k=>{if((D.res[k]||0)>0)rh+=`<div class="res-item">${ITEMS[k].e}${D.res[k]}</div>`;});
   if((D.res.gold||0)>0)rh+=`<div class="res-item">💰${D.res.gold}</div>`;
   document.getElementById('resBar').innerHTML=rh||'<div style="font-size:12px;color:var(--dim);font-weight:700">タスクを完了してアイテムを集めよう</div>';
   
@@ -889,7 +959,8 @@ function renderCP(){
         <button class="t-btn" onclick="openAlchemy()" style="flex:1;justify-content:center;background:linear-gradient(180deg,#fffefa,#f4f0fa);border-color:#d0b0d0;font-weight:900;color:#603080">🔮 錬金釜</button>
       </div>`;
   h+=`<div class="cp-grid no-select">`;
-  CREATURES.forEach(c=>{
+  const sortCreatures=CREATURES.sort((a,b)=>((D.creatures[b.id]?1:0)-(D.creatures[a.id]?1:0))||(b.tier-a.tier));
+  sortCreatures.forEach(c=>{
       const owned=!!D.creatures[c.id]; const sel=selC===c.id;
       h+=`<div class="c-card ${owned?'':'locked'} ${sel?'sel':''}" onclick="showCreaturePopup('${c.id}')"><canvas id="cv_${c.id}" width="56" height="56" style="image-rendering:pixelated;display:block;margin:0 auto"></canvas><div class="c-name">${(owned||!c.hidden)?c.name:'???'}</div><div class="c-info">${owned?'Lv.'+D.creatures[c.id].lv:tierL(c.tier)}</div>${owned?`<div class="c-lvl">Lv.${D.creatures[c.id].lv}</div>`:''}</div>`;
   });
@@ -898,7 +969,7 @@ function renderCP(){
       const cv=document.getElementById('cv_'+c.id);
       if(cv){
           const owned=!!D.creatures[c.id]; const cd=D.creatures[c.id];
-          const deco=cd?(D.cDecos[c.id]!==undefined?D.cDecos[c.id]:cd.lv):0;
+          const deco=cd?(D.cDecos[c.id]!==undefined?D.cDecos[c.id]:(Object.keys(DECOS).map(Number).filter(k=>cd.lv>=k).pop()||1)):0;
           if(!owned && c.hidden){
               const ctx=cv.getContext('2d');ctx.fillStyle='#ddd';ctx.font='900 28px sans-serif';ctx.textAlign='center';ctx.fillText('?',28,40);
           }else{ drawPx(cv,c,56,cd?.lv||0,deco); }
@@ -909,7 +980,7 @@ function renderCP(){
 function renderLog(){const p=document.getElementById('pLog');if(!D.history.length){p.innerHTML='<div style="text-align:center;padding:24px;color:var(--dimr);font-size:14px;font-weight:700">まだ何もやってない。</div>';return;}let h='';D.history.slice(0,40).forEach(x=>{h+=`<div class="log-item"><div><strong>${x.name}</strong> ${x.items||''}<span class="log-date">${x.date} ${x.time}</span></div><div class="log-xp">+${x.xp}</div></div>`;});p.innerHTML=h;}
 
 function tierL(t){return['','★','★★','★★★','★★★★','伝説'][t]||''}
-function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.remove('show');void e.offsetWidth;e.classList.add('show')}
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.remove('show');void e.offsetWidth;e.classList.add('show');setTimeout(()=>{e.classList.remove('show')},2000) /* JSのタイマーも2秒に */ }
 function sparkle(){const sc=document.getElementById('scene');['✨','⭐','💫','🌟'].forEach((em,i)=>{const s=document.createElement('div');s.className='sparkle-fx';s.textContent=em;s.style.left=(20+Math.random()*60)+'%';s.style.bottom=(60+Math.random()*60)+'px';s.style.animationDelay=(i*.15)+'s';sc.appendChild(s);setTimeout(()=>s.remove(),1500)})}
 function showUnlock(c){const m=document.getElementById('mod');m.innerHTML=`<div><canvas id="cvUnlock" width="144" height="144" style="image-rendering:pixelated;display:block;margin:0 auto"></canvas></div><h2>${c.name}が仲間になった！</h2><p>${c.desc}</p><button class="modal-close" onclick="closeMod()">やったぜ！</button>`;document.getElementById('modOv').classList.add('show');const cv=document.getElementById('cvUnlock');if(cv)drawPx(cv,c,144,1);sparkle();sparkle();}
 function closeMod(){document.getElementById('modOv').classList.remove('show');const m=document.getElementById('mod');m.dataset.cid='';m.style.maxWidth='';}
@@ -931,18 +1002,17 @@ function showP4Editor(){
     for(let i=0;i<tips.length;i++)h+=`<div class="te-item" style="display:flex;gap:8px;margin-bottom:8px"><input id="tip_${i}" value="${tips[i].replace(/"/g,'&quot;')}" placeholder="格言を入力" style="flex:1;padding:8px;border-radius:6px;border:1px solid var(--bdr);font-family:inherit;font-size:13px"><button class="te-del" onclick="delCustomTip(${i})" style="padding:6px 10px;border-radius:6px;border:1px solid var(--bdr);background:var(--card);cursor:pointer;font-weight:700">✕</button></div>`;
     if(tips.length<5)h+=`<button class="te-add" onclick="saveP4Data();addCustomTip()" style="width:100%;padding:10px;border-radius:6px;border:1px dashed var(--dim);background:none;color:var(--dim);cursor:pointer;margin-top:10px;font-weight:900">＋ 格言を追加</button>`;
     h+=`<div style="margin-top:20px;display:flex;gap:10px;justify-content:center"><button class="modal-close" onclick="saveP4Data();closeMod();render();toast('設定を保存した！');">保存</button><button class="modal-close" onclick="closeMod()" style="background:var(--bdr);color:var(--dim);box-shadow:none">キャンセル</button></div></div>`;
-    m.innerHTML=h;document.getElementById('modOv').classList.add('show');
-}
+    m.innerHTML=h;document.getElementById('modOv').classList.add('show');}
 function saveP4Data(){ D.identity = document.getElementById('inId') ? document.getElementById('inId').value.trim() : 'UNCHAINED'; D.monthlyGoal = document.getElementById('inGoal') ? document.getElementById('inGoal').value.trim() : '未設定'; const tips=[]; for(let i=0;i<(D.customTips||[]).length;i++){const inp=document.getElementById('tip_'+i);if(inp&&inp.value.trim())tips.push(inp.value.trim());} D.customTips=tips;save(); }
 function addCustomTip(){if(!D.customTips)D.customTips=[];if(D.customTips.length>=5)return;D.customTips.push('');save();showP4Editor();}
 function delCustomTip(i){saveP4Data();D.customTips.splice(i,1);save();showP4Editor();}
 
 function resetDay(){if(!confirm(fmtDate(selDate)+'をリセット？'))return;delete D.days[selDate];D.history=D.history.filter(h=>h.date!==selDate);save();render()}
-function resetAll(){D=init();save();selC=null;wanderPos={};placeCreatures();render()}
+function resetAll(){D=init();save();selC=null;wanderPos={};renderScene();placeCreatures();render()}
 function expD(){const b=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`unchained_farm_${tod()}.json`;a.click()}
-function impD(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{D=JSON.parse(ev.target.result);fixD();save();placeCreatures();renderScene();render();toast('復元完了！');}catch{alert('読めなかった')}};r.readAsText(f);e.target.value=''}
+function impD(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{D=JSON.parse(ev.target.result);fixD();save();renderScene();placeCreatures();render();toast('復元完了！');}catch{alert('読めなかった')}};r.readAsText(f);e.target.value=''}
 function showPasteImport(){const m=document.getElementById('mod');m.innerHTML=`<h2>📋 テキストから復元</h2><p>JSONをペースト</p><textarea id="pasteArea" style="width:100%;height:140px;font-size:12px;font-family:monospace;border:1px solid var(--bdr);border-radius:8px;padding:8px;resize:vertical"></textarea><br><button class="modal-close" onclick="doPasteImport()" style="margin-top:14px">復元する</button>`;document.getElementById('modOv').classList.add('show');}
-function doPasteImport(){const txt=document.getElementById('pasteArea').value.trim();try{D=JSON.parse(txt);fixD();save();closeMod();placeCreatures();renderScene();render();toast('復元完了！');}catch{alert('JSONの形式が正しくない')}}
+function doPasteImport(){const txt=document.getElementById('pasteArea').value.trim();try{D=JSON.parse(txt);fixD();save();closeMod();renderScene();placeCreatures();render();toast('復元完了！');}catch{alert('JSONの形式が正しくない')}}
 
 function initSwipe() {
     const wrap = document.getElementById('swipeWrap');
@@ -967,8 +1037,8 @@ if(D.lastDate){
 
 renderScene(); 
 render(); 
-placeCreatures();
 checkInitSpawn();
+checkLoginBonus(); // 起動時にログボチェック
 
 setTimeout(initSwipe, 100);
 
