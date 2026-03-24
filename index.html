@@ -51,8 +51,9 @@ body{background:var(--bg);color:var(--txt);font-family:'Helvetica Neue', Arial, 
 @keyframes spkUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(0.3)}}
 .scene-time{position:absolute;top:12px;right:16px;font-size:32px;z-index:5;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))}
 
-.main-scroll-area { flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; }
-.top-static { padding: 12px 16px 0; }
+/* ネイティブアプリ風の縦スクロール制御 */
+.main-scroll-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.top-static { padding: 12px 16px 0; flex-shrink: 0; }
 .header{text-align:center;padding:0 0 10px}
 .header h1{font-size:24px;font-weight:900;color:var(--grn);text-shadow:0 1px 0 rgba(255,255,255,0.6)}
 
@@ -62,13 +63,14 @@ body{background:var(--bg);color:var(--txt);font-family:'Helvetica Neue', Arial, 
 .res-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap; justify-content:center;}
 .res-item{display:flex;align-items:center;gap:4px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--bdr);border-radius:8px;padding:6px 12px;font-size:14px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
 
-.screen-nav { display: flex; justify-content: space-between; padding: 10px 16px; background: var(--bg); border-bottom: 2px solid var(--bdr); position: sticky; top: 0; z-index: 50; gap: 8px; }
+.screen-nav { display: flex; justify-content: space-between; padding: 10px 16px; background: var(--bg); border-bottom: 2px solid var(--bdr); z-index: 50; gap: 8px; flex-shrink: 0; }
 .screen-nav span { flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 900; color: var(--dim); background: linear-gradient(180deg, var(--card), var(--card2)); border: 1px solid var(--bdr); border-radius: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.03); transition: 0.2s; }
 .screen-nav span.active { color: #fff; background: linear-gradient(180deg, var(--grn), #2e6a20); border-color: var(--grn); box-shadow: 0 2px 8px rgba(62,133,48,0.3); }
 
-.swipe-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; scroll-behavior: smooth; flex-shrink: 0; }
+/* スワイプコンテナ */
+.swipe-container { flex: 1; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; scroll-behavior: smooth; }
 .swipe-container::-webkit-scrollbar { display: none; }
-.swipe-page { flex: 0 0 100%; width: 100%; scroll-snap-align: start; padding: 16px; padding-bottom: 80px; box-sizing: border-box; }
+.swipe-page { flex: 0 0 100%; height: 100%; overflow-y: auto; scroll-snap-align: start; padding: 16px; padding-bottom: 80px; box-sizing: border-box; }
 
 .status{background:linear-gradient(135deg,var(--card) 0%,#faf5e8 100%);border-radius:14px;padding:14px 18px;margin-bottom:12px;border:1px solid var(--bdr);box-shadow:var(--shadow)}
 .st-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
@@ -159,9 +161,12 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .cpop-buy-btn{padding:12px 28px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-weight:900;font-family:inherit;margin-top:14px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
 .log-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin-bottom:6px;background:linear-gradient(180deg,var(--card),var(--card2));border-radius:8px;border-left:4px solid var(--gold);font-size:13px;font-weight:700}
 .log-date{font-size:10px;color:var(--dimr);margin-left:8px}.log-xp{color:var(--gold);font-weight:900}
+
+/* トースト通知の改善: 2秒表示に延長 */
 .toast{position:fixed;top:30%;left:50%;transform:translateX(-50%);font-size:24px;font-weight:900;color:var(--gold);z-index:300;pointer-events:none;opacity:0;text-shadow:0 2px 10px rgba(184,133,24,.4)}
-.toast.show{animation:tA 1.3s forwards}
-@keyframes tA{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-50px)}}
+.toast.show{animation:tA 2.0s forwards}
+@keyframes tA{0%{opacity:1;transform:translateX(-50%) translateY(0)} 80%{opacity:1;transform:translateX(-50%) translateY(-30px)} 100%{opacity:0;transform:translateX(-50%) translateY(-50px)}}
+
 .footer{text-align:center;margin-top:20px;padding:16px 0;border-top:1px solid var(--bdr)}
 .footer button{background:none;border:none;color:var(--dimr);font-size:12px;cursor:pointer;font-family:inherit;margin:0 8px;font-weight:700}
 .bk-row{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
@@ -184,7 +189,7 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .alch-item.sel { border-color: var(--gold); background: var(--gold-bg); box-shadow: 0 0 0 2px var(--gold-l); }
 .alch-item:hover { border-color: var(--grn-l); }
 
-/* --- チュートリアル用 (操作ブロック廃止、下部バナーのみ) --- */
+/* --- マイルドなチュートリアル用 --- */
 .tut-banner { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(30,30,30,0.95); color: #fff; padding: 14px 20px; border-radius: 12px; z-index: 9999; font-weight: 700; font-size: 14px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.4); display: none; animation: popBubble 0.3s ease; width: 90%; max-width: 400px; pointer-events: auto; border: 1px solid var(--gold); }
 .tut-banner.show { display: block; }
 .tut-banner button { margin-top: 10px; padding: 6px 12px; border-radius: 6px; border: none; background: var(--gold); color: #fff; font-weight: 900; cursor: pointer; font-size: 13px; }
@@ -223,7 +228,7 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
     </div>
 
     <div class="screen-nav no-select">
-      <span onclick="goToPage(0)" id="nav0">📊 ステータス</span>
+      <span onclick="goToPage(0)" id="nav0">📊 状況・統計</span>
       <span onclick="goToPage(1)" id="nav1" class="active">🌾 タスク</span>
       <span onclick="goToPage(2)" id="nav2">🐉 仲間</span>
     </div>
@@ -320,14 +325,15 @@ function drawPx(canvas, c, size, lv, forceDeco){
     ctx.imageSmoothingEnabled=false;
     const decoLv = forceDeco !== undefined ? forceDeco : lv;
     const d=mkPx(c, decoLv);
-    const p=size/14;
-    d.px.forEach(([x,y,ck])=>{ ctx.fillStyle=d.P[ck]||ck||'#000'; ctx.fillRect(x*p, (y+1)*p, Math.ceil(p), Math.ceil(p)); });
+    // 冠が切れないようにサイズとY位置を調整
+    const p=size/15;
+    d.px.forEach(([x,y,ck])=>{ ctx.fillStyle=d.P[ck]||ck||'#000'; ctx.fillRect((x+0.5)*p, (y+2)*p, Math.ceil(p), Math.ceil(p)); });
 }
 
 const CREATURES=[
-  {id:'chicken',name:'にわとり',tier:1,cost:{bread:3},fav:'corn',maxLv:5,body:'#ffffff',detail:'#e8c840',acc:'#e04020',acc2:'#f0d030',desc:'朝を告げる元気な鳥。', map:["              ","     aaa      ","    abwbae    ","   bbbbbcc    ","   bbbbbbb    ","   bbbbbbb b  ","   bbbbbbbbb  ","    bbbbbbb   ","     c   c    ","     c   c    "]},
+  {id:'chicken',name:'にわとり',tier:1,cost:{bread:3},fav:'corn',maxLv:5,body:'#ffffff',detail:'#e8c840',acc:'#e04020',acc2:'#f0d030',desc:'朝を告げる元気な鳥。', map:["              ","   aaa      ","  abwbae    ","  bbbbbcc   ","  bbbbbbb   ","  bbbbbbb b ","  bbbbbbbbb ","   bbbbbbb  ","     c   c  ","     c   c  "]},
   {id:'rabbit',name:'うさぎ',tier:1,cost:{carrot:5},fav:'carrot',maxLv:5,body:'#fdf4e3',detail:'#f0d0c0',desc:'もふもふの可愛い生き物。', map:["    b   b     ","    b   b     ","    b   b     ","   bbbbbbb    ","   bwebewb    ","   bbpbbbb    ","   bbbbbbb    ","   bbbbbbb b  ","   bbbbbbb b  ","    b   b     "]},
-  {id:'cat',name:'ねこ',tier:1,cost:{fish:3},fav:'fish',maxLv:5,body:'#888888',detail:'#555555',desc:'自由気ままなハンター。', map:["              ","   b     b    ","   bbbbbbb    ","   bwebebw    ","    bbpbb  b  ","   bbbbbbb b  ","   bbbbbbb b  ","   bbbbbbb    ","    b   b     ","              "]},
+  {id:'cat',name:'ねこ',tier:1,cost:{fish:3},fav:'fish',maxLv:5,body:'#888888',detail:'#555555',desc:'自由気ままなハンター。', map:["              ","   b     b  ","   bbbbbbb    ","   bwebebw    ","    bbpbb  b  ","   bbbbbbb b  ","   bbbbbbb b  ","   bbbbbbb    ","    b   b     ","              "]},
   {id:'dog',name:'いぬ',tier:1,cost:{steak:2},fav:'steak',maxLv:5,body:'#c89b5c',detail:'#8a5030',desc:'忠実な人間の良き友。', map:["              ","    bbbbb     ","   dbbbbbd    ","   dbebebd    ","   dbbpbbd    ","    bbbbb  b  ","   bbbbbbb b  ","   bbbbbbb    ","    b   b     ","              "]},
   {id:'sheep',name:'ひつじ',tier:1,cost:{bread:5},fav:'bread',maxLv:5,body:'#f4f4ec',detail:'#333333',desc:'ふわふわの毛に包まれている。', map:["              ","    bbbbb     ","   bbbbbbb    ","   ddededd    ","  bbbbbbbbb   ","  bbbbbbbbb   ","  bbbbbbbbb   ","   bbbbbbb    ","    d   d     ","    d   d     "]},
   {id:'pig',name:'ぶた',tier:1,cost:{corn:4},fav:'apple',maxLv:5,body:'#fba3a3',detail:'#e08080',desc:'よく食べる食いしん坊。', map:["              ","    b   b     ","    bbbbb     ","    bebeb     ","   bbpdpbb    ","   bbbbbbb b  ","   bbbbbbbbb  ","    bbbbb     ","    d   d     ","              "]},
@@ -351,7 +357,7 @@ const CREATURES=[
   {id:'orc',name:'オーク',tier:4,cost:{steak:10},fav:'steak',maxLv:8,body:'#5a9a5a',detail:'#3a6a3a',acc:'#f4f4d4',desc:'好戦的な猪頭の戦士。', map:["              ","    bbbbb     ","    brbrb     ","    bapab     ","     bbb      ","  abbbbbbb a  ","  ddbbbbbdd   ","    bbbbb     ","    b   b     ","              "]},
   {id:'griffin',name:'グリフォン',tier:4,cost:{steak:10},fav:'steak',maxLv:8,body:'#d0a040',detail:'#e4d4b4',acc:'#ffffff',desc:'鷲の頭と獅子の体を持つ幻獣。', map:["   bbb        ","   bwebbb     ","   bbbbbbbb   ","   dbbbbbbd   ","  adbbbbbbda  ","  adbbbbbbda  ","   bbbbbbbb   ","   d  d  d    ","              ","              "]},
   {id:'unicorn',name:'ユニコーン',tier:4,cost:{cake:8},fav:'cake',maxLv:8,body:'#f8f8ff',detail:'#d4e4ff',acc:'#f4d440',desc:'額に美しい角を持つ聖なる獣。', map:["     a        ","     a bbb    ","    bbbeb     ","    bbpbbbbb  ","     bbbbbbbb ","    dbbbbbbbb ","     bbbbbbbb ","     d  d  d  ","              ","              "]},
-  {id:'phoenix',name:'フェニックス',tier:4,cost:{grimoire:3},fav:'wine',maxLv:8,body:'#f44424',detail:'#f4a424',acc:'#f4f424',desc:'炎を纏い何度でも蘇る不死鳥。', map:["       a      ","      adb     ","     bdbdb    ","    adeebda   ","  dddbbbbbddd ","  dddbbbbbddd ","    bbbbbbb   ","     d   d    ","              ","              "]},
+  {id:'phoenix',name:'フェニックス',tier:4,cost:{grimoire:3},fav:'wine',maxLv:8,body:'#f44424',detail:'#f4a424',acc:'#f4f424',desc:'炎を纏い何度でも蘇る不死鳥。', map:["       a      ","      adb     ","      bdbdb   ","    adeebda   ","  dddbbbbbddd ","  dddbbbbbddd ","    bbbbbbb   ","     d   d    ","              ","              "]},
   {id:'elf',name:'エルフ',tier:4,cost:{},fav:'wine',maxLv:8,body:'#f0d0b0',detail:'#40a040',acc:'#e0c040',hidden:true,desc:'森の奥深くで生きる美しき種族。', map:["              ","    dbbbd     ","   bbbbbbb    ","   dbwebbd    ","    bbpbb     ","     ddd      ","    ddddd     ","     ddd      ","    b   b     ","              "]},
   {id:'babydragon',name:'ベビードラゴン',tier:5,cost:{steak:15},fav:'steak',maxLv:9,body:'#40a8c8',detail:'#d8e8f8',acc:'#206888',desc:'まだ小さいが立派なドラゴン。', map:["              ","   a  a       ","   abbd       ","   bwebeb     ","    bbbbb     ","   dbbbbbd    ","   dbbbbbd b  ","    bbbbb  b  ","    a   a     ","              "]},
   {id:'dragon',name:'ドラゴン',tier:5,cost:{steak:20},fav:'steak',maxLv:10,body:'#383838',detail:'#a83838',acc:'#585858',desc:'空を支配する最強のモンスター。', map:["   a   a      ","   abbba      ","   bwebeb     ","    bbbdbb    ","   dbbbbbbda  ","  ddbbbbbbdd  ","  d bbbbbb d  ","  d bbb b  d  ","   a     a    ","              "]},
@@ -378,10 +384,10 @@ let tutStep = 0;
 function tod(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().split('T')[0]}
 function getT(x){let c=TITLES[0];for(const t of TITLES)if(x>=t.req)c=t;return c}
 function getN(x){for(const t of TITLES)if(x<t.req)return t;return null}
-function init(){return{xp:0,streak:0,maxStreak:0,lastDate:null,days:{},tasks:[],res:{},creatures:{},cStages:{},cDecos:{},history:[],identity:'UNCHAINED',monthlyGoal:'未設定',customTips:[],tutDone:false}}
+function init(){return{xp:0,streak:0,maxStreak:0,lastDate:null,days:{},tasks:[],res:{},creatures:{},cStages:{},cDecos:{},history:[],identity:'UNCHAINED',monthlyGoal:'未設定',customTips:[],tutDone:false,loginDays:0,lastLoginDate:null}}
 function load(){try{const r=localStorage.getItem(SK);if(r){D=JSON.parse(r);fixD();}else throw'';}catch{D=init();}}
 function save(){localStorage.setItem(SK,JSON.stringify(D))}
-function fixD(){if(!D.tasks)D.tasks=[];if(!D.res)D.res={};if(!D.creatures)D.creatures={};if(!D.cStages)D.cStages={};if(!D.history)D.history=[];if(!D.identity)D.identity='UNCHAINED';if(!D.monthlyGoal)D.monthlyGoal='未設定';if(!D.customTips)D.customTips=[];if(D.streak===undefined)D.streak=0;if(D.maxStreak===undefined)D.maxStreak=D.streak;if(D.tutDone===undefined)D.tutDone=false;}
+function fixD(){if(!D.tasks)D.tasks=[];if(!D.res)D.res={};if(!D.creatures)D.creatures={};if(!D.cStages)D.cStages={};if(!D.history)D.history=[];if(!D.identity)D.identity='UNCHAINED';if(!D.monthlyGoal)D.monthlyGoal='未設定';if(!D.customTips)D.customTips=[];if(D.streak===undefined)D.streak=0;if(D.maxStreak===undefined)D.maxStreak=D.streak;if(D.tutDone===undefined)D.tutDone=false;if(D.loginDays===undefined)D.loginDays=0;}
 
 function isDecayMode(){return D.streak === 0 && D.history.length > 0;}
 
@@ -424,26 +430,70 @@ function checkInitSpawn(){
                 if(cv) drawPx(cv, c, 48, 1, 1);
             });
         }, 50);
-    } else {
-        setTimeout(runTutorial, 500);
-    }
+        return true;
+    } 
+    return false;
 }
+
 function pickInit(id){
     D.creatures[id] = {lv:1, aff:0};
     D.cStages[id] = 'meadow';
+    D.loginDays = 1;
+    D.lastLoginDate = tod();
     save(); closeMod(); placeCreatures(); render();
     toast('相棒が決まったぜ！');
     setTimeout(runTutorial, 500);
+}
+
+// === ログインボーナス機能 ===
+function checkLoginBonus() {
+    const today = tod();
+    if (D.lastLoginDate !== today) {
+        D.loginDays++;
+        D.lastLoginDate = today;
+        D.xp = (D.xp || 0) + 50;
+        const isKeyDay = (D.loginDays % 7 === 0);
+        if(isKeyDay) { D.res.key = (D.res.key || 0) + 1; }
+        save(); render();
+        showLoginBonusModal(D.loginDays, isKeyDay);
+    }
+}
+
+function showLoginBonusModal(days, isKeyDay) {
+    let h = `<h2 style="font-size:22px;color:var(--grn);margin-bottom:8px;">🎁 ログインボーナス</h2>`;
+    h += `<p style="font-size:14px;color:var(--dim);margin-bottom:16px;">今日も来てくれてありがとう！<br><b style="color:var(--gold)">+50 XP</b> ゲットだぜ！</p>`;
+    h += `<div style="display:flex; justify-content:center; gap:6px; margin-bottom:16px;">`;
+    const currentMod = (days - 1) % 7;
+    for(let i=0; i<7; i++) {
+        const isToday = i === currentMod;
+        const isPast = i < currentMod;
+        const bg = isToday ? 'var(--gold-bg)' : (isPast ? 'var(--grn-bg)' : 'var(--card)');
+        const bdr = isToday ? 'var(--gold)' : (isPast ? 'var(--grn)' : 'var(--bdr)');
+        const icon = i === 6 ? '🗝️' : '🪙';
+        const opacity = (!isToday && !isPast) ? '0.5' : '1';
+        h += `<div style="width:36px; height:46px; border-radius:6px; border:2px solid ${bdr}; background:${bg}; display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:${opacity};">
+            <div style="font-size:10px; font-weight:900; color:var(--dim)">${i+1}</div>
+            <div style="font-size:16px;">${isPast ? '✔️' : icon}</div>
+        </div>`;
+    }
+    h += `</div>`;
+    if (isKeyDay) h += `<p style="font-size:15px;color:var(--gold);font-weight:900;margin-bottom:16px;">🎉 7日連続達成！「宝箱の鍵」をゲット！</p>`;
+    h += `<button class="modal-close" onclick="closeMod(); runTutorial();">受け取る</button>`;
+
+    const m = document.getElementById('mod');
+    m.innerHTML = h;
+    document.getElementById('modOv').classList.add('show');
+    sparkle();
 }
 
 // === マイルドなチュートリアル機能 ===
 function runTutorial() {
     if(D.tutDone) return;
     const banner = document.getElementById('tutBanner');
-    document.querySelectorAll('.tut-highlight').forEach(e=>e.classList.remove('tut-highlight')); // リセット
+    document.querySelectorAll('.tut-highlight').forEach(e=>e.classList.remove('tut-highlight')); 
     
     if(D.tasks.length === 0 && tutStep === 0) {
-        goToPage(1); // タスク画面へ
+        goToPage(1); 
         setTimeout(() => {
             const addArea = document.querySelector('.add-task');
             if(addArea) addArea.classList.add('tut-highlight');
@@ -536,6 +586,7 @@ function modTask(id,act){
 }
 function pickItems(s,seed){const r=STAR_REWARDS[s]||STAR_REWARDS[1];const res=[];const p=[...r.items];for(let i=0;i<r.count;i++){res.push(p[((seed||1)*7+i*13)%p.length]);}return res;}
 
+// === 無限増殖バグの修正 ===
 function doGacha(type){
   if(type==='chest'){
     if((D.res.key||0)<1){toast('🗝️ 宝箱の鍵が足りない！');return;} D.res.key--;
@@ -544,20 +595,20 @@ function doGacha(type){
     else if(r<0.25){
       const pool=CREATURES.filter(c=>!c.hidden&&c.tier<=2&&!D.creatures[c.id]);
       if(pool.length>0) { getGachaCreature(pool[Math.floor(Math.random()*pool.length)].id); }
-      else { giveItems(['gem','grimoire','cake'], 2); toast('🎁 宝箱からレア素材が出た！'); }
-    }else{ giveItems(['gold','gem','grimoire','steak','key'], 3); toast('🎁 宝箱からお宝が出た！'); }
+      else { giveItems(['gem','cake','wine'], 2); toast('🎁 宝箱からレア素材が出た！'); }
+    }else{ giveItems(['gold','gem','steak','apple','cheese'], 3); toast('🎁 宝箱からお宝が出た！'); }
   }else if(type==='summon'){
     if((D.res.grimoire||0)<1){toast('📜 魔導書が足りない！');return;} D.res.grimoire--;
     const r=Math.random();
     if(r<0.05){
       const ultra = ['bahamut','leviathan','giant'].filter(id=>!D.creatures[id]);
       if(ultra.length>0) getGachaCreature(ultra[Math.floor(Math.random()*ultra.length)]);
-      else { giveItems(['gem','key','gold'], 5); toast('🪄 召喚陣からレア素材が出た！'); }
+      else { giveItems(['gem','gold','wine'], 5); toast('🪄 召喚陣からレア素材が出た！'); }
     }else if(r<0.80){
       const pool=CREATURES.filter(c=>!c.hidden&&c.tier>=3&&!D.creatures[c.id]);
       if(pool.length>0) { getGachaCreature(pool[Math.floor(Math.random()*pool.length)].id); }
       else if(!D.creatures['elf']){ getGachaCreature('elf'); }
-      else { giveItems(['gem','key','gold'], 5); toast('🪄 召喚陣からレア素材が出た！'); }
+      else { giveItems(['gem','gold','steak'], 5); toast('🪄 召喚陣からレア素材が出た！'); }
     }else{ giveItems(['wine','steak','cake'], 2); toast('🪄 召喚陣からお供え物が出た！'); }
   }
   save();render();
@@ -567,7 +618,7 @@ function giveItems(arr, count){arr.forEach(i=>{if(i==='gold'){D.res.gold=(D.res.
 function buyC(id){const c=CREATURES.find(x=>x.id===id);if(!c||D.creatures[id])return;for(const r in c.cost)if((D.res[r]||0)<c.cost[r]){toast('素材が足りない！');return;}for(const r in c.cost)D.res[r]-=c.cost[r];D.creatures[id]={lv:1,aff:0};D.cStages[id]=STAGES[curStage].id;save();showUnlock(c);placeCreatures();render();}
 function feedC(id,food){const c=CREATURES.find(x=>x.id===id);if(!c)return;const cd=D.creatures[id];if(!cd)return;if((D.res[food]||0)<1){toast('足りない！');return;}D.res[food]--;const gain=(c.affPer||5)*(food===c.fav?2:1);cd.aff+=gain;const needed=cd.lv*20;if(cd.aff>=needed&&cd.lv<c.maxLv){cd.lv++;cd.aff=0;toast(`${c.name}がLv${cd.lv}に！🎉`);sparkle();}else toast(`${c.name}に${ITEMS[food]?.e||food}をあげた`);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);}
 function assignStage(id,stg){D.cStages[id]=stg;save();placeCreatures();render();}
-function setDeco(id,decoLv){D.cDecos[id]=parseInt(decoLv);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);}
+function setDeco(id,decoLv){D.cDecos[id]=parseInt(decoLv);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);placeCreatures();}
 function calcSav(){let td=0,mo=0,al=0;const m=selDate.substring(0,7);D.history.forEach(h=>{if(h.sav>0){al+=h.sav;if(h.date.startsWith(m))mo+=h.sav;if(h.date===selDate)td+=h.sav;}});return{td,mo,al}}
 
 // === アイテム錬金釜機能 ===
@@ -789,7 +840,6 @@ function chatterCreatures() {
         }
         
         if(uncompleted.length === 0) { 
-            // 汎用的な完了メッセージ
             const msgs = ["今日のタスク完璧だな！", "最高の1日だぜ！", "継続は力なり、だな！", "明日もこの調子でいこうぜ！", "今日も1440分を使い切ったな！", "世界が平和になったぜ！"]; 
             msg = msgs[Math.floor(Math.random()*msgs.length)]; 
         } 
@@ -797,9 +847,17 @@ function chatterCreatures() {
             msg = `最近「${longIgnored.name}」やってないな？`; 
         } 
         else {
-            // 汎用的な習慣化メッセージ
             const t = uncompleted[Math.floor(Math.random() * uncompleted.length)];
-            const msgs = [`「${t.name}」、とりあえず2分だけでもやらないか？`, `「${t.name}」、とりあえず手をつけてみようぜ！`, `「${t.name}」、やる気が出ないなら5秒ルールだ！ 5, 4...`, `「${t.name}」、ハードルを極限まで下げてやってみよう！`, `「${t.name}」、見切り発車でもいいから手を付けようぜ！`, `「${t.name}」、1%だけでも進めようぜ！`, `おっ、「${t.name}」が君を待ってるぞ！`];
+            const msgs = [
+                `「${t.name}」、とりあえず2分だけでもやらないか？`, 
+                `「${t.name}」、やる気が出ないなら5秒ルールだ！ 5, 4...`, 
+                `「${t.name}」、ハードルを極限まで下げてやってみよう！`, 
+                `「${t.name}」、60点で見切り発車しろ！行動を止めないことが最優先だぜ！`,
+                `「${t.name}」、1%だけでも進めようぜ！ゼロの日を作らないのが大事だ。`,
+                `何かのついでに「${t.name}」をやる If-Thenプランニングはどうだ？`,
+                `完璧主義は敵だ！「${t.name}」、とりあえず手をつけてみよう！`,
+                `1日は1440分！その数分を「${t.name}」に投資しようぜ！`
+            ];
             msg = msgs[Math.floor(Math.random()*msgs.length)];
         }
     }
@@ -961,14 +1019,17 @@ function goToPage(idx) {
 
 load();
 if(D.lastDate){
-    const diff=Math.floor((new Date(tod())-new Date(D.lastDate))/86400000);
-    if(diff>1 && D.streak>0){ D.streak=0; save(); }
+  const diff=Math.floor((new Date(tod())-new Date(D.lastDate))/86400000);
+  if(diff>1 && D.streak>0){ D.streak=0; save(); }
 }
 
 renderScene(); 
 render(); 
 placeCreatures();
-checkInitSpawn();
+
+if (!checkInitSpawn()) {
+    checkLoginBonus();
+}
 
 setTimeout(initSwipe, 100);
 
