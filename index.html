@@ -51,14 +51,13 @@ body{background:var(--bg);color:var(--txt);font-family:'Helvetica Neue', Arial, 
 @keyframes spkUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(0.3)}}
 .scene-time{position:absolute;top:12px;right:16px;font-size:32px;z-index:5;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))}
 
-/* ネイティブアプリ風の縦スクロール制御 */
 .main-scroll-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.top-static { padding: 12px 16px 0; flex-shrink: 0; }
-.header{text-align:center;padding:0 0 10px}
-.header h1{font-size:24px;font-weight:900;color:var(--grn);text-shadow:0 1px 0 rgba(255,255,255,0.6)}
 
-.stage-nav-wrap { display: flex; justify-content: center; align-items: center; gap: 15px; font-size: 14px; font-weight: 900; color: var(--dim); margin-bottom: 6px; }
-.stage-nav-wrap button { background: var(--card2); border: 1px solid var(--bdr); border-radius: 6px; font-size: 16px; cursor: pointer; color: var(--dim); padding: 4px 16px; font-weight: 900; }
+/* 修正: 固定領域を極限までコンパクトに */
+.top-static { padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; border-bottom: 1px solid var(--bdr); background: var(--bg); }
+.top-static h1 { font-size: 16px; font-weight: 900; color: var(--grn); text-shadow: 0 1px 0 rgba(255,255,255,0.6); margin: 0; letter-spacing: -0.5px; }
+.stage-nav-wrap { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 900; color: var(--dim); margin: 0; }
+.stage-nav-wrap button { background: var(--card2); border: 1px solid var(--bdr); border-radius: 6px; font-size: 14px; cursor: pointer; color: var(--dim); padding: 2px 12px; font-weight: 900; }
 
 .res-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap; justify-content:center;}
 .res-item{display:flex;align-items:center;gap:4px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--bdr);border-radius:8px;padding:6px 12px;font-size:14px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
@@ -162,7 +161,6 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .log-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin-bottom:6px;background:linear-gradient(180deg,var(--card),var(--card2));border-radius:8px;border-left:4px solid var(--gold);font-size:13px;font-weight:700}
 .log-date{font-size:10px;color:var(--dimr);margin-left:8px}.log-xp{color:var(--gold);font-weight:900}
 
-/* トースト通知の改善: 2秒表示に延長 */
 .toast{position:fixed;top:30%;left:50%;transform:translateX(-50%);font-size:24px;font-weight:900;color:var(--gold);z-index:300;pointer-events:none;opacity:0;text-shadow:0 2px 10px rgba(184,133,24,.4)}
 .toast.show{animation:tA 2.0s forwards}
 @keyframes tA{0%{opacity:1;transform:translateX(-50%) translateY(0)} 80%{opacity:1;transform:translateX(-50%) translateY(-30px)} 100%{opacity:0;transform:translateX(-50%) translateY(-50px)}}
@@ -207,24 +205,12 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
   
   <div class="main-scroll-area" id="mainScroll">
     <div class="top-static">
-      <div class="header">
-        <div class="stage-nav-wrap no-select">
-          <button onclick="chgStage(-1)">◀</button>
-          <span id="stgName">草原</span>
-          <button onclick="chgStage(1)">▶</button>
-        </div>
-        <h1>🌾 DRAGON FARM 🐉</h1>
+      <h1>🌾 DRAGON FARM</h1>
+      <div class="stage-nav-wrap no-select">
+        <button onclick="chgStage(-1)">◀</button>
+        <span id="stgName">草原</span>
+        <button onclick="chgStage(1)">▶</button>
       </div>
-      
-      <div class="p4-banner no-select" onclick="showP4Editor()">
-        <div style="flex:1">
-          <div class="p4-id" id="bId">UNCHAINED</div>
-          <div class="p4-goal" id="bGoal">🎯 目標: 未設定</div>
-          <div class="p4-tip" id="bTip">💡 ✏️を押して格言をセットしよう</div>
-        </div>
-        <div style="font-size:18px;color:var(--dim)">✏️</div>
-      </div>
-      <div class="res-bar" id="resBar"></div>
     </div>
 
     <div class="screen-nav no-select">
@@ -263,12 +249,23 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
       </div>
 
       <div class="swipe-page" id="page1">
+        <div class="p4-banner no-select" onclick="showP4Editor()">
+          <div style="flex:1">
+            <div class="p4-id" id="bId">UNCHAINED</div>
+            <div class="p4-goal" id="bGoal">🎯 目標: 未設定</div>
+            <div class="p4-tip" id="bTip">💡 ✏️を押して格言をセットしよう</div>
+          </div>
+          <div style="font-size:18px;color:var(--dim)">✏️</div>
+        </div>
+        
         <div class="date-nav no-select"><button onclick="chgDate(-1)">◀</button><div style="text-align:center"><div class="d-main" id="dM"></div><div class="d-sub" id="dS"></div></div><button id="dN" onclick="chgDate(1)">▶</button></div>
         <div id="pastI"></div>
         <div id="pTasks"></div>
       </div>
 
       <div class="swipe-page" id="page2">
+        <div class="res-bar" id="resBar"></div>
+        
         <div class="cp" id="cp"></div>
       </div>
 
@@ -586,7 +583,6 @@ function modTask(id,act){
 }
 function pickItems(s,seed){const r=STAR_REWARDS[s]||STAR_REWARDS[1];const res=[];const p=[...r.items];for(let i=0;i<r.count;i++){res.push(p[((seed||1)*7+i*13)%p.length]);}return res;}
 
-// === 無限増殖バグの修正 ===
 function doGacha(type){
   if(type==='chest'){
     if((D.res.key||0)<1){toast('🗝️ 宝箱の鍵が足りない！');return;} D.res.key--;
@@ -877,6 +873,7 @@ function render(){
   
   let rh='';for(const k in ITEMS){if((D.res[k]||0)>0)rh+=`<div class="res-item">${ITEMS[k].e}${D.res[k]}</div>`;}
   if((D.res.gold||0)>0)rh+=`<div class="res-item">💰${D.res.gold}</div>`;
+  // 所持アイテムはresBarというIDの場所に書き出される（今回は仲間タブの中に移動済み）
   document.getElementById('resBar').innerHTML=rh||'<div style="font-size:12px;color:var(--dim);font-weight:700">タスクを完了してアイテムを集めよう</div>';
   
   const sv=calcSav();document.getElementById('oD').textContent='¥'+sv.td.toLocaleString();document.getElementById('oM').textContent='¥'+sv.mo.toLocaleString();document.getElementById('oA').textContent='¥'+sv.al.toLocaleString();
