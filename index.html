@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>UNCHAINED FARM v21</title>
+<title>UNCHAINED FARM v22</title>
 <style>
 :root{
   --bg:#eee8db;--card:#fffefa;--card2:#f8f3ea;--bdr:#ddd4c0;--bdr2:#c8bfa8;
@@ -49,7 +49,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Helvetica Neue', Arial, 
 
 .sparkle-fx{position:absolute;pointer-events:none;font-size:24px;animation:spkUp 1.3s forwards;z-index:10}
 @keyframes spkUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(0.3)}}
-.scene-time{position:absolute;top:12px;right:16px;font-size:32px;z-index:5;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))}
+.scene-time{position:absolute;top:12px;right:16px;font-size:28px;z-index:5;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5)); letter-spacing: 4px;}
 
 .main-scroll-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
@@ -171,6 +171,33 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .stat-title{font-size:13px;font-weight:900;color:var(--dim);margin-bottom:12px;border-bottom:1px solid var(--bdr);padding-bottom:8px}
 .stat-val{font-size:20px;font-weight:900;color:var(--grn);margin-bottom:8px}
 .stat-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;font-weight:700}
+
+/* =========================================
+   天候・演出用 CSS アニメーション
+   ========================================= */
+.weather-fx { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
+
+/* 雲のアニメーション */
+.cloud { position: absolute; font-size: 32px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); animation: moveCloud linear infinite; opacity: 0.8; /* 後でここを background-image: url('cloud_01.png'); にする */ }
+@keyframes moveCloud { 0% { transform: translateX(-100px); } 100% { transform: translateX(100vw); } }
+
+/* 雨のアニメーション */
+.rain { position: absolute; width: 2px; height: 30px; background: linear-gradient(transparent, rgba(200,230,255,0.7)); animation: fallRain linear infinite; }
+@keyframes fallRain { 0% { transform: translateY(-50px) rotate(15deg); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(350px) rotate(15deg); opacity: 0; } }
+
+/* 雪のアニメーション */
+.snow { position: absolute; width: 6px; height: 6px; background: #fff; border-radius: 50%; opacity: 0.8; animation: fallSnow linear infinite; }
+@keyframes fallSnow { 0% { transform: translateY(-20px) translateX(0); opacity: 0;} 20% {opacity:1;} 100% { transform: translateY(350px) translateX(30px); opacity: 0; } }
+
+/* 嵐のオーバーレイと雷 */
+.storm-overlay { position: absolute; inset: 0; background: rgba(20, 20, 40, 0.4); animation: lightning 5s infinite; mix-blend-mode: multiply; }
+@keyframes lightning { 0%, 95%, 98% { background: rgba(20, 20, 40, 0.4); } 96%, 99% { background: rgba(255, 255, 255, 0.6); } }
+
+/* 滝ステージの魚跳ね */
+.fish-splash { position: absolute; bottom: 10px; width: 24px; height: 24px; font-size: 24px; animation: splash 4s infinite ease-out; opacity: 0; }
+@keyframes splash { 0% { transform: translateY(20px) scale(0.5); opacity: 0; } 10% { transform: translateY(-40px) scale(1) rotate(-20deg); opacity: 1; } 20% { transform: translateY(10px) scale(0.8) rotate(20deg); opacity: 0; } 100% { opacity: 0; } }
+
+/* ========================================= */
 
 .stage-fx { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
 .forest-fx { position:absolute; top:0; left:0; width:100%; height:100%; }
@@ -327,7 +354,6 @@ function drawPx(canvas, c, size, lv, forceDeco){
     ctx.imageSmoothingEnabled=false;
     const decoLv = forceDeco !== undefined ? forceDeco : lv;
     const d=mkPx(c, decoLv);
-    // 冠が切れないようにサイズとY位置を調整
     const p=size/15;
     d.px.forEach(([x,y,ck])=>{ ctx.fillStyle=d.P[ck]||ck||'#000'; ctx.fillRect((x+0.5)*p, (y+2)*p, Math.ceil(p), Math.ceil(p)); });
 }
@@ -382,6 +408,7 @@ const BG_IMAGES = {
 const SK='uf-v6';
 let D,selDate=tod(),selC=null,curStage=0,addStars=1,tipIdx=0,wanderPos={};
 let tutStep = 0;
+let currentWeather = 'sunny'; // 天気状態の保持
 
 function tod(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().split('T')[0]}
 function getT(x){let c=TITLES[0];for(const t of TITLES)if(x>=t.req)c=t;return c}
@@ -396,8 +423,29 @@ function isDecayMode(){return D.streak === 0 && D.history.length > 0;}
 function fmtDate(ds){const t=tod();if(ds===t)return'今日';const d=new Date(ds),y=new Date(t);y.setDate(y.getDate()-1);if(ds===y.toISOString().split('T')[0])return'昨日';return`${d.getMonth()+1}/${d.getDate()}（${'日月火水木金土'[d.getDay()]}）`}
 function chgDate(o){const d=new Date(selDate);d.setDate(d.getDate()+o);const t=d.toISOString().split('T')[0];if(t<=tod()){selDate=t;render()}}
 function dayD(){if(!D.days[selDate])D.days[selDate]={};return D.days[selDate]}
+
+// === 天候判定ロジック ===
+function rollWeather() {
+    const r = Math.random();
+    const m = new Date().getMonth() + 1;
+    // 冬季（12月〜2月）は雪が降りやすい
+    if (m === 12 || m <= 2) {
+        if (r < 0.25) return 'snow';
+        if (r < 0.55) return 'cloudy';
+        if (r < 0.65) return 'rain'; // 冬でも稀に雨
+        return 'sunny';
+    } else {
+        if (r < 0.15) return 'rain';
+        if (r < 0.20) return 'storm';
+        if (r < 0.40) return 'cloudy';
+        if (r < 0.60) return 'clear';
+        return 'sunny';
+    }
+}
+
 function chgStage(o){
     curStage=(curStage+o+STAGES.length)%STAGES.length;
+    currentWeather = rollWeather(); // ステージ移動時に天候ガチャ
     placeCreatures(); renderScene(); render();
     if(isBgmPlaying){
         const bgmAudio = document.getElementById('bgmAudio');
@@ -447,7 +495,6 @@ function pickInit(id){
     setTimeout(runTutorial, 500);
 }
 
-// === ログインボーナス機能 ===
 function checkLoginBonus() {
     const today = tod();
     if (D.lastLoginDate !== today) {
@@ -488,7 +535,6 @@ function showLoginBonusModal(days, isKeyDay) {
     sparkle();
 }
 
-// === マイルドなチュートリアル機能 ===
 function runTutorial() {
     if(D.tutDone) return;
     const banner = document.getElementById('tutBanner');
@@ -550,7 +596,6 @@ function addTask(){
     D.tasks.push({id:'t_'+Date.now(), name, label, stars:addStars, sav});
     inp.value=''; lblInp.value=''; savInp.value=''; addStars=1; save(); render();
     
-    // タスク追加でStep1へ
     if(!D.tutDone && tutStep === 0) { tutStep = 1; setTimeout(runTutorial, 100); }
 }
 function rmTask(id){D.tasks=D.tasks.filter(t=>t.id!==id);for(const d in D.days)if(D.days[d][id])delete D.days[d][id];save();render();}
@@ -581,7 +626,6 @@ function modTask(id,act){
     D.history.unshift({id,name:task.name,xp:xpD,sav:task.sav||0,date:selDate,time:new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),items:rI.map(i=>ITEMS[i]?.e||'').join('')});
     toast(`+${xpD} XP ${rI.map(i=>ITEMS[i]?.e||'').join('')}`);sparkle();
     
-    // 初完了でStep2へ
     if(!D.tutDone && tutStep === 1) { tutStep = 2; setTimeout(runTutorial, 500); }
   }
   D.xp=Math.max(0,(D.xp||0)+xpD);D.history=D.history.slice(0,100);save();render();
@@ -621,10 +665,6 @@ function feedC(id,food){const c=CREATURES.find(x=>x.id===id);if(!c)return;const 
 function assignStage(id,stg){D.cStages[id]=stg;save();placeCreatures();render();}
 function setDeco(id,decoLv){D.cDecos[id]=parseInt(decoLv);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);placeCreatures();}
 function calcSav(){let td=0,mo=0,al=0;const m=selDate.substring(0,7);D.history.forEach(h=>{if(h.sav>0){al+=h.sav;if(h.date.startsWith(m))mo+=h.sav;if(h.date===selDate)td+=h.sav;}});return{td,mo,al}}
-
-// === アイテム錬金釜機能 ===
-function getRarity(id) { return ITEMS[id].t === 'rare' ? 2 : 1; }
-let alchSrcItem = null; let alchDstItem = null; let alchCost = 0; let alchValid = false;
 
 function openAlchemy() {
     const m = document.getElementById('mod');
@@ -743,12 +783,81 @@ function showCreaturePopup(id){
   }
 }
 
+// === 天候システム描画ロジック ===
+function renderWeatherEffects() {
+    document.querySelectorAll('.weather-fx').forEach(e => e.remove());
+    if (isDecayMode()) return; // 荒廃時は天気エフェクトなし
+    
+    const sc = document.getElementById('scene');
+    const fx = document.createElement('div');
+    fx.className = 'weather-fx';
+    
+    // 雲の描画 (晴れ・曇り・快晴)
+    if (['sunny', 'cloudy', 'clear'].includes(currentWeather)) {
+        const numClouds = currentWeather === 'cloudy' ? 5 : (currentWeather === 'sunny' ? 2 : 0);
+        for (let i=0; i < numClouds; i++) {
+            const c = document.createElement('div');
+            c.className = 'cloud';
+            c.style.top = (Math.random() * 40) + '%';
+            c.style.animationDuration = (30 + Math.random() * 40) + 's';
+            c.style.animationDelay = -(Math.random() * 30) + 's';
+            c.textContent = '☁️'; // ←※後でここを消してCSSのbackground-imageで透過PNGを指定する
+            fx.appendChild(c);
+        }
+    }
+    
+    // 雨・嵐の描画
+    if (currentWeather === 'rain' || currentWeather === 'storm') {
+        if (currentWeather === 'storm') {
+            const overlay = document.createElement('div');
+            overlay.className = 'storm-overlay';
+            fx.appendChild(overlay);
+        }
+        for (let i=0; i < 40; i++) {
+            const r = document.createElement('div');
+            r.className = 'rain';
+            r.style.left = (Math.random() * 100) + '%';
+            r.style.animationDuration = (0.3 + Math.random() * 0.4) + 's';
+            r.style.animationDelay = (Math.random() * 2) + 's';
+            fx.appendChild(r);
+        }
+    }
+    
+    // 雪の描画
+    if (currentWeather === 'snow') {
+        for (let i=0; i < 30; i++) {
+            const s = document.createElement('div');
+            s.className = 'snow';
+            s.style.left = (Math.random() * 100) + '%';
+            s.style.animationDuration = (3 + Math.random() * 3) + 's';
+            s.style.animationDelay = (Math.random() * 5) + 's';
+            fx.appendChild(s);
+        }
+    }
+
+    // 滝ステージ限定: 魚の跳ね返り
+    if (STAGES[curStage].id === 'waterfall') {
+        const fish = document.createElement('div');
+        fish.className = 'fish-splash';
+        fish.textContent = '🐟'; // ←※後でここを消して透過PNG化
+        fish.style.left = (30 + Math.random() * 40) + '%';
+        fx.appendChild(fish);
+    }
+    
+    sc.appendChild(fx);
+}
+
 function renderScene(){
   const stg = STAGES[curStage].id; const decay = isDecayMode(); const h = new Date().getHours(); const isNight = h >= 19 || h < 5;
   let imgUrl = decay ? BG_IMAGES[stg].decay_day : BG_IMAGES[stg].normal_day;
   const bgLayer = document.getElementById('bgLayer'); bgLayer.style.backgroundImage = `url('${imgUrl}')`;
   bgLayer.style.filter = isNight ? 'brightness(0.45) contrast(1.1)' : 'none';
-  document.getElementById('scTime').innerHTML = isNight ? `🌙` : `☀️`; document.getElementById('stgName').textContent = STAGES[curStage].name;
+  
+  // 天気アイコンも時刻表示に追加
+  const weatherIcons = { clear:'☀️', sunny:'🌤️', cloudy:'☁️', rain:'☔', snow:'❄️', storm:'⚡' };
+  document.getElementById('scTime').innerHTML = (isNight ? '🌙 ' : '☀️ ') + (decay ? '' : weatherIcons[currentWeather] || ''); 
+  document.getElementById('stgName').textContent = STAGES[curStage].name;
+  
   document.querySelectorAll('.stage-fx').forEach(e=>e.remove()); const sc = document.getElementById('scene');
   if (stg === 'forest') {
       const fx = document.createElement('div'); fx.className = 'stage-fx forest-fx';
@@ -756,6 +865,10 @@ function renderScene(){
       else { fx.innerHTML = '<div class="sunbeam"></div>'; }
       sc.appendChild(fx);
   }
+  
+  // 天候の描画処理を呼び出し
+  renderWeatherEffects();
+  
   updateCreatureDOM();
 }
 
@@ -818,7 +931,6 @@ function wanderCreatures(){
 }
 setInterval(wanderCreatures,2500);
 
-// === 汎用的なおしゃべり機能に変更 ===
 function chatterCreatures() {
     if(isDecayMode()) return;
     const sc = document.getElementById('scene'); const creatures = Array.from(sc.querySelectorAll('.s-creature'));
@@ -885,7 +997,7 @@ function render(){
   const isT=selDate===tod();document.getElementById('dM').textContent=fmtDate(selDate);document.getElementById('dS').textContent=selDate;document.getElementById('dN').disabled=isT;
   document.getElementById('pastI').innerHTML=!isT?`<div class="past-bar"><span class="past-badge">📅 過去編集中</span><button class="btn-today" onclick="selDate=tod();render()">今日に戻る</button></div>`:'';
   
-  // バナーテキストの更新（3画面分散用）
+  // バナーテキストの更新
   document.getElementById('bId').textContent = D.identity || 'UNCHAINED';
   document.getElementById('bGoal').textContent = `🎯 目標: ${D.monthlyGoal || '未設定'}`;
   document.getElementById('bTip').textContent = `💡 ${getNextTip()}`;
