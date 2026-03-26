@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>UNCHAINED FARM v22</title>
+<title>UNCHAINED FARM v23</title>
 <style>
 :root{
   --bg:#eee8db;--card:#fffefa;--card2:#f8f3ea;--bdr:#ddd4c0;--bdr2:#c8bfa8;
@@ -178,7 +178,7 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .weather-fx { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
 
 /* 雲のアニメーション */
-.cloud { position: absolute; font-size: 32px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); animation: moveCloud linear infinite; opacity: 0.8; /* 後でここを background-image: url('cloud_01.png'); にする */ }
+.cloud { position: absolute; font-size: 32px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); animation: moveCloud linear infinite; opacity: 0.8; }
 @keyframes moveCloud { 0% { transform: translateX(-100px); } 100% { transform: translateX(100vw); } }
 
 /* 雨のアニメーション */
@@ -207,8 +207,8 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 @keyframes fly { 0% { transform:translate(0,0); opacity:0.2;} 100% { transform:translate(20px,-20px); opacity:1; } }
 
 /* --- アイテム錬金釜 --- */
-/* ↓ここを修正したぜ！ */
-.alch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 6px; min-height: 90px; max-height: 150px; overflow-y: auto; padding: 6px; background: var(--card2); border-radius: 8px; border: inset 1px var(--bdr); align-content: start;}
+/* ↓ ここが絶対に潰れないように min-height などをガチガチに設定したぜ！ */
+.alch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 6px; min-height: 120px; max-height: 200px; overflow-y: auto; padding: 10px; background: var(--card2); border-radius: 8px; border: inset 2px var(--bdr); align-content: start; margin-top: 4px; }
 .alch-item { border: 1px solid var(--bdr); border-radius: 6px; padding: 6px 2px; text-align: center; cursor: pointer; background: #fff; transition: 0.2s; position: relative;}
 .alch-item.sel { border-color: var(--gold); background: var(--gold-bg); box-shadow: 0 0 0 2px var(--gold-l); }
 .alch-item:hover { border-color: var(--grn-l); }
@@ -496,6 +496,7 @@ function pickInit(id){
     setTimeout(runTutorial, 500);
 }
 
+// === ログインボーナス（ランダムアイテム追加） ===
 function checkLoginBonus() {
     const today = tod();
     if (D.lastLoginDate !== today) {
@@ -503,15 +504,33 @@ function checkLoginBonus() {
         D.lastLoginDate = today;
         D.xp = (D.xp || 0) + 50;
         const isKeyDay = (D.loginDays % 7 === 0);
-        if(isKeyDay) { D.res.key = (D.res.key || 0) + 1; }
+        
+        let bonusItem = null;
+        if(isKeyDay) { 
+            D.res.key = (D.res.key || 0) + 1; 
+        } else {
+            // ★1の食料や飲み物からランダムに1つ選ぶ
+            const itemKeys = Object.keys(ITEMS).filter(k => ITEMS[k].t === 'food' || ITEMS[k].t === 'drink');
+            bonusItem = itemKeys[Math.floor(Math.random() * itemKeys.length)];
+            D.res[bonusItem] = (D.res[bonusItem] || 0) + 1;
+        }
+        
         save(); render();
-        showLoginBonusModal(D.loginDays, isKeyDay);
+        showLoginBonusModal(D.loginDays, isKeyDay, bonusItem);
     }
 }
 
-function showLoginBonusModal(days, isKeyDay) {
+function showLoginBonusModal(days, isKeyDay, bonusItem) {
     let h = `<h2 style="font-size:22px;color:var(--grn);margin-bottom:8px;">🎁 ログインボーナス</h2>`;
     h += `<p style="font-size:14px;color:var(--dim);margin-bottom:16px;">今日も来てくれてありがとう！<br><b style="color:var(--gold)">+50 XP</b> ゲットだぜ！</p>`;
+    
+    // アイテム獲得の表示
+    if (isKeyDay) {
+        h += `<div style="font-size:32px;margin-bottom:8px;">🗝️</div><p style="font-size:15px;color:var(--gold);font-weight:900;margin-bottom:16px;">🎉 7日連続達成！<br>「宝箱の鍵」をゲット！</p>`;
+    } else if (bonusItem) {
+        h += `<div style="font-size:32px;margin-bottom:8px;">${ITEMS[bonusItem].e}</div><p style="font-size:15px;color:var(--grn);font-weight:900;margin-bottom:16px;">本日のオマケ素材：<br>「${ITEMS[bonusItem].n}」をゲット！</p>`;
+    }
+
     h += `<div style="display:flex; justify-content:center; gap:6px; margin-bottom:16px;">`;
     const currentMod = (days - 1) % 7;
     for(let i=0; i<7; i++) {
@@ -519,7 +538,7 @@ function showLoginBonusModal(days, isKeyDay) {
         const isPast = i < currentMod;
         const bg = isToday ? 'var(--gold-bg)' : (isPast ? 'var(--grn-bg)' : 'var(--card)');
         const bdr = isToday ? 'var(--gold)' : (isPast ? 'var(--grn)' : 'var(--bdr)');
-        const icon = i === 6 ? '🗝️' : '✨';
+        const icon = i === 6 ? '🗝️' : '🎁';
         const opacity = (!isToday && !isPast) ? '0.5' : '1';
         h += `<div style="width:36px; height:46px; border-radius:6px; border:2px solid ${bdr}; background:${bg}; display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:${opacity};">
             <div style="font-size:10px; font-weight:900; color:var(--dim)">${i+1}</div>
@@ -527,7 +546,6 @@ function showLoginBonusModal(days, isKeyDay) {
         </div>`;
     }
     h += `</div>`;
-    if (isKeyDay) h += `<p style="font-size:15px;color:var(--gold);font-weight:900;margin-bottom:16px;">🎉 7日連続達成！「宝箱の鍵」をゲット！</p>`;
     h += `<button class="modal-close" onclick="closeMod(); runTutorial();">受け取る</button>`;
 
     const m = document.getElementById('mod');
@@ -667,6 +685,7 @@ function assignStage(id,stg){D.cStages[id]=stg;save();placeCreatures();render();
 function setDeco(id,decoLv){D.cDecos[id]=parseInt(decoLv);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);placeCreatures();}
 function calcSav(){let td=0,mo=0,al=0;const m=selDate.substring(0,7);D.history.forEach(h=>{if(h.sav>0){al+=h.sav;if(h.date.startsWith(m))mo+=h.sav;if(h.date===selDate)td+=h.sav;}});return{td,mo,al}}
 
+// === ここが新しくガチガチに直した錬金釜の処理だ！ ===
 function openAlchemy() {
     const m = document.getElementById('mod');
     m.style.maxWidth = '500px';
