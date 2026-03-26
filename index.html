@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>UNCHAINED FARM v24</title>
+<title>UNCHAINED FARM v25</title>
 <style>
 :root{
   --bg:#eee8db;--card:#fffefa;--card2:#f8f3ea;--bdr:#ddd4c0;--bdr2:#c8bfa8;
@@ -207,7 +207,6 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 @keyframes fly { 0% { transform:translate(0,0); opacity:0.2;} 100% { transform:translate(20px,-20px); opacity:1; } }
 
 /* --- アイテム錬金釜 --- */
-/* ★ 高さを150px固定にして絶対に潰れないようにしたぜ！ */
 .alch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); grid-auto-rows: min-content; gap: 6px; height: 150px; overflow-y: auto; padding: 8px; background: var(--card2); border-radius: 8px; border: inset 2px var(--bdr); }
 .alch-item { border: 1px solid var(--bdr); border-radius: 6px; padding: 6px 2px; text-align: center; cursor: pointer; background: #fff; transition: 0.2s; position: relative;}
 .alch-item.sel { border-color: var(--gold); background: var(--gold-bg); box-shadow: 0 0 0 2px var(--gold-l); }
@@ -606,6 +605,16 @@ function applyBulkLabel() {
     chks.forEach(chk => { const t = D.tasks.find(x => x.id === chk.value); if(t) { t.label = newLbl; count++; } });
     if(count > 0) { save(); render(); toast(`${count}個のタスクを整理したぜ！`); } else { toast('タスクが選ばれてないぞ！'); }
     closeMod();
+}
+
+function setAddStars(s) {
+    addStars = s;
+    document.querySelectorAll('.star-btn').forEach((b, i) => {
+        if (i < s) b.classList.add('on');
+        else b.classList.remove('on');
+    });
+    const disp = document.getElementById('starDisp');
+    if(disp) disp.textContent = '★'.repeat(s);
 }
 
 function addTask(){
@@ -1064,7 +1073,7 @@ function renderTasks(){
   }
   h+=`<div class="add-task"><div style="font-size:15px;font-weight:900;margin-bottom:10px">➕ タスク追加</div>
       <div class="add-row"><input id="addLbl" class="add-input" placeholder="ラベル (例: 運動)" style="max-width:140px"><input id="addInp" class="add-input" placeholder="タスク名" onkeydown="if(event.key==='Enter')addTask()"></div>
-      <div class="add-row"><div style="font-size:13px;color:var(--dim);margin-right:6px;font-weight:700">難易度:</div><div class="star-sel no-select">${[1,2,3,4,5].map(s=>`<button class="star-btn ${s<=addStars?'on':''}" onclick="addStars=${s};renderTasks()">${s}</button>`).join('')}</div><div style="font-size:13px;color:var(--gold);margin-left:6px;font-weight:900">${'★'.repeat(addStars)}</div></div>
+      <div class="add-row"><div style="font-size:13px;color:var(--dim);margin-right:6px;font-weight:700">難易度:</div><div class="star-sel no-select">${[1,2,3,4,5].map(s=>`<button class="star-btn ${s<=addStars?'on':''}" onclick="setAddStars(${s})">${s}</button>`).join('')}</div><div id="starDisp" style="font-size:13px;color:var(--gold);margin-left:6px;font-weight:900">${'★'.repeat(addStars)}</div></div>
       <div class="add-row"><input id="addSav" class="add-input" placeholder="節約額（任意）" type="number" style="max-width:160px"><button id="addSubmitBtn" class="add-submit no-select" onclick="addTask()">追加する</button></div></div>`;
   p.innerHTML=h;
 }
@@ -1156,6 +1165,16 @@ function expD(){const b=new Blob([JSON.stringify(D,null,2)],{type:'application/j
 function impD(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{D=JSON.parse(ev.target.result);fixD();save();placeCreatures();renderScene();render();toast('復元完了！');}catch{alert('読めなかった')}};r.readAsText(f);e.target.value=''}
 function showPasteImport(){const m=document.getElementById('mod');m.innerHTML=`<h2>📋 テキストから復元</h2><p>JSONをペースト</p><textarea id="pasteArea" style="width:100%;height:140px;font-size:12px;font-family:monospace;border:1px solid var(--bdr);border-radius:8px;padding:8px;resize:vertical"></textarea><br><button class="modal-close" onclick="doPasteImport()" style="margin-top:14px">復元する</button>`;document.getElementById('modOv').classList.add('show');}
 function doPasteImport(){const txt=document.getElementById('pasteArea').value.trim();try{D=JSON.parse(txt);fixD();save();closeMod();placeCreatures();renderScene();render();toast('復元完了！');}catch{alert('JSONの形式が正しくない')}}
+
+function setAddStars(s) {
+    addStars = s;
+    document.querySelectorAll('.star-btn').forEach((b, i) => {
+        if (i < s) b.classList.add('on');
+        else b.classList.remove('on');
+    });
+    const disp = document.getElementById('starDisp');
+    if(disp) disp.textContent = '★'.repeat(s);
+}
 
 function initSwipe() {
     const wrap = document.getElementById('swipeWrap');
