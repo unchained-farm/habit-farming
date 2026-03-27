@@ -196,6 +196,27 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .lightning-svg { position: absolute; top: 0; pointer-events: none; z-index: 11; filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 18px rgba(160,200,255,0.9)); animation: lightningFade 0.45s ease-out forwards; }
 @keyframes lightningFade { 0% { opacity: 1; } 60% { opacity: 0.7; } 100% { opacity: 0; } }
 
+/* 時間帯オーバーレイ */
+#time-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 2; transition: background-color 2s ease; }
+
+/* 季節エフェクトコンテナ */
+#season-fx { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
+
+/* 春: 桜 */
+.sakura { position: absolute; pointer-events: none; animation: sakuraFall linear infinite; }
+@keyframes sakuraFall { 0% { transform: translateY(-20px) rotate(0deg) translateX(0); opacity: 0; } 10% { opacity: 0.9; } 50% { transform: translateY(50%) rotate(200deg) translateX(25px); } 100% { transform: translateY(115%) rotate(360deg) translateX(-15px); opacity: 0; } }
+
+/* 夏: ホタル（既存.fireflyと区別） */
+.summer-ff { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: rgba(200,255,80,0.9); box-shadow: 0 0 7px 3px rgba(200,255,100,0.7); pointer-events: none; animation: summerFly ease-in-out infinite; }
+@keyframes summerFly { 0% { transform: translate(0,0); opacity: 0; } 20% { opacity: 1; } 50% { transform: translate(28px,-18px); opacity: 0.85; } 80% { opacity: 1; } 100% { transform: translate(-18px,12px); opacity: 0; } }
+
+/* 秋: 紅葉 */
+.autumn-leaf { position: absolute; pointer-events: none; animation: leafFall linear infinite; }
+@keyframes leafFall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 0; } 15% { opacity: 1; } 50% { transform: translateY(50%) rotate(-150deg) translateX(-25px); } 100% { transform: translateY(115%) rotate(300deg) translateX(20px); opacity: 0; } }
+
+/* 冬: 淡い雪（天候の雪より薄め・少なめ） */
+.winter-snow { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.55); pointer-events: none; animation: winterSnow linear infinite; }
+@keyframes winterSnow { 0% { transform: translateY(-20px) translateX(0); opacity: 0; } 10% { opacity: 0.6; } 50% { transform: translateY(50%) translateX(12px); } 100% { transform: translateY(115%) translateX(-8px); opacity: 0; } }
 
 /* ========================================= */
 
@@ -964,6 +985,91 @@ function renderWeatherEffects() {
     sc.appendChild(fx);
 }
 
+// 季節判定（月ベース）
+function getSeason() {
+    const m = new Date().getMonth();
+    if (m >= 2 && m <= 4) return 'spring';
+    if (m >= 5 && m <= 7) return 'summer';
+    if (m >= 8 && m <= 10) return 'autumn';
+    return 'winter';
+}
+
+// 季節エフェクト描画
+function renderSeasonEffects() {
+    const existing = document.getElementById('season-fx');
+    if (existing) existing.remove();
+    if (isDecayMode()) return;
+    const sc = document.getElementById('scene');
+    const fx = document.createElement('div');
+    fx.id = 'season-fx';
+    const season = getSeason();
+    if (season === 'spring') {
+        for (let i = 0; i < 14; i++) {
+            const el = document.createElement('div');
+            el.className = 'sakura';
+            el.textContent = '🌸';
+            el.style.fontSize = (10 + Math.random() * 8) + 'px';
+            el.style.left = (Math.random() * 100) + '%';
+            el.style.animationDuration = (5 + Math.random() * 5) + 's';
+            el.style.animationDelay = -(Math.random() * 10) + 's';
+            fx.appendChild(el);
+        }
+    } else if (season === 'summer') {
+        for (let i = 0; i < 8; i++) {
+            const el = document.createElement('div');
+            el.className = 'summer-ff';
+            el.style.left = (10 + Math.random() * 80) + '%';
+            el.style.top = (15 + Math.random() * 65) + '%';
+            el.style.animationDuration = (3 + Math.random() * 3) + 's';
+            el.style.animationDelay = -(Math.random() * 6) + 's';
+            fx.appendChild(el);
+        }
+    } else if (season === 'autumn') {
+        const leaves = ['🍁', '🍂'];
+        for (let i = 0; i < 12; i++) {
+            const el = document.createElement('div');
+            el.className = 'autumn-leaf';
+            el.textContent = leaves[i % 2];
+            el.style.fontSize = (11 + Math.random() * 9) + 'px';
+            el.style.left = (Math.random() * 100) + '%';
+            el.style.animationDuration = (5 + Math.random() * 6) + 's';
+            el.style.animationDelay = -(Math.random() * 11) + 's';
+            fx.appendChild(el);
+        }
+    } else {
+        for (let i = 0; i < 15; i++) {
+            const el = document.createElement('div');
+            el.className = 'winter-snow';
+            const size = 3 + Math.random() * 4;
+            el.style.width = size + 'px';
+            el.style.height = size + 'px';
+            el.style.left = (Math.random() * 100) + '%';
+            el.style.animationDuration = (4 + Math.random() * 5) + 's';
+            el.style.animationDelay = -(Math.random() * 9) + 's';
+            fx.appendChild(el);
+        }
+    }
+    sc.appendChild(fx);
+}
+
+// 時間帯オーバーレイ更新（夜は既存bgLayer filterに任せる）
+function updateTimeOverlay() {
+    let ov = document.getElementById('time-overlay');
+    if (!ov) {
+        ov = document.createElement('div');
+        ov.id = 'time-overlay';
+        const sc = document.getElementById('scene');
+        sc.insertBefore(ov, document.getElementById('bgLayer').nextSibling);
+    }
+    const h = new Date().getHours();
+    let color = 'rgba(0,0,0,0)';
+    if      (h >= 5 && h < 7)  color = 'rgba(255,120,50,0.22)';  // 朝焼け
+    else if (h >= 7 && h < 8)  color = 'rgba(255,140,60,0.10)';  // 朝フェード
+    else if (h >= 17 && h < 18) color = 'rgba(210,80,20,0.20)'; // 夕焼け始まり
+    else if (h >= 18 && h < 20) color = 'rgba(180,50,20,0.30)'; // 夕焼けピーク
+    ov.style.backgroundColor = color;
+}
+
 function renderScene(){
   const stg = STAGES[curStage].id; const decay = isDecayMode(); const h = new Date().getHours(); const isNight = h >= 19 || h < 5;
   let imgUrl = decay ? BG_IMAGES[stg].decay_day : BG_IMAGES[stg].normal_day;
@@ -989,6 +1095,8 @@ function renderScene(){
   }
   
   renderWeatherEffects();
+  renderSeasonEffects();
+  updateTimeOverlay();
   updateCreatureDOM();
 }
 
@@ -1113,6 +1221,7 @@ function chatterCreatures() {
     setTimeout(() => { if(bubble.parentNode) bubble.remove(); }, 4000);
 }
 setInterval(chatterCreatures, 8000);
+setInterval(updateTimeOverlay, 60000);
 
 function render(){
   const ti=getT(D.xp||0),ni=getN(D.xp||0),pct=ni?((D.xp-ti.req)/(ni.req-ti.req))*100:100;
