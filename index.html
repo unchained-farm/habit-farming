@@ -203,20 +203,20 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 #season-fx { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
 
 /* 春: 桜 */
-.sakura { position: absolute; pointer-events: none; animation: sakuraFall linear infinite; }
-@keyframes sakuraFall { 0% { transform: translateY(-20px) rotate(0deg) translateX(0); opacity: 0; } 10% { opacity: 0.9; } 50% { transform: translateY(160px) rotate(200deg) translateX(25px); } 100% { transform: translateY(360px) rotate(360deg) translateX(-15px); opacity: 0; } }
+.sakura { position: absolute; pointer-events: none; animation-name: sakuraFall; animation-timing-function: linear; animation-iteration-count: infinite; animation-duration: 8s; }
+@keyframes sakuraFall { 0% { transform: translateY(-20px) rotate(0deg) translateX(0); opacity: 0; } 10% { opacity: 0.9; } 50% { transform: translateY(160px) rotate(200deg) translateX(25px); opacity: 0.85; } 100% { transform: translateY(360px) rotate(360deg) translateX(-15px); opacity: 0; } }
 
 /* 夏: ホタル（既存.fireflyと区別） */
-.summer-ff { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: rgba(200,255,80,0.9); box-shadow: 0 0 7px 3px rgba(200,255,100,0.7); pointer-events: none; animation: summerFly ease-in-out infinite; }
+.summer-ff { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: rgba(200,255,80,0.9); box-shadow: 0 0 7px 3px rgba(200,255,100,0.7); pointer-events: none; animation-name: summerFly; animation-timing-function: ease-in-out; animation-iteration-count: infinite; animation-duration: 4s; }
 @keyframes summerFly { 0% { transform: translate(0,0); opacity: 0; } 20% { opacity: 1; } 50% { transform: translate(28px,-18px); opacity: 0.85; } 80% { opacity: 1; } 100% { transform: translate(-18px,12px); opacity: 0; } }
 
 /* 秋: 紅葉 */
-.autumn-leaf { position: absolute; pointer-events: none; animation: leafFall linear infinite; }
-@keyframes leafFall { 0% { transform: translateY(-20px) rotate(0deg) translateX(0); opacity: 0; } 15% { opacity: 1; } 50% { transform: translateY(160px) rotate(-150deg) translateX(-25px); } 100% { transform: translateY(360px) rotate(300deg) translateX(20px); opacity: 0; } }
+.autumn-leaf { position: absolute; pointer-events: none; animation-name: leafFall; animation-timing-function: linear; animation-iteration-count: infinite; animation-duration: 7s; }
+@keyframes leafFall { 0% { transform: translateY(-20px) rotate(0deg) translateX(0); opacity: 0; } 15% { opacity: 1; } 50% { transform: translateY(160px) rotate(-150deg) translateX(-25px); opacity: 0.9; } 100% { transform: translateY(360px) rotate(300deg) translateX(20px); opacity: 0; } }
 
 /* 冬: 淡い雪（天候の雪より薄め・少なめ） */
-.winter-snow { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.55); pointer-events: none; animation: winterSnow linear infinite; }
-@keyframes winterSnow { 0% { transform: translateY(-20px) translateX(0); opacity: 0; } 10% { opacity: 0.6; } 50% { transform: translateY(160px) translateX(12px); } 100% { transform: translateY(360px) translateX(-8px); opacity: 0; } }
+.winter-snow { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.55); pointer-events: none; animation-name: winterSnow; animation-timing-function: linear; animation-iteration-count: infinite; animation-duration: 6s; }
+@keyframes winterSnow { 0% { transform: translateY(-20px) translateX(0); opacity: 0; } 10% { opacity: 0.6; } 50% { transform: translateY(160px) translateX(12px); opacity: 0.55; } 100% { transform: translateY(360px) translateX(-8px); opacity: 0; } }
 
 /* ========================================= */
 
@@ -998,11 +998,13 @@ function getSeason() {
 function renderSeasonEffects() {
     const existing = document.getElementById('season-fx');
     if (existing) existing.remove();
-    if (isDecayMode()) return;
+    // 季節エフェクトは現実の季節に基づくため decay モードでも表示する
     const sc = document.getElementById('scene');
+    if (!sc) { console.warn('[季節] scene要素が見つかりません'); return; }
     const fx = document.createElement('div');
     fx.id = 'season-fx';
     const season = getSeason();
+    console.log('[季節] season=', season, '/ decayMode=', isDecayMode(), '/ month=', new Date().getMonth());
     if (season === 'spring') {
         for (let i = 0; i < 14; i++) {
             const el = document.createElement('div');
@@ -1014,6 +1016,7 @@ function renderSeasonEffects() {
             el.style.animationDelay = -(Math.random() * 10) + 's';
             fx.appendChild(el);
         }
+        console.log('[季節] 桜を生成:', fx.querySelectorAll('.sakura').length, '個');
     } else if (season === 'summer') {
         for (let i = 0; i < 8; i++) {
             const el = document.createElement('div');
