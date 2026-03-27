@@ -196,9 +196,6 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .lightning-svg { position: absolute; top: 0; pointer-events: none; z-index: 11; filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 18px rgba(160,200,255,0.9)); animation: lightningFade 0.45s ease-out forwards; }
 @keyframes lightningFade { 0% { opacity: 1; } 60% { opacity: 0.7; } 100% { opacity: 0; } }
 
-/* 魚跳ね（PNG） */
-.fish-splash-img { position: absolute; bottom: 0; height: 60px; width: auto; animation: splash 3.5s ease-out infinite; opacity: 0; pointer-events: none; }
-@keyframes splash { 0% { transform: translateY(0) scale(0.8); opacity: 0; } 8% { transform: translateY(-60px) scale(1) rotate(-15deg); opacity: 1; } 18% { transform: translateY(0) scale(0.9) rotate(10deg); opacity: 0; } 100% { opacity: 0; } }
 
 /* ========================================= */
 
@@ -962,18 +959,6 @@ function renderWeatherEffects() {
             s.style.animationDelay = -(Math.random() * 5) + 's';
             fx.appendChild(s);
         }
-    }
-
-    // 滝ステージ限定: 魚の跳ね（PNG）
-    if (STAGES[curStage].id === 'waterfall') {
-        [20, 50, 75].forEach((left, i) => {
-            const fish = document.createElement('img');
-            fish.className = 'fish-splash-img';
-            fish.src = 'fish_splash.png';
-            fish.style.left = left + '%';
-            fish.style.animationDelay = (i * 1.2) + 's';
-            fx.appendChild(fish);
-        });
     }
 
     sc.appendChild(fx);
