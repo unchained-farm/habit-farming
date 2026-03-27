@@ -628,6 +628,50 @@ function addTask(){
 }
 function rmTask(id){D.tasks=D.tasks.filter(t=>t.id!==id);for(const d in D.days)if(D.days[d][id])delete D.days[d][id];save();render();}
 
+function editTask(id){
+  const task=D.tasks.find(t=>t.id===id);if(!task)return;
+  window._editStars=task.stars;
+  const m=document.getElementById('mod');
+  m.innerHTML=`<h2 style="color:var(--grn);margin-bottom:16px;">✏️ タスク編集</h2>
+    <div style="text-align:left;">
+      <div style="margin-bottom:10px;">
+        <div style="font-size:12px;color:var(--dim);font-weight:700;margin-bottom:4px;">タスク名</div>
+        <input id="etName" class="add-input" style="width:100%" value="${task.name.replace(/"/g,'&quot;')}">
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:12px;color:var(--dim);font-weight:700;margin-bottom:4px;">ラベル</div>
+        <input id="etLabel" class="add-input" style="width:100%" value="${(task.label||'未分類').replace(/"/g,'&quot;')}">
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:12px;color:var(--dim);font-weight:700;margin-bottom:4px;">難易度</div>
+        <div class="star-sel no-select" id="etStarSel">${[1,2,3,4,5].map(s=>`<button class="star-btn ${s<=task.stars?'on':''}" onclick="setEditStars(${s})">${s}</button>`).join('')}</div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;color:var(--dim);font-weight:700;margin-bottom:4px;">節約額（任意）</div>
+        <input id="etSav" class="add-input" type="number" style="width:100%" value="${task.sav||''}">
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button class="modal-close" onclick="saveTaskEdit('${id}')">保存する</button>
+        <button class="modal-close" onclick="closeMod()" style="background:var(--bdr);color:var(--dim);box-shadow:none">キャンセル</button>
+      </div>
+    </div>`;
+  document.getElementById('modOv').classList.add('show');
+}
+function setEditStars(s){
+  window._editStars=s;
+  document.querySelectorAll('#etStarSel .star-btn').forEach((b,i)=>b.classList.toggle('on',i<s));
+}
+function saveTaskEdit(id){
+  const task=D.tasks.find(t=>t.id===id);if(!task)return;
+  const name=document.getElementById('etName').value.trim();
+  if(!name){toast('タスク名を入力してね！');return;}
+  task.name=name;
+  task.label=document.getElementById('etLabel').value.trim()||'未分類';
+  task.stars=window._editStars||task.stars;
+  task.sav=parseInt(document.getElementById('etSav').value)||0;
+  save();closeMod();render();toast('タスクを更新したぜ！');
+}
+
 function modTask(id,act){
   const task=D.tasks.find(t=>t.id===id);if(!task)return;
   const dd=dayD();const cur=dd[id]||0;let xpD=0;
@@ -1066,7 +1110,7 @@ function renderTasks(){
               const cnt=dd[t.id]||0;const done=cnt>0;const chk=cnt>1?'×'+cnt:cnt===1?'✓':'';
               const rew=STAR_REWARDS[t.stars]||STAR_REWARDS[1];
               const rs=rew.items.slice(0,rew.count).map(i=>ITEMS[i]?.e||'').join('')+(rew.gold?'💰':'');
-              h+=`<div class="t-row"><button class="t-btn no-select ${done?'done':''}" onclick="modTask('${t.id}','add')"><div class="t-chk">${chk}</div><div style="flex:1"><div class="t-name">${t.name}${t.sav?` (¥${t.sav})`:''}</div></div><div class="t-stars">${'★'.repeat(t.stars)}</div><div class="t-rew">${done?'+'+rew.xp*cnt:rs}</div></button>${cnt>0?`<button class="minus-btn no-select" onclick="modTask('${t.id}','remove')">−</button>`:''}<button class="minus-btn no-select" onclick="if(confirm('削除？'))rmTask('${t.id}')" style="color:var(--red);font-size:14px" title="削除">✕</button></div>`;
+              h+=`<div class="t-row"><button class="t-btn no-select ${done?'done':''}" onclick="modTask('${t.id}','add')"><div class="t-chk">${chk}</div><div style="flex:1"><div class="t-name">${t.name}${t.sav?` (¥${t.sav})`:''}</div></div><div class="t-stars">${'★'.repeat(t.stars)}</div><div class="t-rew">${done?'+'+rew.xp*cnt:rs}</div></button>${cnt>0?`<button class="minus-btn no-select" onclick="modTask('${t.id}','remove')">−</button>`:''}<button class="minus-btn no-select" onclick="editTask('${t.id}')" style="font-size:14px" title="編集">✏️</button><button class="minus-btn no-select" onclick="if(confirm('削除？'))rmTask('${t.id}')" style="color:var(--red);font-size:14px" title="削除">✕</button></div>`;
           });
           h += `</div></details>`;
       }
