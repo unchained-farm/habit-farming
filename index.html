@@ -178,8 +178,8 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .weather-fx { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
 
 /* PNG雲 */
-.cloud-img { position: absolute; pointer-events: none; height: 50px; width: auto; animation: moveCloud linear infinite; opacity: 0.9; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
-@keyframes moveCloud { 0% { transform: translateX(-200px); } 100% { transform: translateX(calc(100vw + 200px)); } }
+.cloud-img { position: absolute; pointer-events: none; width: 200px; height: auto; opacity: 0.9; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15)); animation: moveCloud linear infinite; }
+@keyframes moveCloud { 0% { transform: translateX(-220px); } 100% { transform: translateX(calc(100vw + 220px)); } }
 
 /* PNG雨オーバーレイ */
 .rain-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; opacity: 0.75; animation: rainShift 0.12s steps(1) infinite; }
@@ -877,25 +877,20 @@ function showCreaturePopup(id){
 function renderWeatherEffects() {
     document.querySelectorAll('.weather-fx').forEach(e => e.remove());
     if (isDecayMode()) return; // 荒廃時は天気エフェクトなし
-    
+
     const sc = document.getElementById('scene');
     const fx = document.createElement('div');
     fx.className = 'weather-fx';
-    
-    // 雲の描画 (晴れ・曇り) — PNG画像
-    if (['sunny', 'cloudy', 'clear'].includes(currentWeather)) {
-        const numClouds = currentWeather === 'cloudy' ? 5 : (currentWeather === 'sunny' ? 2 : 0);
-        const cloudFiles = ['cloud_01.png', 'cloud_02.png', 'cloud_03.png'];
-        for (let i = 0; i < numClouds; i++) {
-            const c = document.createElement('img');
-            c.className = 'cloud-img';
-            c.src = cloudFiles[i % cloudFiles.length];
-            c.style.top = (5 + Math.random() * 40) + '%';
-            c.style.height = (35 + Math.random() * 30) + 'px';
-            c.style.animationDuration = (30 + Math.random() * 40) + 's';
-            c.style.animationDelay = -(Math.random() * 40) + 's';
-            fx.appendChild(c);
-        }
+
+    // 草原ステージの雲 — cloud_01.png を左から右へ
+    if (STAGES[curStage].id === 'meadow') {
+        const c = document.createElement('img');
+        c.className = 'cloud-img';
+        c.src = 'cloud_01.png';
+        c.style.top = '8%';
+        c.style.animationDuration = '40s';
+        c.style.animationDelay = '0s';
+        fx.appendChild(c);
     }
 
     // 雨・嵐の描画 — rain_overlay.png
