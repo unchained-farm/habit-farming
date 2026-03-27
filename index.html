@@ -178,7 +178,7 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .weather-fx { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
 
 /* PNG雲 */
-.cloud-img { position: absolute; pointer-events: none; width: 200px; height: auto; opacity: 0.9; mix-blend-mode: multiply; animation: moveCloud linear infinite; background: none; border: none; }
+.cloud-img { position: absolute; pointer-events: none; width: 200px; height: auto; opacity: 0.9; mix-blend-mode: screen; animation: moveCloud linear infinite; background: none; border: none; }
 @keyframes moveCloud { 0% { transform: translateX(-220px); } 100% { transform: translateX(calc(100vw + 220px)); } }
 
 /* PNG雨オーバーレイ */
