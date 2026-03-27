@@ -173,24 +173,31 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .stat-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;font-weight:700}
 
 /* =========================================
-   天候・演出用 CSS アニメーション（PNG版）
+   天候・演出用 CSS アニメーション
    ========================================= */
 .weather-fx { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
 
-/* PNG雨オーバーレイ — 斜めに降り続ける */
-.rain-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.8; background: url('rain_overlay.png') repeat; background-size: auto 100%; animation: rainFall 0.6s linear infinite; }
-@keyframes rainFall { from { background-position: 0 0; } to { background-position: 30px 100%; } }
+/* 雨粒 */
+.rain-drop { position: absolute; width: 2px; height: 20px; background: rgba(200,230,255,0.75); border-radius: 1px; pointer-events: none; animation: rainDrop linear infinite; }
+@keyframes rainDrop { 0% { transform: translateY(-30px) rotate(15deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.7; } 100% { transform: translateY(360px) rotate(15deg); opacity: 0; } }
 
-/* PNG雪オーバーレイ — ゆっくり舞い落ちる */
-.snow-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.85; background: url('snow_overlay.png') repeat; background-size: auto 100%; animation: snowFall 3s linear infinite; }
-@keyframes snowFall { from { background-position: 0 0; } to { background-position: 10px 100%; } }
+/* 雪片 */
+.snow-flake { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.88); pointer-events: none; animation: snowFlake linear infinite; }
+@keyframes snowFlake { 0% { transform: translateY(-20px) translateX(0); opacity: 0; } 10% { opacity: 1; } 25% { transform: translateY(25%) translateX(12px); } 50% { transform: translateY(50%) translateX(-8px); } 75% { transform: translateY(75%) translateX(14px); } 100% { transform: translateY(380px) translateX(-6px); opacity: 0.5; } }
 
-/* 嵐オーバーレイ（雨PNG＋暗転＋雷フラッシュ） */
-.storm-overlay { position: absolute; inset: 0; background: rgba(20, 20, 40, 0.4); animation: lightning 5s infinite; mix-blend-mode: multiply; pointer-events: none; }
-@keyframes lightning { 0%, 95%, 98% { background: rgba(20, 20, 40, 0.4); } 96%, 99% { background: rgba(255, 255, 255, 0.6); } }
+/* 嵐の暗転オーバーレイ */
+.storm-dark { position: absolute; inset: 0; background: rgba(15,15,35,0.45); pointer-events: none; }
 
-/* PNG魚跳ね */
-.fish-splash-img { position: absolute; bottom: 0; height: 60px; width: auto; animation: splash 3.5s ease-out infinite; opacity: 0; }
+/* 雷フラッシュ */
+.thunder-flash { position: absolute; inset: 0; background: white; pointer-events: none; z-index: 10; animation: flashAnim 0.15s ease-out forwards; }
+@keyframes flashAnim { 0% { opacity: 0; } 25% { opacity: 0.65; } 100% { opacity: 0; } }
+
+/* 稲妻SVG */
+.lightning-svg { position: absolute; top: 0; pointer-events: none; z-index: 11; filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 18px rgba(160,200,255,0.9)); animation: lightningFade 0.45s ease-out forwards; }
+@keyframes lightningFade { 0% { opacity: 1; } 60% { opacity: 0.7; } 100% { opacity: 0; } }
+
+/* 魚跳ね（PNG） */
+.fish-splash-img { position: absolute; bottom: 0; height: 60px; width: auto; animation: splash 3.5s ease-out infinite; opacity: 0; pointer-events: none; }
 @keyframes splash { 0% { transform: translateY(0) scale(0.8); opacity: 0; } 8% { transform: translateY(-60px) scale(1) rotate(-15deg); opacity: 1; } 18% { transform: translateY(0) scale(0.9) rotate(10deg); opacity: 0; } 100% { opacity: 0; } }
 
 /* ========================================= */
@@ -870,34 +877,94 @@ function showCreaturePopup(id){
 }
 
 // === 天候システム描画ロジック ===
+let _thunderTimer = null;
+
+function _triggerThunder(sc) {
+    // フラッシュ
+    const flash = document.createElement('div');
+    flash.className = 'thunder-flash';
+    sc.appendChild(flash);
+    setTimeout(() => flash.remove(), 300);
+
+    // 稲妻SVG
+    const W = sc.offsetWidth || 300;
+    const H = sc.offsetHeight || 200;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'lightning-svg');
+    svg.setAttribute('width', 60);
+    svg.setAttribute('height', H);
+    svg.style.left = (15 + Math.random() * 65) + '%';
+    let px = 30, py = 0, d = `M ${px} ${py}`;
+    const steps = 6 + Math.floor(Math.random() * 4);
+    for (let i = 1; i <= steps; i++) {
+        px += (Math.random() - 0.5) * 36;
+        py = (H * i) / steps;
+        d += ` L ${Math.round(px)} ${Math.round(py)}`;
+    }
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('stroke', 'white');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('fill', 'none');
+    svg.appendChild(path);
+    sc.appendChild(svg);
+    setTimeout(() => svg.remove(), 500);
+}
+
+function _scheduleThunder(sc) {
+    _thunderTimer = setTimeout(() => {
+        if (!sc.isConnected) return;
+        _triggerThunder(sc);
+        _scheduleThunder(sc);
+    }, 3000 + Math.random() * 5000);
+}
+
 function renderWeatherEffects() {
+    if (_thunderTimer) { clearTimeout(_thunderTimer); _thunderTimer = null; }
     document.querySelectorAll('.weather-fx').forEach(e => e.remove());
-    if (isDecayMode()) return; // 荒廃時は天気エフェクトなし
+    if (isDecayMode()) return;
 
     const sc = document.getElementById('scene');
     const fx = document.createElement('div');
     fx.className = 'weather-fx';
 
-    // 雨・嵐 — rain_overlay.png をdivのbackground-imageで降らせる
+    // 雨（rain / storm）— CSS div 40本
     if (currentWeather === 'rain' || currentWeather === 'storm') {
         if (currentWeather === 'storm') {
-            const overlay = document.createElement('div');
-            overlay.className = 'storm-overlay';
-            fx.appendChild(overlay);
+            const dark = document.createElement('div');
+            dark.className = 'storm-dark';
+            fx.appendChild(dark);
         }
-        const rainDiv = document.createElement('div');
-        rainDiv.className = 'rain-overlay';
-        fx.appendChild(rainDiv);
+        for (let i = 0; i < 40; i++) {
+            const d = document.createElement('div');
+            d.className = 'rain-drop';
+            d.style.left = (Math.random() * 110 - 5) + '%';
+            d.style.top = (Math.random() * 100) + '%';
+            d.style.animationDuration = (0.5 + Math.random() * 0.7) + 's';
+            d.style.animationDelay = -(Math.random() * 1.2) + 's';
+            d.style.opacity = 0.4 + Math.random() * 0.4;
+            fx.appendChild(d);
+        }
+        // 嵐のとき雷を追加
+        if (currentWeather === 'storm') _scheduleThunder(sc);
     }
 
-    // 雪 — snow_overlay.png をdivのbackground-imageで降らせる
+    // 雪（snow）— CSS div 25個
     if (currentWeather === 'snow') {
-        const snowDiv = document.createElement('div');
-        snowDiv.className = 'snow-overlay';
-        fx.appendChild(snowDiv);
+        for (let i = 0; i < 25; i++) {
+            const s = document.createElement('div');
+            s.className = 'snow-flake';
+            const size = 4 + Math.random() * 6;
+            s.style.width = size + 'px';
+            s.style.height = size + 'px';
+            s.style.left = (Math.random() * 100) + '%';
+            s.style.animationDuration = (2 + Math.random() * 3) + 's';
+            s.style.animationDelay = -(Math.random() * 5) + 's';
+            fx.appendChild(s);
+        }
     }
 
-    // 滝ステージ限定: 魚の跳ね — fish_splash.png を複数箇所で跳ねさせる
+    // 滝ステージ限定: 魚の跳ね（PNG）
     if (STAGES[curStage].id === 'waterfall') {
         [20, 50, 75].forEach((left, i) => {
             const fish = document.createElement('img');
@@ -908,7 +975,7 @@ function renderWeatherEffects() {
             fx.appendChild(fish);
         });
     }
-    
+
     sc.appendChild(fx);
 }
 
