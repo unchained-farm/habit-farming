@@ -1,4 +1,4 @@
-const CACHE_NAME = 'unchained-farm-v1';
+const CACHE_NAME = 'unchained-farm-v2';
 const ASSETS = [
   './',
   './index.html',
