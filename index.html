@@ -1429,6 +1429,73 @@ if ('serviceWorker' in navigator) {
             .catch(err => console.warn('SW registration failed:', err));
     });
 }
+
+// ── PWA 通知（毎日21:00リマインダー）──────────────────────────
+(function() {
+  const NOTIF_KEY = 'uf-last-open';
+
+  function todayStr() {
+    const d = new Date();
+    return d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+  }
+
+  let _notifTimer = null;
+
+  function scheduleNotification() {
+    if (!('Notification' in window)) return;
+    if (_notifTimer) clearTimeout(_notifTimer);
+
+    const now = new Date();
+    const target = new Date(now);
+    target.setHours(21, 0, 0, 0);
+
+    // 21:00を過ぎていたら翌日の21:00
+    if (now >= target) target.setDate(target.getDate() + 1);
+
+    const msUntil = target - now;
+
+    _notifTimer = setTimeout(() => {
+      // 通知発火時点で今日開いていたらスキップ
+      if (localStorage.getItem(NOTIF_KEY) === todayStr()) return;
+      if (Notification.permission === 'granted') {
+        new Notification('🐉 Dragon Habit', {
+          body: '今日のタスク、まだ記録してないぞ！',
+          icon: './icon-192.png'
+        });
+      }
+      // 翌日分を再予約
+      scheduleNotification();
+    }, msUntil);
+  }
+
+  function initNotification() {
+    // 今日の日付を記録（「今日開いた」フラグ）
+    localStorage.setItem(NOTIF_KEY, todayStr());
+
+    if (!('Notification' in window)) return;
+
+    if (Notification.permission === 'granted') {
+      scheduleNotification();
+    } else if (Notification.permission !== 'denied') {
+      // 初回: ユーザー操作後にリクエスト（autoplay制限回避）
+      const requestOnce = () => {
+        Notification.requestPermission().then(p => {
+          if (p === 'granted') scheduleNotification();
+        });
+        document.removeEventListener('click', requestOnce);
+      };
+      document.addEventListener('click', requestOnce);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNotification);
+  } else {
+    initNotification();
+  }
+})();
 </script>
 </body>
 </html>
