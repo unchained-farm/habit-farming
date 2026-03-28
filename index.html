@@ -233,6 +233,14 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .firefly { position:absolute; width:4px; height:4px; background:#e0ff60; border-radius:50%; box-shadow:0 0 8px #e0ff60; animation:fly 4s infinite alternate ease-in-out; }
 @keyframes fly { 0% { transform:translate(0,0); opacity:0.2;} 100% { transform:translate(20px,-20px); opacity:1; } }
 
+/* 夜: 星 */
+.night-star { position:absolute; border-radius:50%; background:#fff; box-shadow:0 0 2px #fff; pointer-events:none; }
+@keyframes starTwinkle { 0% { opacity:0.5; transform:scale(0.85); } 100% { opacity:1.0; transform:scale(1.15); } }
+
+/* 夜: 流れ星 */
+.shooting-star { position:absolute; height:2px; background:linear-gradient(to right,#fff,rgba(255,255,255,0)); border-radius:1px; pointer-events:none; animation:shootAnim 0.8s ease-out forwards; }
+@keyframes shootAnim { from { opacity:1; transform:rotate(-30deg) translateX(0); } to { opacity:0; transform:rotate(-30deg) translateX(-320px); } }
+
 /* --- アイテム錬金釜 --- */
 .alch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); grid-auto-rows: min-content; gap: 6px; height: 150px; overflow-y: auto; padding: 8px; background: var(--card2); border-radius: 8px; border: inset 2px var(--bdr); }
 .alch-item { border: 1px solid var(--bdr); border-radius: 6px; padding: 6px 2px; text-align: center; cursor: pointer; background: #fff; transition: 0.2s; position: relative;}
@@ -1074,9 +1082,58 @@ function updateTimeOverlay() {
     let color = 'rgba(0,0,0,0)';
     if      (h >= 5 && h < 7)  color = 'rgba(255,120,50,0.22)';  // 朝焼け
     else if (h >= 7 && h < 8)  color = 'rgba(255,140,60,0.10)';  // 朝フェード
-    else if (h >= 17 && h < 18) color = 'rgba(210,80,20,0.20)'; // 夕焼け始まり
-    else if (h >= 18 && h < 20) color = 'rgba(180,50,20,0.30)'; // 夕焼けピーク
+    else if (h >= 17 && h < 18) color = 'rgba(255,140,40,0.13)'; // 夕焼け始まり
+    else if (h >= 18 && h < 20) color = 'rgba(255,110,30,0.20)'; // 夕焼けピーク
     ov.style.backgroundColor = color;
+    updateNightStars();
+}
+
+// 夜の星・流れ星エフェクト
+function updateNightStars() {
+    const h = new Date().getHours();
+    const isStarNight = h >= 20 || h < 5;
+    const sc = document.getElementById('scene');
+    let container = document.getElementById('night-stars');
+
+    if (!isStarNight || ['rain','snow','storm','cloudy'].includes(currentWeather)) {
+        if (container) container.remove();
+        return;
+    }
+    if (container) return; // 既に生成済み
+
+    container = document.createElement('div');
+    container.id = 'night-stars';
+    container.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden;';
+
+    // 星を40〜50個生成
+    const count = 40 + Math.floor(Math.random() * 11);
+    for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'night-star';
+        const size = (2 + Math.random() * 2).toFixed(1);
+        const dur  = (2 + Math.random() * 3).toFixed(1);
+        const dly  = (Math.random() * 4).toFixed(1);
+        star.style.cssText = `width:${size}px;height:${size}px;top:${(Math.random()*90).toFixed(1)}%;left:${(Math.random()*100).toFixed(1)}%;animation:starTwinkle ${dur}s ${dly}s infinite alternate ease-in-out;`;
+        container.appendChild(star);
+    }
+    sc.appendChild(container);
+    scheduleShootingStar(container);
+}
+
+function scheduleShootingStar(container) {
+    const delay = (30 + Math.random() * 60) * 1000;
+    setTimeout(() => {
+        if (!container.isConnected) return;
+        const star = document.createElement('div');
+        star.className = 'shooting-star';
+        const len  = 80 + Math.floor(Math.random() * 41);
+        const top  = 5  + Math.random() * 35;
+        const left = 45 + Math.random() * 45;
+        star.style.cssText = `width:${len}px;top:${top.toFixed(1)}%;left:${left.toFixed(1)}%;`;
+        container.appendChild(star);
+        setTimeout(() => star.remove(), 900);
+        scheduleShootingStar(container);
+    }, delay);
 }
 
 function renderScene(){
@@ -1106,6 +1163,7 @@ function renderScene(){
   renderWeatherEffects();
   renderSeasonEffects();
   updateTimeOverlay();
+  updateNightStars();
   updateCreatureDOM();
 }
 
