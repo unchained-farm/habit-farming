@@ -1,10 +1,10 @@
-const CACHE_NAME = 'unchained-farm-v3';
+const CACHE_NAME = 'unchained-farm-v4';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon-192.svg',
-  './icon-512.svg',
+  './icon-192.png',
+  './icon-512.png',
   './bg_meadow.jpg',
   './bg_meadow_decay.jpg',
   './bg_forest.jpg',
