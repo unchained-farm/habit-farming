@@ -1016,9 +1016,11 @@ function getSeason() {
 function renderSeasonEffects() {
     const existing = document.getElementById('season-fx');
     if (existing) existing.remove();
-    // 季節エフェクトは現実の季節に基づくため decay モードでも表示する
+    // 8〜19時のみ表示（夜は星エフェクトのみ）
+    const h = new Date().getHours();
+    if (h < 8 || h >= 20) return;
     const sc = document.getElementById('scene');
-    if (!sc) { console.warn('[季節] scene要素が見つかりません'); return; }
+    if (!sc) return;
     const fx = document.createElement('div');
     fx.id = 'season-fx';
     const season = getSeason();
@@ -1090,6 +1092,7 @@ function updateTimeOverlay() {
     else if (h >= 18 && h < 19) color = 'rgba(255,110,30,0.20)'; // 夕焼けピーク
     ov.style.backgroundColor = color;
     updateNightStars();
+    renderSeasonEffects();
 }
 
 // 夜の星・流れ星エフェクト
