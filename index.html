@@ -49,8 +49,10 @@ body{background:var(--bg);color:var(--txt);font-family:'Helvetica Neue', Arial, 
 @keyframes peck{0%,100%{transform:rotate(0)}50%{transform:rotate(20deg) translateY(4px)}}
 @keyframes sniff{0%,100%{transform:translateX(0)}30%{transform:translateX(4px)}60%{transform:translateX(-4px)}}
 
-.chatter-bubble { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); border: 1px solid var(--bdr); border-radius: 10px; padding: 6px 12px; font-size: 13px; font-weight: 900; color: var(--txt); width: max-content; max-width: min(200px, 55vw); white-space: normal; word-break: break-word; text-align: center; line-height: 1.5; box-shadow: var(--shadow); pointer-events: none; z-index: 10; animation: popBubble 0.3s ease; margin-bottom: 4px; }
+.chatter-bubble { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); border: 1px solid var(--bdr); border-radius: 10px; padding: 6px 12px; font-size: 13px; font-weight: 900; color: var(--txt); width: max-content; max-width: min(180px, 55vw); white-space: normal; word-break: break-word; text-align: center; line-height: 1.5; box-shadow: var(--shadow); pointer-events: none; z-index: 10; animation: popBubble 0.3s ease; margin-bottom: 4px; }
 .chatter-bubble::after { content: ''; position: absolute; top: 100%; left: var(--tail-left, 50%); transform: translateX(-50%); border: 6px solid transparent; border-top-color: rgba(255,255,255,0.95); }
+.chatter-bubble.bubble-below { bottom: auto; top: 100%; margin-bottom: 0; margin-top: 4px; }
+.chatter-bubble.bubble-below::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: rgba(255,255,255,0.95); }
 @keyframes popBubble { 0% { transform: translateX(-50%) scale(0.5); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
 
 .sparkle-fx{position:absolute;pointer-events:none;font-size:24px;animation:spkUp 1.3s forwards;z-index:10}
@@ -1290,9 +1292,17 @@ function chatterCreatures() {
     }
     const bubble = document.createElement('div'); bubble.className = 'chatter-bubble'; bubble.textContent = msg; target.appendChild(bubble);
     requestAnimationFrame(() => {
-        const bRect = bubble.getBoundingClientRect();
-        const scRect = sc.getBoundingClientRect();
         const pad = 8;
+        const scRect = sc.getBoundingClientRect();
+
+        // 上はみ出し → クリーチャーの下に表示
+        let bRect = bubble.getBoundingClientRect();
+        if (bRect.top < scRect.top + pad) {
+            bubble.classList.add('bubble-below');
+            bRect = bubble.getBoundingClientRect(); // 再取得
+        }
+
+        // 左右はみ出し補正
         let shift = 0;
         if (bRect.left < scRect.left + pad) {
             shift = scRect.left + pad - bRect.left;
