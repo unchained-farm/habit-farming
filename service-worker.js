@@ -1,4 +1,4 @@
-const CACHE_NAME = 'unchained-farm-v4';
+const CACHE_NAME = 'uf-cache-2026033101';
 const ASSETS = [
   './',
   './index.html',
