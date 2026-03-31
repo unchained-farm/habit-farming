@@ -107,13 +107,15 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .label-content { padding: 10px; background: var(--bg); }
 
 .t-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
-.t-btn{flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--bdr);border-radius:10px;cursor:pointer;text-align:left;transition:all .15s;font-family:inherit;color:var(--txt);font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.t-btn{flex:1;display:flex;align-items:center;gap:10px;padding:10px 12px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--bdr);border-radius:10px;cursor:pointer;text-align:left;transition:all .15s;font-family:inherit;color:var(--txt);font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 .t-btn:hover{border-color:var(--grn-l)}
 .t-btn.done{background:linear-gradient(180deg,rgba(62,133,48,0.08),rgba(62,133,48,0.04));border-color:rgba(62,133,48,.25)}
 .t-chk{min-width:26px;height:26px;border-radius:6px;border:2px solid var(--dimr);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;flex-shrink:0;transition:all .2s}
 .t-btn.done .t-chk{background:linear-gradient(135deg,var(--grn),var(--grn-l));border-color:var(--grn);box-shadow:0 1px 4px rgba(62,133,48,0.3)}
-.t-name{flex:1;font-weight:700;font-size:14px}.t-btn.done .t-name{color:var(--dim)}
-.t-stars{font-size:13px;color:var(--gold);flex-shrink:0;letter-spacing:-1px}.t-rew{font-size:12px;color:var(--dim);flex-shrink:0;font-weight:700}
+.t-body{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.t-stars{font-size:11px;color:var(--gold);letter-spacing:-1px;font-weight:700}
+.t-name{font-weight:900;font-size:15px;line-height:1.3;word-break:break-word}.t-btn.done .t-name{color:var(--dim)}
+.t-rew{font-size:12px;color:var(--dim);font-weight:700}
 .minus-btn{background:var(--card);border:1px solid var(--bdr);border-radius:6px;color:var(--dim);font-size:16px;cursor:pointer;padding:8px 12px;font-family:inherit;font-weight:700}
 
 .add-task{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--bdr);border-radius:12px;padding:16px;margin-top:12px;box-shadow:var(--shadow)}
@@ -1294,24 +1296,25 @@ function chatterCreatures() {
     requestAnimationFrame(() => {
         const pad = 8;
         const scRect = sc.getBoundingClientRect();
+        const vw = document.documentElement.clientWidth;
 
         // 上はみ出し → クリーチャーの下に表示
         let bRect = bubble.getBoundingClientRect();
         if (bRect.top < scRect.top + pad) {
             bubble.classList.add('bubble-below');
-            bRect = bubble.getBoundingClientRect(); // 再取得
+            bRect = bubble.getBoundingClientRect();
         }
 
-        // 左右はみ出し補正
-        let shift = 0;
-        if (bRect.left < scRect.left + pad) {
-            shift = scRect.left + pad - bRect.left;
-        } else if (bRect.right > scRect.right - pad) {
-            shift = -(bRect.right - (scRect.right - pad));
-        }
-        if (shift !== 0) {
-            bubble.style.left = `calc(50% + ${shift}px)`;
-            bubble.style.setProperty('--tail-left', `calc(50% - ${shift}px)`);
+        // 左右はみ出し補正（ビューポート幅基準）
+        const centerX = bRect.left + bRect.width / 2;
+        let targetCenter = centerX;
+        if (bRect.left < pad) targetCenter = pad + bRect.width / 2;
+        else if (bRect.right > vw - pad) targetCenter = vw - pad - bRect.width / 2;
+
+        const delta = targetCenter - centerX;
+        if (Math.abs(delta) > 0.5) {
+            bubble.style.left = `calc(50% + ${Math.round(delta)}px)`;
+            bubble.style.setProperty('--tail-left', `calc(50% - ${Math.round(delta)}px)`);
         }
     });
     setTimeout(() => { if(bubble.parentNode) bubble.remove(); }, 4000);
@@ -1357,7 +1360,7 @@ function renderTasks(){
               const cnt=dd[t.id]||0;const done=cnt>0;const chk=cnt>1?'×'+cnt:cnt===1?'✓':'';
               const rew=STAR_REWARDS[t.stars]||STAR_REWARDS[1];
               const rs=rew.items.slice(0,rew.count).map(i=>ITEMS[i]?.e||'').join('')+(rew.gold?'💰':'');
-              h+=`<div class="t-row"><button class="t-btn no-select ${done?'done':''}" onclick="modTask('${t.id}','add')"><div class="t-chk">${chk}</div><div style="flex:1"><div class="t-name">${t.name}${t.sav?` (¥${t.sav})`:''}</div></div><div class="t-stars">${'★'.repeat(t.stars)}</div><div class="t-rew">${done?'+'+rew.xp*cnt:rs}</div></button>${cnt>0?`<button class="minus-btn no-select" onclick="modTask('${t.id}','remove')">−</button>`:''}<button class="minus-btn no-select" onclick="editTask('${t.id}')" style="font-size:14px" title="編集">✏️</button><button class="minus-btn no-select" onclick="if(confirm('削除？'))rmTask('${t.id}')" style="color:var(--red);font-size:14px" title="削除">✕</button></div>`;
+              h+=`<div class="t-row"><button class="t-btn no-select ${done?'done':''}" onclick="modTask('${t.id}','add')"><div class="t-chk">${chk}</div><div class="t-body"><div class="t-stars">${'★'.repeat(t.stars)}</div><div class="t-name">${t.name}${t.sav?` (¥${t.sav})`:''}</div><div class="t-rew">${done?'+'+rew.xp*cnt+' XP':rs}</div></div></button>${cnt>0?`<button class="minus-btn no-select" onclick="modTask('${t.id}','remove')">−</button>`:''}<button class="minus-btn no-select" onclick="editTask('${t.id}')" style="font-size:14px" title="編集">✏️</button><button class="minus-btn no-select" onclick="if(confirm('削除？'))rmTask('${t.id}')" style="color:var(--red);font-size:14px" title="削除">✕</button></div>`;
           });
           h += `</div></details>`;
       }
