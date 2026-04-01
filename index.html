@@ -53,6 +53,8 @@ body{background:var(--bg);color:var(--txt);font-family:'Helvetica Neue', Arial, 
 .chatter-bubble::after { content: ''; position: absolute; top: 100%; left: var(--tail-left, 50%); transform: translateX(-50%); border: 6px solid transparent; border-top-color: rgba(255,255,255,0.95); }
 .chatter-bubble.bubble-below { bottom: auto; top: 100%; margin-bottom: 0; margin-top: 4px; }
 .chatter-bubble.bubble-below::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: rgba(255,255,255,0.95); }
+.emotion-mark { position: absolute; top: -24px; left: 50%; transform: translateX(-50%); font-size: 16px; pointer-events: none; z-index: 12; animation: emotionPop 0.4s ease forwards; }
+@keyframes emotionPop { 0%{transform:translateX(-50%) scale(0);opacity:0} 70%{transform:translateX(-50%) scale(1.3);opacity:1} 100%{transform:translateX(-50%) scale(1);opacity:1} }
 @keyframes popBubble { 0% { transform: translateX(-50%) scale(0.5); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
 
 .sparkle-fx{position:absolute;pointer-events:none;font-size:24px;animation:spkUp 1.3s forwards;z-index:10}
@@ -776,7 +778,7 @@ function doGacha(type){
 function getGachaCreature(id){const c=CREATURES.find(x=>x.id===id);D.creatures[id]={lv:1,aff:0};D.cStages[id]=STAGES[curStage].id;showUnlock(c);placeCreatures();}
 function giveItems(arr, count){arr.forEach(i=>{if(i==='gold'){D.res.gold=(D.res.gold||0)+5*count;}else{D.res[i]=(D.res[i]||0)+count;}});}
 function buyC(id){const c=CREATURES.find(x=>x.id===id);if(!c||D.creatures[id])return;for(const r in c.cost)if((D.res[r]||0)<c.cost[r]){toast('素材が足りない！');return;}for(const r in c.cost)D.res[r]-=c.cost[r];D.creatures[id]={lv:1,aff:0};D.cStages[id]=STAGES[curStage].id;save();showUnlock(c);placeCreatures();render();}
-function feedC(id,food){const c=CREATURES.find(x=>x.id===id);if(!c)return;const cd=D.creatures[id];if(!cd)return;if((D.res[food]||0)<1){toast('足りない！');return;}D.res[food]--;const gain=(c.affPer||5)*(food===c.fav?2:1);cd.aff+=gain;const needed=cd.lv*20;if(cd.aff>=needed&&cd.lv<c.maxLv){cd.lv++;cd.aff=0;toast(`${c.name}がLv${cd.lv}に！🎉`);sparkle();}else toast(`${c.name}に${ITEMS[food]?.e||food}をあげた`);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);}
+function feedC(id,food){const c=CREATURES.find(x=>x.id===id);if(!c)return;const cd=D.creatures[id];if(!cd)return;if((D.res[food]||0)<1){toast('足りない！');return;}D.res[food]--;localStorage.setItem('uf-last-feed',tod());const gain=(c.affPer||5)*(food===c.fav?2:1);cd.aff+=gain;const needed=cd.lv*20;if(cd.aff>=needed&&cd.lv<c.maxLv){cd.lv++;cd.aff=0;toast(`${c.name}がLv${cd.lv}に！🎉`);sparkle();}else toast(`${c.name}に${ITEMS[food]?.e||food}をあげた`);save();render();if(document.getElementById('modOv').classList.contains('show')&&document.getElementById('mod').dataset.cid===id)showCreaturePopup(id);}
 
 // === クリーチャーの配置を「none」にできるように変更！ ===
 function assignStage(id,stg){
@@ -1322,6 +1324,90 @@ function chatterCreatures() {
 setInterval(chatterCreatures, 8000);
 setInterval(updateTimeOverlay, 60000);
 
+// ── 感情マーク表示 ─────────────────────────────
+function showEmotion(creatureEl, emoji) {
+    const existing = creatureEl.querySelector('.emotion-mark');
+    if (existing) existing.remove();
+    const mark = document.createElement('div');
+    mark.className = 'emotion-mark';
+    mark.textContent = emoji;
+    creatureEl.appendChild(mark);
+    const dur = 3000 + Math.random() * 2000;
+    setTimeout(() => { if (mark.parentNode) mark.remove(); }, dur);
+}
+
+// 感情判定（30秒ごと）
+function updateEmotions() {
+    if (isDecayMode()) return;
+    const sc = document.getElementById('scene');
+    const creatures = Array.from(sc.querySelectorAll('.s-creature'));
+    if (!creatures.length) return;
+    const h = new Date().getHours();
+    const dd = D.days[tod()] || {};
+    const todayDone  = D.tasks.some(t => (dd[t.id] || 0) > 0);
+    const todayAllZero = D.tasks.length > 0 && D.tasks.every(t => (dd[t.id] || 0) === 0);
+    const lastFeed = localStorage.getItem('uf-last-feed');
+    const sevenAgo = new Date(); sevenAgo.setDate(sevenAgo.getDate() - 7);
+    const isHungry = !lastFeed || new Date(lastFeed) < sevenAgo;
+    creatures.forEach(el => {
+        if (el.querySelector('.emotion-mark')) return;
+        let emoji = null;
+        if ((h >= 22 || h < 6) && Math.random() < 0.30)   emoji = '💤';
+        else if (Math.random() < 0.05)                      emoji = '❓';
+        else if (isHungry && Math.random() < 0.30)          emoji = '🍖';
+        else if (todayAllZero && h >= 15 && Math.random() < 0.40) emoji = '😠';
+        else if (todayDone && Math.random() < 0.30)         emoji = '😊';
+        if (emoji) showEmotion(el, emoji);
+    });
+}
+setInterval(updateEmotions, 30000);
+
+// ── 週間振り返り（月曜日初回） ────────────────────
+function checkWeeklyReview() {
+    if (new Date().getDay() !== 1) return; // 月曜日以外はスキップ
+    const weekKey = tod();
+    if (localStorage.getItem('uf-weekly-shown') === weekKey) return;
+    localStorage.setItem('uf-weekly-shown', weekKey);
+    if (isDecayMode() || !D.tasks.length) return;
+    const sc = document.getElementById('scene');
+    const creatures = Array.from(sc.querySelectorAll('.s-creature'));
+    if (!creatures.length) return;
+
+    // 先週月曜〜日曜の達成数を集計
+    const lastMon = new Date(); lastMon.setDate(lastMon.getDate() - 7);
+    let achieved = 0;
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(lastMon); d.setDate(lastMon.getDate() + i);
+        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+        const dateStr = d.toISOString().split('T')[0];
+        const dayData = D.days[dateStr] || {};
+        D.tasks.forEach(t => { if ((dayData[t.id] || 0) > 0) achieved++; });
+    }
+    const possible = D.tasks.length * 7;
+    const rate = possible > 0 ? achieved / possible : 0;
+    let msg;
+    if (rate >= 0.8)      msg = `先週は${achieved}個達成！最高だぞ！`;
+    else if (rate >= 0.5) msg = `先週${achieved}個達成。まあまあだな、今週も続けよう`;
+    else                  msg = `先週${achieved}個しかできなかったな…今週リベンジだ！`;
+
+    const target = creatures[0];
+    const bubble = document.createElement('div');
+    bubble.className = 'chatter-bubble'; bubble.textContent = msg; target.appendChild(bubble);
+    requestAnimationFrame(() => {
+        const pad = 8; const vw = document.documentElement.clientWidth;
+        const scRect = sc.getBoundingClientRect();
+        let bRect = bubble.getBoundingClientRect();
+        if (bRect.top < scRect.top + pad) { bubble.classList.add('bubble-below'); bRect = bubble.getBoundingClientRect(); }
+        const centerX = bRect.left + bRect.width / 2;
+        let tc = centerX;
+        if (bRect.left < pad) tc = pad + bRect.width / 2;
+        else if (bRect.right > vw - pad) tc = vw - pad - bRect.width / 2;
+        const delta = tc - centerX;
+        if (Math.abs(delta) > 0.5) { bubble.style.left=`calc(50% + ${Math.round(delta)}px)`; bubble.style.setProperty('--tail-left',`calc(50% - ${Math.round(delta)}px)`); }
+    });
+    setTimeout(() => { if (bubble.parentNode) bubble.remove(); }, 10000);
+}
+
 function render(){
   const ti=getT(D.xp||0),ni=getN(D.xp||0),pct=ni?((D.xp-ti.req)/(ni.req-ti.req))*100:100;
   document.getElementById('sLv').textContent='Lv.'+ti.lv;document.getElementById('sTi').textContent=ti.name;document.getElementById('sTi').style.color=ti.lv>=7?'var(--gold)':'';
@@ -1498,6 +1584,8 @@ placeCreatures();
 if (!checkInitSpawn()) {
     checkLoginBonus();
 }
+setTimeout(checkWeeklyReview, 2000);
+setTimeout(updateEmotions, 3000);
 
 setTimeout(initSwipe, 100);
 
