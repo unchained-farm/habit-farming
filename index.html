@@ -751,42 +751,62 @@ function saveTaskEdit(id){
 }
 
 function modTask(id,act){
+  console.log('modTask:', id, act);
   const task=D.tasks.find(t=>t.id===id);if(!task)return;
-  const dd=dayD();const cur=dd[id]||0;let xpD=0;
+  const dd=dayD();const cur=dd[id]||0;
+  // ★ xpD・parentXp は必ず関数スコープで宣言（ブロックスコープにしない）
+  let xpD=0;
+  let parentXp=0;
   const rew=STAR_REWARDS[task.stars]||STAR_REWARDS[1];
+
   if(act==='remove'){
-    if(cur<=0)return;dd[id]=cur-1;if(!dd[id])delete dd[id];xpD=-rew.xp;
-    pickItems(task.stars,cur).forEach(it=>{D.res[it]=Math.max(0,(D.res[it]||0)-1)});if(rew.gold)D.res.gold=Math.max(0,(D.res.gold||0)-rew.gold);
+    // ── タスク取り消し ──────────────────────────
+    if(cur<=0)return;
+    dd[id]=cur-1;if(!dd[id])delete dd[id];xpD=-rew.xp;
+    pickItems(task.stars,cur).forEach(it=>{D.res[it]=Math.max(0,(D.res[it]||0)-1)});
+    if(rew.gold)D.res.gold=Math.max(0,(D.res.gold||0)-rew.gold);
     const idx=D.history.findIndex(h=>h.id===id&&h.date===selDate);if(idx!==-1)D.history.splice(idx,1);
+
   }else{
-    dd[id]=cur+1;xpD=rew.xp;
-    const wasDecay = isDecayMode();
+    // ── タスク完了（メイン処理） ─────────────────
+    dd[id]=cur+1;
+    xpD=rew.xp;
+    const wasDecay=isDecayMode();
     if(selDate===tod()){
-      if (wasDecay) { D.streak = 1; D.lastDate = tod(); } 
+      if(wasDecay){D.streak=1;D.lastDate=tod();}
       else if(D.lastDate!==tod()){
         const l=D.lastDate?new Date(D.lastDate):null,n=new Date(tod());
         if(l&&Math.floor((n-l)/86400000)===1)D.streak++;else D.streak=1;
         D.lastDate=tod();
-        if(D.streak>D.maxStreak) D.maxStreak=D.streak;
+        if(D.streak>D.maxStreak)D.maxStreak=D.streak;
       }
     }
-    if(wasDecay && !isDecayMode()) { toast('🌱 世界に生命力が戻った！'); renderScene(); updateCreatureDOM(); }
+    if(wasDecay&&!isDecayMode()){toast('🌱 世界に生命力が戻った！');renderScene();updateCreatureDOM();}
     if(D.streak>=3)xpD=Math.floor(xpD*1.2);
-    // コンボボーナス
+
+    // ── コンボボーナス（完了処理に干渉しない独立計算） ──
     const now=Date.now();
     if(now-comboTime<5*60*1000){comboCount++;}else{comboCount=1;}
     comboTime=now;
-    if(comboCount>=2){const mult=comboCount>=4?0.3:comboCount===3?0.2:0.1;const bonus=Math.floor(xpD*mult);xpD+=bonus;setTimeout(()=>showCombo(comboCount,bonus),400);}
-    const rI=pickItems(task.stars,dd[id]);rI.forEach(it=>{D.res[it]=(D.res[it]||0)+1});if(rew.gold)D.res.gold=(D.res.gold||0)+rew.gold;
+    if(comboCount>=2){
+      const mult=comboCount>=4?0.3:comboCount===3?0.2:0.1;
+      const bonus=Math.floor(xpD*mult);
+      xpD+=bonus;
+      setTimeout(()=>showCombo(comboCount,bonus),400);
+    }
+
+    // ── アイテム・履歴・通知 ──────────────────────
+    const rI=pickItems(task.stars,dd[id]);
+    rI.forEach(it=>{D.res[it]=(D.res[it]||0)+1});
+    if(rew.gold)D.res.gold=(D.res.gold||0)+rew.gold;
     D.history.unshift({id,name:task.name,xp:xpD,sav:task.sav||0,date:selDate,time:new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),items:rI.map(i=>ITEMS[i]?.e||'').join('')});
     toast(`+${xpD} XP ${rI.map(i=>ITEMS[i]?.e||'').join('')}`);sparkle();
-    
-    if(!D.tutDone && tutStep === 1) { tutStep = 2; setTimeout(runTutorial, 500); }
-    // 子タスク完了時 → 兄弟が全完了なら親を自動完了
-    let parentXp=0;
-    if(task.parentId && selDate===tod()){
+    if(!D.tutDone&&tutStep===1){tutStep=2;setTimeout(runTutorial,500);}
+
+    // ── 子タスク全完了 → 親を自動完了 ────────────
+    if(task.parentId&&selDate===tod()){
       const siblings=D.tasks.filter(c=>c.parentId===task.parentId);
-      if(siblings.length>0 && siblings.every(s=>(dd[s.id]||0)>0)){
+      if(siblings.length>0&&siblings.every(s=>(dd[s.id]||0)>0)){
         const parent=D.tasks.find(t=>t.id===task.parentId);
         if(parent&&!(dd[parent.id]||0)){
           dd[parent.id]=1;
@@ -798,7 +818,12 @@ function modTask(id,act){
       }
     }
   }
-  D.xp=Math.max(0,(D.xp||0)+xpD+(parentXp||0));D.history=D.history.slice(0,100);save();render();
+
+  // ── 保存・描画（必ず実行） ─────────────────────
+  D.xp=Math.max(0,(D.xp||0)+xpD+parentXp);
+  D.history=D.history.slice(0,100);
+  save();
+  render();
 }
 function pickItems(s,seed){const r=STAR_REWARDS[s]||STAR_REWARDS[1];const res=[];const p=[...r.items];for(let i=0;i<r.count;i++){res.push(p[((seed||1)*7+i*13)%p.length]);}return res;}
 
