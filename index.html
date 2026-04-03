@@ -175,6 +175,14 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .toast.show{animation:tA 2.0s forwards}
 @keyframes tA{0%{opacity:1;transform:translateX(-50%) translateY(0)} 80%{opacity:1;transform:translateX(-50%) translateY(-30px)} 100%{opacity:0;transform:translateX(-50%) translateY(-50px)}}
 
+.rank-labels{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11px;font-weight:900}
+.rank-cur{color:var(--grn)}.rank-nxt{color:var(--dimr)}
+.rank-nxt-info{font-size:12px;color:var(--dim);font-weight:700;text-align:center;margin-top:4px}
+
+.combo-fx{position:fixed;top:42%;left:50%;transform:translate(-50%,-50%);font-size:26px;font-weight:900;color:#fff;background:linear-gradient(135deg,#e65c00,#f9a825);padding:12px 28px;border-radius:16px;z-index:400;pointer-events:none;opacity:0;text-shadow:0 2px 6px rgba(0,0,0,0.25);box-shadow:0 4px 20px rgba(230,92,0,0.45)}
+.combo-fx.show{animation:comboA 2s forwards}
+@keyframes comboA{0%{opacity:0;transform:translate(-50%,-50%) scale(0.5)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0;transform:translate(-50%,-80%)}}
+
 .footer{text-align:center;margin-top:20px;padding:16px 0;border-top:1px solid var(--bdr)}
 .footer button{background:none;border:none;color:var(--dimr);font-size:12px;cursor:pointer;font-family:inherit;margin:0 8px;font-weight:700}
 .bk-row{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
@@ -301,8 +309,10 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 
         <div class="status">
           <div class="st-row"><div><span class="st-lv" id="sLv"></span> <span class="st-ti" id="sTi"></span></div><div class="st-xp" id="sXp"></div></div>
+          <div class="rank-labels"><span class="rank-cur" id="sCurRankL"></span><span class="rank-nxt" id="sNxtRankL"></span></div>
           <div class="xp-bar"><div class="xp-fill" id="xpF"></div></div>
-          <div class="st-info"><span id="sStrk"></span><span id="sNxt"></span></div>
+          <div class="rank-nxt-info" id="sNxt"></div>
+          <div class="st-info" style="margin-top:4px"><span id="sStrk"></span></div>
         </div>
         <div class="offering">
           <div class="of-card"><div class="of-val" id="oD">¥0</div><div class="of-lbl">今日の奉納金</div></div>
@@ -351,6 +361,7 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="combo-fx" id="comboFx"></div>
 <div class="modal-ov no-select" id="modOv" onclick="closeMod()"><div class="modal" id="mod" onclick="event.stopPropagation()"></div></div>
 
 <div id="tutBanner" class="tut-banner no-select"></div>
@@ -454,6 +465,8 @@ const SK='uf-v6';
 let D,selDate=tod(),selC=null,curStage=0,addStars=1,tipIdx=0,wanderPos={};
 let tutStep = 0;
 let currentWeather = 'sunny'; // 天気状態の保持
+let comboCount = 0;
+let comboTime = 0;
 
 function tod(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().split('T')[0]}
 function getT(x){let c=TITLES[0];for(const t of TITLES)if(x>=t.req)c=t;return c}
@@ -739,6 +752,11 @@ function modTask(id,act){
     }
     if(wasDecay && !isDecayMode()) { toast('🌱 世界に生命力が戻った！'); renderScene(); updateCreatureDOM(); }
     if(D.streak>=3)xpD=Math.floor(xpD*1.2);
+    // コンボボーナス
+    const now=Date.now();
+    if(now-comboTime<5*60*1000){comboCount++;}else{comboCount=1;}
+    comboTime=now;
+    if(comboCount>=2){const mult=comboCount>=4?0.3:comboCount===3?0.2:0.1;const bonus=Math.floor(xpD*mult);xpD+=bonus;setTimeout(()=>showCombo(comboCount,bonus),400);}
     const rI=pickItems(task.stars,dd[id]);rI.forEach(it=>{D.res[it]=(D.res[it]||0)+1});if(rew.gold)D.res.gold=(D.res.gold||0)+rew.gold;
     D.history.unshift({id,name:task.name,xp:xpD,sav:task.sav||0,date:selDate,time:new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),items:rI.map(i=>ITEMS[i]?.e||'').join('')});
     toast(`+${xpD} XP ${rI.map(i=>ITEMS[i]?.e||'').join('')}`);sparkle();
@@ -1412,10 +1430,11 @@ function render(){
   const ti=getT(D.xp||0),ni=getN(D.xp||0),pct=ni?((D.xp-ti.req)/(ni.req-ti.req))*100:100;
   document.getElementById('sLv').textContent='Lv.'+ti.lv;document.getElementById('sTi').textContent=ti.name;document.getElementById('sTi').style.color=ti.lv>=7?'var(--gold)':'';
   document.getElementById('sXp').textContent=(D.xp||0)+' XP';document.getElementById('xpF').style.width=Math.min(pct,100)+'%';
-  
-  if(isDecayMode()){ document.getElementById('sStrk').innerHTML=`<span style="color:var(--red);font-weight:900">⚠️ 世界が荒廃中（タスク実行で復活！）</span>`; } 
+  document.getElementById('sCurRankL').textContent=ti.name;
+  document.getElementById('sNxtRankL').textContent=ni?'→ '+ni.name:'👑 MAX';
+  document.getElementById('sNxt').textContent=ni?`あと ${ni.req-(D.xp||0)} XPで次のランク！`:'最高ランク到達！おめでとう！';
+  if(isDecayMode()){ document.getElementById('sStrk').innerHTML=`<span style="color:var(--red);font-weight:900">⚠️ 世界が荒廃中（タスク実行で復活！）</span>`; }
   else { document.getElementById('sStrk').innerHTML=D.streak>0?`<span style="color:var(--red)">🔥</span> ${D.streak}日連続${D.streak>=3?' (XP+20%!)':''}`:''; }
-  document.getElementById('sNxt').textContent=ni?`${ni.name}まで ${ni.req-(D.xp||0)}`:'最高ランク！';
   
   let rh='';for(const k in ITEMS){if((D.res[k]||0)>0)rh+=`<div class="res-item">${ITEMS[k].e}${D.res[k]}</div>`;}
   if((D.res.gold||0)>0)rh+=`<div class="res-item">💰${D.res.gold}</div>`;
@@ -1512,6 +1531,7 @@ function renderLog(){const p=document.getElementById('pLog');if(!D.history.lengt
 
 function tierL(t){return['','★','★★','★★★','★★★★','伝説'][t]||''}
 function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.remove('show');void e.offsetWidth;e.classList.add('show')}
+function showCombo(count,bonus){const labels=['','','2コンボ！','3コンボ！','MAXコンボ！'];const lbl=count>=4?'MAXコンボ！':labels[count];const e=document.getElementById('comboFx');e.textContent='🔥 '+lbl+' +'+bonus+' XP';e.classList.remove('show');void e.offsetWidth;e.classList.add('show')}
 function sparkle(){const sc=document.getElementById('scene');['✨','⭐','💫','🌟'].forEach((em,i)=>{const s=document.createElement('div');s.className='sparkle-fx';s.textContent=em;s.style.left=(20+Math.random()*60)+'%';s.style.bottom=(60+Math.random()*60)+'px';s.style.animationDelay=(i*.15)+'s';sc.appendChild(s);setTimeout(()=>s.remove(),1500)})}
 function showUnlock(c){const m=document.getElementById('mod');m.innerHTML=`<div><canvas id="cvUnlock" width="144" height="144" style="image-rendering:pixelated;display:block;margin:0 auto"></canvas></div><h2>${c.name}が仲間になった！</h2><p>${c.desc}</p><button class="modal-close" onclick="closeMod()">やったぜ！</button>`;document.getElementById('modOv').classList.add('show');const cv=document.getElementById('cvUnlock');if(cv)drawPx(cv,c,144,1);sparkle();sparkle();}
 function closeMod(){document.getElementById('modOv').classList.remove('show');const m=document.getElementById('mod');m.dataset.cid='';m.style.maxWidth='';}
