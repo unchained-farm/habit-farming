@@ -49,10 +49,11 @@ body{background:var(--bg);color:var(--txt);font-family:'Helvetica Neue', Arial, 
 @keyframes peck{0%,100%{transform:rotate(0)}50%{transform:rotate(20deg) translateY(4px)}}
 @keyframes sniff{0%,100%{transform:translateX(0)}30%{transform:translateX(4px)}60%{transform:translateX(-4px)}}
 
-.chatter-bubble { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); border: 1px solid var(--bdr); border-radius: 10px; padding: 6px 12px; font-size: 13px; font-weight: 900; color: var(--txt); width: max-content; max-width: min(180px, 55vw); white-space: normal; word-break: break-word; text-align: center; line-height: 1.5; box-shadow: var(--shadow); pointer-events: none; z-index: 10; animation: popBubble 0.3s ease; margin-bottom: 4px; }
-.chatter-bubble::after { content: ''; position: absolute; top: 100%; left: var(--tail-left, 50%); transform: translateX(-50%); border: 6px solid transparent; border-top-color: rgba(255,255,255,0.95); }
-.chatter-bubble.bubble-below { bottom: auto; top: 100%; margin-bottom: 0; margin-top: 4px; }
-.chatter-bubble.bubble-below::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: rgba(255,255,255,0.95); }
+.chatter-bubble { position: fixed; background: rgba(255,255,255,0.97); border: 1px solid var(--bdr); border-radius: 10px; padding: 7px 13px; font-size: 13px; font-weight: 900; color: var(--txt); min-width: 120px; max-width: 200px; white-space: normal; word-break: break-word; text-align: center; line-height: 1.5; box-shadow: 0 3px 12px rgba(40,30,10,0.15); pointer-events: none; z-index: 200; animation: bubbleIn 0.25s ease; }
+@keyframes bubbleIn { from { opacity:0; transform:scale(0.8); } to { opacity:1; transform:scale(1); } }
+.chatter-bubble::after { content:''; position:absolute; left:var(--tail-x,50%); transform:translateX(-50%); border:7px solid transparent; }
+.chatter-bubble.bubble-above::after { top:100%; border-top-color:rgba(255,255,255,0.97); }
+.chatter-bubble.bubble-below::after { bottom:100%; border-bottom-color:rgba(255,255,255,0.97); }
 .emotion-mark { position: absolute; top: -24px; left: 50%; transform: translateX(-50%); font-size: 16px; pointer-events: none; z-index: 12; animation: emotionPop 0.4s ease forwards; }
 @keyframes emotionPop { 0%{transform:translateX(-50%) scale(0);opacity:0} 70%{transform:translateX(-50%) scale(1.3);opacity:1} 100%{transform:translateX(-50%) scale(1);opacity:1} }
 @keyframes popBubble { 0% { transform: translateX(-50%) scale(0.5); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
@@ -1291,6 +1292,57 @@ function wanderCreatures(){
 }
 setInterval(wanderCreatures,2500);
 
+function showBubble(target, msg, duration) {
+    duration = duration || 4000;
+    // 既存の吹き出しを全削除
+    document.querySelectorAll('.chatter-bubble').forEach(b => b.remove());
+
+    const BUBBLE_W = 200;
+    const MARGIN = 12;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    const tRect = target.getBoundingClientRect();
+    const tCenterX = tRect.left + tRect.width / 2;
+
+    const bubble = document.createElement('div');
+    bubble.className = 'chatter-bubble';
+    bubble.textContent = msg;
+    bubble.style.width = BUBBLE_W + 'px';
+    bubble.style.visibility = 'hidden';
+    document.body.appendChild(bubble);
+
+    requestAnimationFrame(() => {
+        const bH = bubble.offsetHeight;
+
+        // 水平位置：クリーチャー中心に合わせてセンタリング → 左右MARGIN内にクランプ
+        let bLeft = tCenterX - BUBBLE_W / 2;
+        bLeft = Math.max(MARGIN, Math.min(bLeft, vw - MARGIN - BUBBLE_W));
+
+        // テール位置：クリーチャー中心を指す（端から10px以内にならないようクランプ）
+        const tailX = Math.min(Math.max(tCenterX - bLeft, 10), BUBBLE_W - 10);
+
+        // 上下判定：クリーチャーが画面上部40%以内 → 下に、それ以外 → 上に
+        const isBelow = tRect.top < vh * 0.4;
+        let bTop;
+        if (isBelow) {
+            bTop = tRect.bottom + 10;
+            if (bTop + bH > vh - MARGIN) bTop = vh - MARGIN - bH;
+        } else {
+            bTop = tRect.top - bH - 10;
+            if (bTop < MARGIN) bTop = MARGIN;
+        }
+
+        bubble.style.left = Math.round(bLeft) + 'px';
+        bubble.style.top  = Math.round(bTop)  + 'px';
+        bubble.style.setProperty('--tail-x', tailX + 'px');
+        bubble.classList.add(isBelow ? 'bubble-below' : 'bubble-above');
+        bubble.style.visibility = '';
+    });
+
+    setTimeout(() => document.querySelectorAll('.chatter-bubble').forEach(b => b.remove()), duration);
+}
+
 function chatterCreatures() {
     if(isDecayMode()) return;
     const sc = document.getElementById('scene'); const creatures = Array.from(sc.querySelectorAll('.s-creature'));
@@ -1346,32 +1398,7 @@ function chatterCreatures() {
             });
         }
     }
-    const bubble = document.createElement('div'); bubble.className = 'chatter-bubble'; bubble.textContent = msg; target.appendChild(bubble);
-    requestAnimationFrame(() => {
-        const pad = 8;
-        const scRect = sc.getBoundingClientRect();
-        const vw = document.documentElement.clientWidth;
-
-        // 上はみ出し → クリーチャーの下に表示
-        let bRect = bubble.getBoundingClientRect();
-        if (bRect.top < scRect.top + pad) {
-            bubble.classList.add('bubble-below');
-            bRect = bubble.getBoundingClientRect();
-        }
-
-        // 左右はみ出し補正（ビューポート幅基準）
-        const centerX = bRect.left + bRect.width / 2;
-        let targetCenter = centerX;
-        if (bRect.left < pad) targetCenter = pad + bRect.width / 2;
-        else if (bRect.right > vw - pad) targetCenter = vw - pad - bRect.width / 2;
-
-        const delta = targetCenter - centerX;
-        if (Math.abs(delta) > 0.5) {
-            bubble.style.left = `calc(50% + ${Math.round(delta)}px)`;
-            bubble.style.setProperty('--tail-left', `calc(50% - ${Math.round(delta)}px)`);
-        }
-    });
-    setTimeout(() => { if(bubble.parentNode) bubble.remove(); }, 4000);
+    showBubble(target, msg, 4000);
 }
 setInterval(chatterCreatures, 8000);
 setInterval(updateTimeOverlay, 60000);
@@ -1443,21 +1470,7 @@ function checkWeeklyReview() {
     else                  msg = `先週${achieved}個しかできなかったな…今週リベンジだ！`;
 
     const target = creatures[0];
-    const bubble = document.createElement('div');
-    bubble.className = 'chatter-bubble'; bubble.textContent = msg; target.appendChild(bubble);
-    requestAnimationFrame(() => {
-        const pad = 8; const vw = document.documentElement.clientWidth;
-        const scRect = sc.getBoundingClientRect();
-        let bRect = bubble.getBoundingClientRect();
-        if (bRect.top < scRect.top + pad) { bubble.classList.add('bubble-below'); bRect = bubble.getBoundingClientRect(); }
-        const centerX = bRect.left + bRect.width / 2;
-        let tc = centerX;
-        if (bRect.left < pad) tc = pad + bRect.width / 2;
-        else if (bRect.right > vw - pad) tc = vw - pad - bRect.width / 2;
-        const delta = tc - centerX;
-        if (Math.abs(delta) > 0.5) { bubble.style.left=`calc(50% + ${Math.round(delta)}px)`; bubble.style.setProperty('--tail-left',`calc(50% - ${Math.round(delta)}px)`); }
-    });
-    setTimeout(() => { if (bubble.parentNode) bubble.remove(); }, 10000);
+    showBubble(target, msg, 10000);
 }
 
 function render(){
