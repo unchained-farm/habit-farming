@@ -183,6 +183,14 @@ summary.label-title::before { content: '🏷️'; margin-right: 8px; font-size: 
 .combo-fx.show{animation:comboA 2s forwards}
 @keyframes comboA{0%{opacity:0;transform:translate(-50%,-50%) scale(0.5)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0;transform:translate(-50%,-80%)}}
 
+.prio-sel{display:flex;gap:0;border:1px solid var(--bdr);border-radius:8px;overflow:hidden}
+.prio-btn{padding:5px 10px;border:none;border-right:1px solid var(--bdr);background:var(--card2);cursor:pointer;font-size:12px;font-family:inherit;color:var(--dim);font-weight:700}
+.prio-btn:last-child{border-right:none}
+.prio-btn.on{background:var(--gold-bg);color:var(--txt);font-weight:900}
+.child-wrap{margin-left:20px;border-left:2px solid var(--bdr2);padding-left:8px;margin-bottom:4px}
+.child-wrap .t-btn{font-size:13px;padding:8px 10px}
+.child-wrap .t-chk{min-width:22px;height:22px;font-size:11px}
+
 .footer{text-align:center;margin-top:20px;padding:16px 0;border-top:1px solid var(--bdr)}
 .footer button{background:none;border:none;color:var(--dimr);font-size:12px;cursor:pointer;font-family:inherit;margin:0 8px;font-weight:700}
 .bk-row{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
@@ -452,7 +460,7 @@ const CREATURES=[
 ];
 
 const STAGES=[{id:'meadow',name:'草原'},{id:'village',name:'村'},{id:'forest',name:'深い森'},{id:'waterfall',name:'滝'}];
-const TITLES=[{lv:1,name:'荒れ地の開拓者',req:0},{lv:2,name:'見習い農家',req:200},{lv:3,name:'旅の冒険者',req:500},{lv:4,name:'村の守り手',req:1000},{lv:5,name:'伝説の農家',req:2500},{lv:6,name:'竜騎士',req:4000},{lv:7,name:'UNCHAINED',req:6000}];
+const TITLES=[{lv:1,name:'荒れ地の開拓者',req:0},{lv:2,name:'見習い農家',req:300},{lv:3,name:'旅の冒険者',req:800},{lv:4,name:'村の守り手',req:2000},{lv:5,name:'伝説の農家',req:5000},{lv:6,name:'竜騎士',req:10000},{lv:7,name:'UNCHAINED',req:18000},{lv:8,name:'竜の使徒',req:30000},{lv:9,name:'龍神の眷属',req:48000},{lv:10,name:'伝説の解放者',req:72000},{lv:11,name:'龍王の盟友',req:105000},{lv:12,name:'DRAGON UNCHAINED',req:150000}];
 
 const BG_IMAGES = {
   meadow: { normal_day: 'bg_meadow.jpg', normal_night: 'bg_meadow_night.jpg', decay_day: 'bg_meadow_decay.jpg', decay_night: 'bg_meadow_decay_night.jpg' },
@@ -462,7 +470,7 @@ const BG_IMAGES = {
 };
 
 const SK='uf-v6';
-let D,selDate=tod(),selC=null,curStage=0,addStars=1,tipIdx=0,wanderPos={};
+let D,selDate=tod(),selC=null,curStage=0,addStars=1,addPrio='mid',tipIdx=0,wanderPos={};
 let tutStep = 0;
 let currentWeather = 'sunny'; // 天気状態の保持
 let comboCount = 0;
@@ -474,7 +482,7 @@ function getN(x){for(const t of TITLES)if(x<t.req)return t;return null}
 function init(){return{xp:0,streak:0,maxStreak:0,lastDate:null,days:{},tasks:[],res:{},creatures:{},cStages:{},cDecos:{},history:[],identity:'UNCHAINED',monthlyGoal:'未設定',customTips:[],tutDone:false,loginDays:0,lastLoginDate:null}}
 function load(){try{const r=localStorage.getItem(SK);if(r){D=JSON.parse(r);fixD();}else throw'';}catch{D=init();}}
 function save(){localStorage.setItem(SK,JSON.stringify(D))}
-function fixD(){if(!D.tasks)D.tasks=[];if(!D.res)D.res={};if(!D.creatures)D.creatures={};if(!D.cStages)D.cStages={};if(!D.history)D.history=[];if(!D.identity)D.identity='UNCHAINED';if(!D.monthlyGoal)D.monthlyGoal='未設定';if(!D.customTips)D.customTips=[];if(D.streak===undefined)D.streak=0;if(D.maxStreak===undefined)D.maxStreak=D.streak;if(D.tutDone===undefined)D.tutDone=false;if(D.loginDays===undefined)D.loginDays=0;}
+function fixD(){if(!D.tasks)D.tasks=[];if(!D.res)D.res={};if(!D.creatures)D.creatures={};if(!D.cStages)D.cStages={};if(!D.history)D.history=[];if(!D.identity)D.identity='UNCHAINED';if(!D.monthlyGoal)D.monthlyGoal='未設定';if(!D.customTips)D.customTips=[];if(D.streak===undefined)D.streak=0;if(D.maxStreak===undefined)D.maxStreak=D.streak;if(D.tutDone===undefined)D.tutDone=false;if(D.loginDays===undefined)D.loginDays=0;D.tasks.forEach(t=>{if(!t.priority)t.priority='mid';if(t.parentId===undefined)t.parentId=null;});}
 
 function isDecayMode(){return D.streak === 0 && D.history.length > 0;}
 
@@ -677,14 +685,16 @@ function setAddStars(s) {
 
 function addTask(){
     const inp=document.getElementById('addInp'); const name=inp.value.trim(); if(!name)return;
-    const lblInp=document.getElementById('addLbl'); const label=lblInp.value.trim() || '未分類';
+    const lblSel=document.getElementById('addLblSel');
+    let label=lblSel?lblSel.value:'未分類';
+    if(label==='__new__'){label=(document.getElementById('addLblNew').value.trim())||'未分類';}
     const savInp=document.getElementById('addSav'); const sav=parseInt(savInp.value)||0;
-    D.tasks.push({id:'t_'+Date.now(), name, label, stars:addStars, sav});
-    inp.value=''; lblInp.value=''; savInp.value=''; addStars=1; save(); render();
+    D.tasks.push({id:'t_'+Date.now(), name, label, stars:addStars, sav, priority:addPrio, parentId:null});
+    inp.value=''; savInp.value=''; addStars=1; addPrio='mid'; save(); render();
     
     if(!D.tutDone && tutStep === 0) { tutStep = 1; setTimeout(runTutorial, 100); }
 }
-function rmTask(id){D.tasks=D.tasks.filter(t=>t.id!==id);for(const d in D.days)if(D.days[d][id])delete D.days[d][id];save();render();}
+function rmTask(id){const childIds=D.tasks.filter(t=>t.parentId===id).map(t=>t.id);D.tasks=D.tasks.filter(t=>t.id!==id&&t.parentId!==id);for(const d in D.days){if(D.days[d][id])delete D.days[d][id];childIds.forEach(cid=>{if(D.days[d][cid])delete D.days[d][cid];});}save();render();}
 
 function editTask(id){
   const task=D.tasks.find(t=>t.id===id);if(!task)return;
@@ -703,6 +713,14 @@ function editTask(id){
       <div style="margin-bottom:10px;">
         <div style="font-size:12px;color:var(--dim);font-weight:700;margin-bottom:4px;">難易度</div>
         <div class="star-sel no-select" id="etStarSel">${[1,2,3,4,5].map(s=>`<button class="star-btn ${s<=task.stars?'on':''}" onclick="setEditStars(${s})">${s}</button>`).join('')}</div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:12px;color:var(--dim);font-weight:700;margin-bottom:4px;">優先度</div>
+        <select id="etPrio" class="add-input" style="width:100%">
+          <option value="high" ${(task.priority||'mid')==='high'?'selected':''}>🔴 高</option>
+          <option value="mid" ${(task.priority||'mid')==='mid'?'selected':''}>🟡 中</option>
+          <option value="low" ${(task.priority||'mid')==='low'?'selected':''}>🟢 低</option>
+        </select>
       </div>
       <div style="margin-bottom:16px;">
         <div style="font-size:12px;color:var(--dim);font-weight:700;margin-bottom:4px;">節約額（任意）</div>
@@ -727,6 +745,7 @@ function saveTaskEdit(id){
   task.label=document.getElementById('etLabel').value.trim()||'未分類';
   task.stars=window._editStars||task.stars;
   task.sav=parseInt(document.getElementById('etSav').value)||0;
+  task.priority=document.getElementById('etPrio').value||'mid';
   save();closeMod();render();toast('タスクを更新したぜ！');
 }
 
@@ -762,8 +781,23 @@ function modTask(id,act){
     toast(`+${xpD} XP ${rI.map(i=>ITEMS[i]?.e||'').join('')}`);sparkle();
     
     if(!D.tutDone && tutStep === 1) { tutStep = 2; setTimeout(runTutorial, 500); }
+    // 子タスク完了時 → 兄弟が全完了なら親を自動完了
+    let parentXp=0;
+    if(task.parentId && selDate===tod()){
+      const siblings=D.tasks.filter(c=>c.parentId===task.parentId);
+      if(siblings.length>0 && siblings.every(s=>(dd[s.id]||0)>0)){
+        const parent=D.tasks.find(t=>t.id===task.parentId);
+        if(parent&&!(dd[parent.id]||0)){
+          dd[parent.id]=1;
+          const prew=STAR_REWARDS[parent.stars]||STAR_REWARDS[1];
+          parentXp=prew.xp;
+          D.history.unshift({id:parent.id,name:'🌟 '+parent.name,xp:prew.xp,sav:0,date:selDate,time:new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),items:'🌟'});
+          setTimeout(()=>toast('🌟 全子タスク達成！ +'+prew.xp+' XP'),700);
+        }
+      }
+    }
   }
-  D.xp=Math.max(0,(D.xp||0)+xpD);D.history=D.history.slice(0,100);save();render();
+  D.xp=Math.max(0,(D.xp||0)+xpD+(parentXp||0));D.history=D.history.slice(0,100);save();render();
 }
 function pickItems(s,seed){const r=STAR_REWARDS[s]||STAR_REWARDS[1];const res=[];const p=[...r.items];for(let i=0;i<r.count;i++){res.push(p[((seed||1)*7+i*13)%p.length]);}return res;}
 
@@ -1455,24 +1489,47 @@ function render(){
 
 function renderTasks(){
   const p=document.getElementById('pTasks'); const dd=D.days[selDate]||{}; let h='';
-  if(!D.tasks.length){ h='<div style="text-align:center;padding:24px;color:var(--dim);font-size:14px;line-height:1.6;font-weight:700">まだタスクがないよ。<br>下の「タスク追加」から自分の習慣を登録しよう！</div>'; } 
+  const prioIco={high:'🔴',mid:'🟡',low:'🟢'};
+  const prioOrd={high:0,mid:1,low:2};
+  const rootTasks=D.tasks.filter(t=>!t.parentId);
+  if(!rootTasks.length){ h='<div style="text-align:center;padding:24px;color:var(--dim);font-size:14px;line-height:1.6;font-weight:700">まだタスクがないよ。<br>下の「タスク追加」から自分の習慣を登録しよう！</div>'; }
   else {
       h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div style="font-size:11px;color:var(--dim);font-weight:700">タップで完了 ／ −で取り消し</div><button class="bk-btn no-select" onclick="openLabelManager()">🏷️ ラベル一括管理</button></div>';
-      const grouped = {}; D.tasks.forEach(t => { const l = t.label || '未分類'; if(!grouped[l]) grouped[l] = []; grouped[l].push(t); });
-      for(const label in grouped) {
-          h += `<details class="label-group" open><summary class="label-title no-select">${label} (${grouped[label].length})</summary><div class="label-content">`;
-          grouped[label].forEach(t => {
+      const grouped={}; rootTasks.forEach(t=>{const l=t.label||'未分類';if(!grouped[l])grouped[l]=[];grouped[l].push(t);});
+      for(const label in grouped){
+          const sorted=[...grouped[label]].sort((a,b)=>(prioOrd[a.priority||'mid'])-(prioOrd[b.priority||'mid']));
+          const rootCount=sorted.length;
+          h+=`<details class="label-group" open><summary class="label-title no-select">${label} (${rootCount})</summary><div class="label-content">`;
+          sorted.forEach(t=>{
               const cnt=dd[t.id]||0;const done=cnt>0;const chk=cnt>1?'×'+cnt:cnt===1?'✓':'';
               const rew=STAR_REWARDS[t.stars]||STAR_REWARDS[1];
               const rs=rew.items.slice(0,rew.count).map(i=>ITEMS[i]?.e||'').join('')+(rew.gold?'💰':'');
-              h+=`<div class="t-row"><button class="t-btn no-select ${done?'done':''}" onclick="modTask('${t.id}','add')"><div class="t-chk">${chk}</div><div class="t-body"><div class="t-stars">${'★'.repeat(t.stars)}</div><div class="t-name">${t.name}${t.sav?` (¥${t.sav})`:''}</div><div class="t-rew">${done?'+'+rew.xp*cnt+' XP':rs}</div></div></button>${cnt>0?`<button class="minus-btn no-select" onclick="modTask('${t.id}','remove')">−</button>`:''}<button class="minus-btn no-select" onclick="editTask('${t.id}')" style="font-size:14px" title="編集">✏️</button><button class="minus-btn no-select" onclick="if(confirm('削除？'))rmTask('${t.id}')" style="color:var(--red);font-size:14px" title="削除">✕</button></div>`;
+              const pi=prioIco[t.priority||'mid'];
+              const children=D.tasks.filter(c=>c.parentId===t.id);
+              h+=`<div class="t-row"><button class="t-btn no-select ${done?'done':''}" onclick="modTask('${t.id}','add')"><div class="t-chk">${chk}</div><div class="t-body"><div class="t-stars">${pi} ${'★'.repeat(t.stars)}</div><div class="t-name">${t.name}${t.sav?` (¥${t.sav})`:''}</div><div class="t-rew">${done?'+'+rew.xp*cnt+' XP':rs}</div></div></button>${cnt>0?`<button class="minus-btn no-select" onclick="modTask('${t.id}','remove')">−</button>`:''}<button class="minus-btn no-select" onclick="editTask('${t.id}')" style="font-size:14px" title="編集">✏️</button><button class="minus-btn no-select" onclick="addChildTask('${t.id}')" style="font-size:14px" title="子タスク追加">➕</button><button class="minus-btn no-select" onclick="if(confirm('削除？'))rmTask('${t.id}')" style="color:var(--red);font-size:14px" title="削除">✕</button></div>`;
+              if(children.length>0){
+                  h+=`<div class="child-wrap">`;
+                  children.forEach(c=>{
+                      const cc=dd[c.id]||0;const cd=cc>0;const ck=cc>1?'×'+cc:cc===1?'✓':'';
+                      const cr=STAR_REWARDS[c.stars]||STAR_REWARDS[1];
+                      const crs=cr.items.slice(0,cr.count).map(i=>ITEMS[i]?.e||'').join('')+(cr.gold?'💰':'');
+                      const cp=prioIco[c.priority||'mid'];
+                      h+=`<div class="t-row"><button class="t-btn no-select ${cd?'done':''}" onclick="modTask('${c.id}','add')"><div class="t-chk">${ck}</div><div class="t-body"><div class="t-stars" style="font-size:10px">${cp} ${'★'.repeat(c.stars)}</div><div class="t-name" style="font-size:0.88rem">${c.name}</div><div class="t-rew">${cd?'+'+cr.xp*cc+' XP':crs}</div></div></button>${cc>0?`<button class="minus-btn no-select" onclick="modTask('${c.id}','remove')">−</button>`:''}<button class="minus-btn no-select" onclick="if(confirm('子タスクを削除？'))rmTask('${c.id}')" style="color:var(--red);font-size:14px">✕</button></div>`;
+                  });
+                  h+=`</div>`;
+              }
           });
-          h += `</div></details>`;
+          h+=`</div></details>`;
       }
   }
+  const existingLabels=[...new Set(rootTasks.map(t=>t.label||'未分類'))];
+  const lblOpts=existingLabels.map(l=>`<option value="${l.replace(/"/g,'&quot;')}">${l}</option>`).join('')+'<option value="__new__">➕ 新規ラベル...</option>';
+  const prioButtons=[['high','🔴 高'],['mid','🟡 中'],['low','🟢 低']].map(([v,l])=>`<button class="prio-btn ${addPrio===v?'on':''}" data-prio="${v}" onclick="setAddPrio('${v}')">${l}</button>`).join('');
   h+=`<div class="add-task"><div style="font-size:15px;font-weight:900;margin-bottom:10px">➕ タスク追加</div>
-      <div class="add-row"><input id="addLbl" class="add-input" placeholder="ラベル (例: 運動)" style="max-width:140px"><input id="addInp" class="add-input" placeholder="タスク名" onkeydown="if(event.key==='Enter')addTask()"></div>
+      <div class="add-row"><select id="addLblSel" class="add-input" style="max-width:140px" onchange="onLblSelChange()">${lblOpts}</select><input id="addInp" class="add-input" placeholder="タスク名" onkeydown="if(event.key==='Enter')addTask()"></div>
+      <div id="addLblNewWrap" style="display:none;margin-bottom:8px"><input id="addLblNew" class="add-input" placeholder="新規ラベル名" style="width:100%;box-sizing:border-box"></div>
       <div class="add-row"><div style="font-size:13px;color:var(--dim);margin-right:6px;font-weight:700">難易度:</div><div class="star-sel no-select">${[1,2,3,4,5].map(s=>`<button class="star-btn ${s<=addStars?'on':''}" onclick="setAddStars(${s})">${s}</button>`).join('')}</div><div id="starDisp" style="font-size:13px;color:var(--gold);margin-left:6px;font-weight:900">${'★'.repeat(addStars)}</div></div>
+      <div class="add-row"><div style="font-size:13px;color:var(--dim);margin-right:6px;font-weight:700">優先度:</div><div class="prio-sel no-select">${prioButtons}</div></div>
       <div class="add-row"><input id="addSav" class="add-input" placeholder="節約額（任意）" type="number" style="max-width:160px"><button id="addSubmitBtn" class="add-submit no-select" onclick="addTask()">追加する</button></div></div>`;
   p.innerHTML=h;
 }
@@ -1530,6 +1587,11 @@ function renderCP(){
 function renderLog(){const p=document.getElementById('pLog');if(!D.history.length){p.innerHTML='<div style="text-align:center;padding:24px;color:var(--dimr);font-size:14px;font-weight:700">まだ何もやってない。</div>';return;}let h='';D.history.slice(0,40).forEach(x=>{h+=`<div class="log-item"><div><strong>${x.name}</strong> ${x.items||''}<span class="log-date">${x.date} ${x.time}</span></div><div class="log-xp">+${x.xp}</div></div>`;});p.innerHTML=h;}
 
 function tierL(t){return['','★','★★','★★★','★★★★','伝説'][t]||''}
+function setAddPrio(p){addPrio=p;document.querySelectorAll('.prio-btn').forEach(b=>b.classList.toggle('on',b.dataset.prio===p));}
+function onLblSelChange(){const s=document.getElementById('addLblSel');const w=document.getElementById('addLblNewWrap');if(w)w.style.display=s&&s.value==='__new__'?'':'none';}
+function addChildTask(parentId){const parent=D.tasks.find(t=>t.id===parentId);if(!parent)return;const m=document.getElementById('mod');window._childStars=parent.stars;m.innerHTML=`<h2 style="color:var(--grn);margin-bottom:8px">➕ 子タスク追加</h2><p style="font-size:13px;color:var(--dim);margin-bottom:12px;font-weight:700">「${parent.name}」のサブタスク</p><input id="childName" class="add-input" style="width:100%;margin-bottom:10px" placeholder="子タスク名"><div style="margin-bottom:14px"><div style="font-size:12px;color:var(--dim);font-weight:700;margin-bottom:4px">難易度</div><div class="star-sel no-select" id="childStarSel">${[1,2,3,4,5].map(s=>`<button class="star-btn ${s<=parent.stars?'on':''}" onclick="setChildStars(${s})">${s}</button>`).join('')}</div></div><div style="display:flex;gap:10px;justify-content:center"><button class="modal-close" onclick="saveChildTask('${parentId}')">追加する</button><button class="modal-close" onclick="closeMod()" style="background:var(--bdr);color:var(--dim);box-shadow:none">キャンセル</button></div>`;document.getElementById('modOv').classList.add('show');}
+function setChildStars(s){window._childStars=s;document.querySelectorAll('#childStarSel .star-btn').forEach((b,i)=>b.classList.toggle('on',i<s));}
+function saveChildTask(parentId){const name=document.getElementById('childName').value.trim();if(!name){toast('子タスク名を入力してね');return;}const parent=D.tasks.find(t=>t.id===parentId);if(!parent)return;D.tasks.push({id:'t_'+Date.now(),name,label:parent.label||'未分類',stars:window._childStars||parent.stars,sav:0,priority:parent.priority||'mid',parentId});save();closeMod();render();toast('子タスクを追加したぜ！');}
 function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.remove('show');void e.offsetWidth;e.classList.add('show')}
 function showCombo(count,bonus){const labels=['','','2コンボ！','3コンボ！','MAXコンボ！'];const lbl=count>=4?'MAXコンボ！':labels[count];const e=document.getElementById('comboFx');e.textContent='🔥 '+lbl+' +'+bonus+' XP';e.classList.remove('show');void e.offsetWidth;e.classList.add('show')}
 function sparkle(){const sc=document.getElementById('scene');['✨','⭐','💫','🌟'].forEach((em,i)=>{const s=document.createElement('div');s.className='sparkle-fx';s.textContent=em;s.style.left=(20+Math.random()*60)+'%';s.style.bottom=(60+Math.random()*60)+'px';s.style.animationDelay=(i*.15)+'s';sc.appendChild(s);setTimeout(()=>s.remove(),1500)})}

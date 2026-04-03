@@ -1,4 +1,4 @@
-const CACHE_NAME = 'uf-cache-2026040301';
+const CACHE_NAME = 'uf-cache-2026040302';
 const ASSETS = [
   './',
   './index.html',
