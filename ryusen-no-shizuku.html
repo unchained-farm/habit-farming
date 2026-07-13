@@ -494,7 +494,7 @@ footer{
     if(e.pointerType==='touch') return;
     if(lastX!==null){
       acc += Math.hypot(e.clientX-lastX, e.clientY-lastY);
-      if(acc > 46){ acc = 0; addRipple(e.clientX, e.clientY, false); }
+      if(acc > 18){ acc = 0; addRipple(e.clientX, e.clientY, false); }
     }
     lastX=e.clientX; lastY=e.clientY;
     // ヒーローの光がカーソルを追う
